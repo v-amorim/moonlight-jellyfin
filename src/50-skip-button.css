@@ -1,0 +1,11 @@
+/* Skip Intro / Skip Outro: the view's one filled action. */
+
+.skip-button {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: 0 !important;
+  border-radius: var(--r-sm) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 12px 32px #000a !important;
+}
+.skip-button:focus { background: var(--primary-60) !important; outline: 3px solid var(--primary) !important; outline-offset: 2px !important; }

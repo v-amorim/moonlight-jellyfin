@@ -1,0 +1,3 @@
+/* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */
+
+html.layout-tv { font-size: 20px !important; }

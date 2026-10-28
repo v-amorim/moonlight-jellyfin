@@ -1,0 +1,14 @@
+/* Logo: the Moonlight moon on a surface-1 tile. */
+.pageTitleWithDefaultLogo {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'3%203%2018%2018'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%23B9C6F5'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%237386D0'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D'url(%23g)'%20d%3D'M12%2C3c-4.97%2C0%20-9%2C4.03%20-9%2C9s4.03%2C9%209%2C9s9%2C-4.03%209%2C-9c0%2C-0.46%20-0.04%2C-0.92%20-0.1%2C-1.36c-0.98%2C1.37%20-2.58%2C2.26%20-4.4%2C2.26c-2.98%2C0%20-5.4%2C-2.42%20-5.4%2C-5.4c0%2C-1.81%200.89%2C-3.42%202.26%2C-4.4C12.92%2C3.04%2012.46%2C3%2012%2C3L12%2C3z'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: 20px 20px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: var(--surface-1) !important;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px;
+  line-height: 30px !important;
+}

@@ -1,0 +1,244 @@
+/* Moonlight for Jellyfin 10.11: base layer. Chromium 94 safe (webOS 23): no :has, oklch, color-mix, nesting, backdrop-filter. */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.1.0/files/inter-latin-wght-normal.woff2") format("woff2");
+}
+
+:root {
+  --bg: #0D0E17;
+  --surface-1: #141726;
+  --surface-2: #1C2033;
+  --surface-3: #252A42;
+  --surface-4: #2F3654;
+  --on-surface: #EEEEFA;
+  --muted: #9BA3C4;
+  --dim: #7E86A4;
+  --primary: #7386D0;
+  --primary-60: #8A9BE0;
+  --primary-70: #A2B0EA;
+  --secondary: #B9C6F5;
+  --on-primary: #0D0E17;
+  --border: #9BA3C41F;
+  --border-strong: #FFFFFF26;
+  --scrim: #0D0E17E6;
+
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  --body: 13px;
+  --title: 15px;
+  --meta: 12px;
+  --heading: 20px;
+  --heading-lg: 24px;
+  --hero: 40px;
+}
+
+.layout-tv {
+  --body: 18px;
+  --title: 20px;
+  --meta: 15px;
+  --heading: 24px;
+  --heading-lg: 36px;
+  --hero: 48px;
+}
+
+html, body, .skinBody, .backgroundContainer, .mainAnimatedPage, .page {
+  background: var(--bg) !important;
+  color: var(--on-surface);
+}
+/* The player page sits on top of the video element, so it must stay see-through. */
+html.transparentDocument, .transparentDocument body, .transparentDocument .skinBody,
+.transparentDocument .page, .transparentDocument .mainAnimatedPage { background: transparent !important; }
+
+html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionTitle {
+  font-family: "Inter", "Segoe UI", Roboto, system-ui, sans-serif !important;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Header: chrome sits on bg, the hairline makes the edge */
+.skinHeader, .skinHeader-withBackground, .skinHeader.semiTransparent {
+  background: var(--bg) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border);
+}
+.layout-tv .skinHeader { border-bottom-color: transparent; }
+.headerButton, .headerTop .material-icons, .headerButton .material-icons { color: var(--muted); }
+.headerButton:hover .material-icons { color: var(--on-surface); }
+
+.headerTabs .emby-tabs-slider, .sectionTabs .emby-tabs-slider {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  display: inline-flex !important;
+  width: auto !important;
+}
+.headerTabs, .sectionTabs { text-align: center; }
+/* The tab row sets the TV header height and the header clips (contain: content), so keep the stock 85px. */
+.layout-tv .headerTabs { min-height: 85px; display: flex; align-items: center; justify-content: center; }
+.emby-tab-button {
+  color: var(--muted) !important;
+  font-weight: 500;
+  font-size: var(--title);
+  border-radius: 5px;
+  padding: .5em 1.1em !important;
+  transition: background-color 100ms var(--ease), color 100ms var(--ease);
+}
+.emby-tab-button-active, .emby-tab-button.emby-button-foreground {
+  background: var(--surface-3) !important;
+  color: var(--primary-70) !important;
+}
+.emby-tab-button:hover { background: var(--surface-2); color: var(--on-surface) !important; }
+
+.sectionTitle, .sectionTitle-cards {
+  color: var(--on-surface);
+  font-weight: 600;
+  font-size: var(--heading);
+  letter-spacing: -.01em;
+}
+
+.cardScalable, .cardImageContainer, .cardContent, .cardOverlayContainer {
+  border-radius: var(--r-md) !important;
+}
+.cardScalable {
+  overflow: hidden;
+  background: var(--surface-1);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.defaultCardBackground, .cardImageContainer.defaultCardBackground { background-color: var(--surface-2) !important; }
+.cardText { color: var(--on-surface); font-size: var(--body); font-weight: 500; }
+.cardText-secondary { color: var(--muted); font-size: var(--meta); }
+.cardOverlayContainer { background: linear-gradient(transparent 40%, var(--scrim)); }
+
+.countIndicator, .playedIndicator, .indicator {
+  background: var(--surface-3) !important;
+  color: var(--primary-70) !important;
+  border-radius: var(--r-xs) !important;
+  box-shadow: 0 0 0 1px var(--border-strong);
+  font-weight: 600;
+}
+.playedIndicator { background: var(--primary) !important; color: var(--on-primary) !important; }
+.itemProgressBar { background: var(--surface-3) !important; height: 4px; }
+.itemProgressBarForeground { background: var(--primary) !important; }
+
+.emby-button.raised, .button-submit {
+  border-radius: var(--r-sm);
+  font-weight: 600;
+}
+.button-submit, .emby-button.raised.button-submit {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+}
+.button-submit:hover { background: var(--primary-60) !important; }
+.emby-button.raised:not(.button-submit) {
+  background: var(--surface-3);
+  color: var(--on-surface);
+}
+
+.detailRibbon, .detailPagePrimaryContainer { background: transparent !important; }
+.itemName, .itemName.infoText, .parentName {
+  color: var(--on-surface);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.itemName.infoText { font-size: var(--heading-lg); }
+.parentName, .itemName.originalTitle { color: var(--muted); font-size: var(--title) !important; font-weight: 500; }
+.itemMiscInfo, .itemMiscInfo .mediaInfoItem, .endsAt { color: var(--muted); font-size: var(--title); }
+.starIcon { color: var(--primary-70) !important; }
+.overview, .detail-clamp-text { color: var(--muted); font-size: var(--body); line-height: 1.55; }
+.itemDetailsGroup .label, .detailsGroupItem .label { color: var(--dim); }
+.detailImageContainer .cardScalable { box-shadow: 0 0 0 1px var(--border), 0 12px 32px #000a; }
+
+.mainDetailButtons { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.mainDetailButtons .detailButton {
+  margin: 0 !important;
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: background-color 100ms var(--ease), color 100ms var(--ease);
+}
+.mainDetailButtons .detailButton:hover { background: var(--surface-3); color: var(--on-surface); }
+.mainDetailButtons .btnPlay.detailButton {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: transparent;
+  border-radius: var(--r-sm);
+  padding: 0 1.4em;
+}
+.mainDetailButtons .btnPlay.detailButton:hover { background: var(--primary-60); color: var(--on-primary); }
+.mainDetailButtons .btnPlay .detailButton-content { flex-direction: row; gap: .4em; }
+.mainDetailButtons .btnPlay .detailButton-icon { color: var(--on-primary); }
+
+.emby-select-withcolor, .emby-input, .emby-textarea {
+  background: var(--bg) !important;
+  color: var(--on-surface) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--r-sm) !important;
+  box-shadow: inset 0 2px 4px #0008;
+}
+.selectLabel { color: var(--dim); }
+
+.listItem {
+  border-radius: var(--r-md);
+  transition: background-color 100ms var(--ease);
+}
+.listItem:hover { background: var(--surface-2); }
+.listItemImage { border-radius: var(--r-sm); overflow: hidden; }
+.listItemBodyText { color: var(--on-surface); font-size: var(--title); font-weight: 600; }
+.listItemBodyText.secondary, .listItem-overview { color: var(--muted); font-size: var(--body); font-weight: 400; }
+
+/* Focus: 3px primary ring, never white */
+.emby-button:focus-visible, .listItem:focus-visible, .emby-select:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.layout-tv .card:focus .cardScalable,
+.layout-tv .card.show-focus:focus .cardScalable {
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important;
+}
+.layout-tv .emby-button:focus, .layout-tv .listItem:focus, .layout-tv .emby-tab-button:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+.layout-tv .listItem:focus { background: var(--surface-2); }
+.layout-tv .mainDetailButtons .detailButton:focus { background: var(--surface-3); color: var(--on-surface); }
+.layout-tv .mainDetailButtons .btnPlay.detailButton:focus { background: var(--primary-60); color: var(--on-primary); }
+.layout-tv .card.show-animation:focus > .cardBox { transform: scale(1.06); }
+
+.dialog, .actionSheet, .actionSheetContent, .formDialog {
+  background: var(--surface-1) !important;
+  color: var(--on-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg) !important;
+  box-shadow: 0 12px 32px #000a;
+}
+.dialogBackdropOpened { background: #000 !important; opacity: .6 !important; }
+.actionSheetMenuItem:hover, .actionSheetMenuItem:focus { background: var(--surface-2); }
+
+.mdl-slider-background-lower { background: var(--primary) !important; }
+.mdl-slider-background-upper, .mdl-slider-background-flex, .mdl-slider-background-flex-inner { background: #252A42B3 !important; }
+.mdl-slider::-webkit-slider-thumb { background: var(--primary) !important; }
+.transparentDocument .skinHeader { background: linear-gradient(#0D0E17CC, transparent) !important; border-bottom: 0 !important; }
+.sliderMarker {
+  width: 10px !important;
+  height: 10px !important;
+  opacity: 1 !important;
+  transition: background-color 150ms var(--ease) !important;
+  transform: translate3d(-50%, 40%, 0) rotate(45deg) !important;
+  -webkit-transform: translate3d(-50%, 40%, 0) rotate(45deg) !important;
+  background-color: #7386D0B8 !important;
+}
+.sliderMarker.watched { background-color: #EEEEFA90 !important; z-index: 10 !important; }
+.videoOsdBottom { background: linear-gradient(transparent, var(--scrim)) !important; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface-2); }
+::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: var(--r-xs); }
+
+.material-icons { color: inherit; }
+a, .button-link { color: var(--secondary); }

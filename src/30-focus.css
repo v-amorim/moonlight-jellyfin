@@ -1,0 +1,16 @@
+/* Stock jellyfin-web strips the outline from focused buttons on TV, so focus needs its own ring. */
+
+.layout-tv .itemsContainer:focus-within .card:not(:focus) {
+  opacity: .5;
+  transition: opacity 150ms var(--ease);
+}
+
+/* Stock draws a 10 px cyan border on the focused card; the primary ring replaces it. */
+.layout-tv .card:focus .cardScalable { border: 0 !important; }
+.progressring-spiner { border-color: var(--primary) !important; }
+
+.layout-tv .emby-button:focus,
+.layout-tv .mainDetailButtons .detailButton:focus {
+  outline: 3px solid var(--primary) !important;
+  outline-offset: 2px !important;
+}

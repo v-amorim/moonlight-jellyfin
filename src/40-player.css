@@ -1,0 +1,48 @@
+/* Styled after the uosc look for mpv, so both players read the same. */
+
+.videoOsdBottom { padding: 0 !important; background: linear-gradient(transparent, #0D0E1721) !important; }
+.osdControls { display: flex !important; flex-direction: column; padding: 0 !important; }
+.osdControls > .buttons { order: 2; padding: 4px 16px 8px !important; background: #141726CC; }
+
+.osdControls > .flex.align-items-center { order: 1; position: relative; height: 28px; margin: 0 !important; padding: 0 !important; }
+.osdControls > .flex.align-items-center .sliderContainer { position: absolute !important; left: 0; right: 0; top: 0; bottom: 0; margin: 0 !important; }
+/* Stock pads the track to make room for the seek thumb; the thumb is hidden, so every layer spans the full width. */
+.osdControls > .flex.align-items-center .mdl-slider-background-flex-container { top: 0 !important; height: 100% !important; margin: 0 !important; padding: 0 !important; transform: none !important; }
+.osdControls > .flex.align-items-center .mdl-slider-background-flex { height: 28px !important; margin: 0 !important; left: 0 !important; width: 100% !important; top: 0 !important; border-radius: 0 !important; background: #141726CC !important; }
+.osdControls > .flex.align-items-center .mdl-slider-background-lower { background: #A2B0EACC !important; }
+.osdControls > .flex.align-items-center .mdl-slider-background-upper { background: transparent !important; }
+.osdPositionSlider { height: 100% !important; margin: 0 !important; }
+.osdPositionSlider::-webkit-slider-thumb { opacity: 0 !important; }
+
+.osdPositionText, .osdDurationText {
+  position: absolute !important;
+  z-index: 3;
+  top: 0;
+  height: 28px;
+  line-height: 28px !important;
+  font-size: 15px !important;
+  font-variant-numeric: tabular-nums;
+  color: var(--on-surface) !important;
+  text-shadow: 0 0 2px #0D0E17, 0 0 2px #0D0E17;
+  pointer-events: none;
+}
+.osdPositionText { left: 8px; }
+.osdDurationText { right: 8px; }
+
+.osdControls .sliderMarkerContainer { position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; width: 100% !important; margin: 0 !important; z-index: 4; }
+.sliderMarker, .sliderMarker.watched { top: 0 !important; transform: translate3d(-50%, -50%, 0) rotate(45deg) !important; box-shadow: none !important; }
+
+/* Stock gives the player title a one-line height, so long episode names wrap and get clipped on narrow screens. */
+.osdHeader .headerLeft { height: auto !important; min-width: 0; }
+.osdHeader .pageTitle {
+  height: auto !important;
+  line-height: 1.25 !important;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.videoOsdBottom .paper-icon-button-light { color: var(--muted) !important; background: none !important; }
+.videoOsdBottom .btnPause { color: var(--on-surface) !important; background: var(--surface-3) !important; border-radius: var(--r-sm) !important; }

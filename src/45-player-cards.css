@@ -1,0 +1,32 @@
+/* Player chrome after the mpv top card and toasts: one card style for the header, notices and the seek preview. */
+
+.transparentDocument .skinHeader {
+  background: #141726D9 !important;
+  box-shadow: 0 8px 14px #0000009E !important;
+}
+.osdHeader .pageTitle { font-weight: 400 !important; text-shadow: none !important; }
+
+/* Stock places toasts bottom-left, on top of the player controls; this sits them just under the header band. */
+.toastContainer { top: 158px !important; bottom: auto !important; left: 24px !important; }
+.toast {
+  background: var(--surface-1) !important;
+  color: var(--on-surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: 0 8px 14px #0000009E !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  padding: 14px 18px !important;
+  min-width: 0 !important;
+}
+
+.sliderBubble {
+  background: var(--surface-1) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: 0 8px 14px #0000009E !important;
+  padding: 8px !important;
+}
+.sliderBubble .chapterThumbContainer, .sliderBubble .chapterThumbWrapper { border-radius: var(--r-xs) !important; }
+
+.videoOsdBottom .osdTimeText { color: var(--muted) !important; font-size: 13px !important; }
