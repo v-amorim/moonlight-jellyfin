@@ -81,8 +81,8 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
   width: auto !important;
 }
 .headerTabs, .sectionTabs { text-align: center; }
-/* The tab row sets the TV header height and the header clips (contain: content), so keep the stock 85px. */
-.layout-tv .headerTabs { min-height: 85px; display: flex; align-items: center; justify-content: center; }
+/* On TV and PC the tab row overlaps the top bar (margin-top -4.3em) and sets the header height, which clips (contain: content). */
+.layout-tv .headerTabs, .layout-desktop .headerTabs { min-height: 4.3em; display: flex; align-items: center; justify-content: center; }
 .emby-tab-button {
   color: var(--muted) !important;
   font-weight: 500;
