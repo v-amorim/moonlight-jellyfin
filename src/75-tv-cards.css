@@ -1,0 +1,47 @@
+/* TV cards: the PC frame from rounds 13 to 15 at TV sizes; no Play pill, and the focus ring sits on the frame. */
+.layout-tv .card .cardBox {
+  display: flex !important;
+  flex-direction: column;
+  background: var(--surface-1) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  padding: 10px !important;
+  margin: 0 10px 20px !important;
+}
+.layout-tv .card .cardScalable { order: 0; border-radius: 8px !important; overflow: hidden; }
+.layout-tv .card .cardScalable .cardImageContainer { border-radius: 8px !important; }
+.layout-tv .card .cardText { text-align: left !important; }
+.layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
+.layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }
+.layout-tv .card .cardText-secondary { order: 2; padding: 12px 8px 4px !important; font-size: var(--title) !important; font-weight: 600 !important; color: var(--on-surface) !important; }
+
+/* TV menus (subtitles, audio, display mode): a centred popup card over the dimmed page instead of a full-screen sheet. */
+.layout-tv .dialogContainer { display: flex !important; align-items: center; justify-content: center; }
+.layout-tv .actionSheet.dialog-fullscreen {
+  position: relative !important;
+  inset: auto !important;
+  width: auto !important;
+  min-width: 520px;
+  max-width: 80vw;
+  height: auto !important;
+  max-height: 80vh;
+  margin: 0 !important;
+  padding: 24px 24px 20px !important;
+  background: var(--surface-1) !important;
+  border: 2px solid #3A4060 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 12px 32px #000a !important;
+}
+.layout-tv .actionSheet.dialog-fullscreen * { box-shadow: none; }
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetContent, .layout-tv .actionSheet.dialog-fullscreen .actionSheetScroller { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+/* The list clips at its edges, so it keeps 4px of room for the focused row's ring. */
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetScroller { max-height: calc(80vh - 120px); padding: 4px !important; scroll-padding: 4px; box-sizing: border-box; }
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetMenuItem { width: 100% !important; max-width: none !important; }
+/* A header row for the close button; the title, when there is one, sits on that row beside it. */
+.layout-tv .actionSheet.dialog-fullscreen { padding-top: 72px !important; }
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetContent { overflow: visible !important; }
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetTitle { margin: -54px 4px 18px 58px !important; text-align: left !important; font-size: var(--heading) !important; }
+.layout-tv .actionSheet.dialog-fullscreen .btnCloseActionSheet { position: absolute !important; top: 18px !important; left: 18px !important; right: auto !important; }
+
+.layout-tv .card:focus .cardScalable, .layout-tv .card.show-focus:focus .cardScalable { box-shadow: none !important; }
+.layout-tv .card:focus .cardBox { background: var(--surface-2) !important; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important; }

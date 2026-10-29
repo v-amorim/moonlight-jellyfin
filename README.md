@@ -18,6 +18,23 @@ A custom CSS theme for Jellyfin 10.11 in the [Moonlight palette][moonlight]. It 
 
 To roll back, comment out the line: `/* @import url("…"); */`. To turn the theme off on one device only, check **Settings > Display > Disable server-provided custom CSS** on that device.
 
+### Optional script
+
+A small script adds what CSS cannot do. Without it the theme works as before.
+
+| Feature | Where |
+| --- | --- |
+| Episode list, Cast & Crew and Guest Stars as toggles that stay open or closed | Detail page |
+| A faint clock with the remaining time while the controls are hidden, switched in the gear menu | Player |
+| Hovering an episode or movie card scrubs its trickplay previews | PC |
+| The menu close button is reachable with the arrow keys | TV |
+
+1. Install the **JavaScript Injector** plugin from the [n00bcodr repository][injector] and restart the server.
+2. Open **Dashboard > Plugins > JavaScript Injector** and add a script.
+3. Paste the contents of [`script/moonlight-jellyfin.js`](script/moonlight-jellyfin.js), enable it and save. No restart is needed.
+
+Paste the file again after each release, since the plugin keeps a copy.
+
 ## What it changes
 
 | Area | Change |
@@ -61,3 +78,4 @@ The script inlines the Inter font from `vendor-font/` and fails if the result us
 [MIT](LICENSE). The bundled Inter font is under the [SIL Open Font License 1.1](vendor-font/OFL.txt).
 
 [moonlight]: https://v-amorim.github.io/portfolio/blog/moonlight-palette/
+[injector]: https://github.com/n00bcodr/Jellyfin-JavaScript-Injector

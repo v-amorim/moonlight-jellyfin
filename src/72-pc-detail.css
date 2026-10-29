@@ -1,0 +1,99 @@
+/* PC port of rounds 10 and 11: hover stands in for the remote focus. */
+html.layout-desktop .button-link.button-link:hover {
+  outline: none !important;
+  transform: none !important;
+  color: var(--primary-70) !important;
+  background: #1E2340 !important;
+  box-shadow: 0 0 0 6px #1E2340, 0 0 0 8px var(--primary) !important;
+  border-radius: 4px !important;
+}
+
+html.layout-desktop .detailTrackSelect.detailTrackSelect:focus { outline: none !important; transform: none !important; border-color: var(--primary-70) !important; }
+html.layout-desktop .trackSelections .selectContainer:hover { background: #7386D01F; box-shadow: 0 0 0 8px #7386D01F; border-radius: 8px; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:hover .itemsContainer {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 8px !important;
+  gap: 8px 16px;
+  white-space: normal !important;
+  transform: none !important;
+}
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:hover .card { width: auto !important; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:hover .cardText { font-size: 15px !important; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:not(:first-child) { display: none !important; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-child { width: 960px !important; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-child .cardScalable,
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-child .cardText { display: none !important; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-child .cardBox { position: relative; margin: 0 !important; padding: 0 !important; }
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-child .cardBox::after {
+  content: "Browse every episode";
+  display: block;
+  box-sizing: border-box;
+  width: 960px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  font: 600 18px Inter, sans-serif;
+  color: var(--on-surface);
+  text-align: left;
+}
+html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-child .cardBox::before {
+  content: "›";
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font: 600 22px Inter, sans-serif;
+  color: var(--muted);
+}
+
+.layout-desktop .trackSelections { display: flex !important; flex-wrap: wrap; gap: 16px; }
+.layout-desktop .trackSelections .selectContainer:not(.hide) {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 6px;
+  padding: 14px 16px !important;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: auto !important;
+  max-width: 560px;
+}
+.layout-desktop .trackSelections .selectContainer:not(.hide) .selectLabel {
+  flex: none !important;
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin: 0 !important;
+  width: auto !important;
+}
+.layout-desktop .trackSelections .selectContainer:not(.hide) select {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 28px 0 0 !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  line-height: 1.3 !important;
+}
+/* Track tiles: a fixed gap under the buttons, and rows spaced by the grid gap alone. */
+.layout-desktop .trackSelections { margin-top: 24px !important; }
+.layout-desktop .trackSelections .selectContainer:not(.hide), .layout-tv .trackSelections .selectContainer:not(.hide) { margin: 0 !important; }
+/* The dropdown stretches under the label to the tile's edges, so a click anywhere on the tile opens it. */
+.layout-desktop .trackSelections .selectContainer:not(.hide) { position: relative; }
+.layout-desktop .trackSelections .selectContainer:not(.hide) .selectLabel { position: relative; z-index: 1; pointer-events: none; }
+.layout-desktop .trackSelections .selectContainer:not(.hide) select { align-self: stretch; width: auto !important; margin: -38px -16px -14px !important; padding: 38px 44px 14px 16px !important; box-sizing: border-box !important; border-radius: 12px !important; }
+/* Tile arrow: centred on the right, ignores clicks, turns while the list is open. */
+.layout-desktop .trackSelections .selectContainer:not(.hide) select:disabled { opacity: 1; }
+.layout-desktop .trackSelections .selectContainer:not(.hide):has(select:disabled) { opacity: .38; }
+.layout-desktop .trackSelections .selectArrowContainer { position: absolute !important; right: 14px !important; top: 50% !important; transform: translateY(-50%) !important; pointer-events: none; color: var(--muted) !important; }
+.layout-desktop .trackSelections .selectArrow { transition: transform 160ms var(--ease); }
+.layout-desktop .trackSelections .selectContainer:has(select:open) .selectArrow { transform: rotate(180deg); color: var(--primary-70) !important; }
+/* One row of equal tiles; long values end in an ellipsis. */
+.layout-desktop .trackSelections { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); max-width: 1180px; }
+.layout-desktop .trackSelections .selectContainer:not(.hide) { max-width: none !important; min-width: 0; }
+.layout-desktop .trackSelections .selectContainer:not(.hide) select { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

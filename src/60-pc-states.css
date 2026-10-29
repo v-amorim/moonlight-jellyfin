@@ -12,12 +12,13 @@
 .itemSelectionPanel .checkboxOutline { border-color: var(--border-strong) !important; background: #0D0E17B3 !important; }
 .itemSelectionPanel .emby-checkbox:checked + span + .checkboxOutline { background: var(--primary) !important; border-color: var(--primary) !important; color: var(--on-primary) !important; }
 
-/* Episode count: a pill on a translucent surface-1 with a hairline. */
+/* Episode count nests in the card's 12px corner: 8px in, so 4px corners. */
+.layout-desktop .cardIndicators { top: 8px !important; right: 8px !important; }
 .layout-desktop .countIndicator {
-  border-radius: 999px !important;
+  border-radius: 4px !important;
   background: #141726D9 !important;
   border: 1px solid var(--border) !important;
-  min-width: 28px;
+  min-width: 24px;
   height: 24px !important;
   padding: 0 8px !important;
   font-weight: 600;

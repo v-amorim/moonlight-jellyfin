@@ -11,7 +11,7 @@
 .layout-tv .overflowBackdropCard { width: 30vw !important; }
 
 .layout-tv { --body: 18px; --title: 20px; --meta: 15px; --heading: 36px; --heading-lg: 40px; --hero: 48px; }
-.overview, .detail-clamp-text { font-weight: 400; line-height: 1.7 !important; }
+.overview, .detail-clamp-text { font-weight: 500; }
 
 .listItem { background: var(--surface-1); border: 1px solid var(--border); margin-bottom: 8px; padding: 10px !important; }
 .layout-tv .listItemImage-large, .layout-tv .listItemImage-large-tv { width: 16vw !important; height: 9vw !important; }

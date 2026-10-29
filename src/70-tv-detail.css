@@ -1,0 +1,14 @@
+/* TV text links: a pre-blended tint chip inside a 2px primary ring. */
+html.layout-tv .button-link.button-link:focus {
+  outline: none !important;
+  transform: none !important;
+  color: var(--primary-70) !important;
+  background: #1E2340 !important;
+  box-shadow: 0 0 0 6px #1E2340, 0 0 0 8px var(--primary) !important;
+  border-radius: 4px !important;
+}
+
+/* TV track boxes: label and box share a tinted band; the box edge turns primary-70. */
+html.layout-tv .detailTrackSelect.detailTrackSelect:focus { outline: none !important; transform: none !important; border-color: var(--primary-70) !important; }
+/* The tiles from round 11 replaced the boxes, so focus uses the card ring instead of the tinted band. */
+html.layout-tv .trackSelections .selectContainer:focus-within { background: var(--surface-2) !important; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important; border-radius: 12px; }

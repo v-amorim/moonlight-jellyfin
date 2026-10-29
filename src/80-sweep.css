@@ -1,0 +1,77 @@
+/* Sweep: every control and text style the earlier rounds never reached. Jellyfin drops custom CSS on Dashboard pages. */
+
+/* Page text: field names in on-surface, descriptions in muted. */
+.pageTitle, .checkboxLabel, .inputLabel, .selectLabel, .currentTimeText { color: var(--on-surface) !important; }
+.checkboxLabel, .inputLabel, .selectLabel { font-weight: 500; }
+.fieldDescription, .checkboxFieldDescription { color: var(--muted) !important; font-size: var(--meta) !important; font-weight: 500; }
+.inputLabelFocused { color: var(--primary-70) !important; }
+fieldset { border-color: var(--border) !important; }
+
+/* Checkbox: an inset well; on, a primary fill with a dark check. */
+.checkboxOutline {
+  background: var(--bg) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 4px !important;
+  box-shadow: inset 0 2px 4px #0008 !important;
+}
+.emby-checkbox:checked + span + .checkboxOutline {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: none !important;
+}
+.emby-checkbox:checked + span + .checkboxOutline .checkboxIcon { color: var(--on-primary) !important; }
+.emby-checkbox:focus-visible + span + .checkboxOutline { outline: 3px solid var(--primary); outline-offset: 2px; }
+
+/* Inputs share the inset well. */
+.emby-input, .emby-textarea {
+  background: var(--bg) !important;
+  color: var(--on-surface) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--r-sm) !important;
+  box-shadow: inset 0 2px 4px #0008 !important;
+}
+.emby-input:focus, .emby-textarea:focus, .emby-select-withcolor:focus { border-color: var(--primary) !important; }
+html.layout-tv .emby-select-withcolor:focus { transform: none !important; outline: 3px solid var(--primary) !important; outline-offset: 2px; }
+
+/* Placeholders behind cards that have no art, and drawer, on the canvas tones. */
+.cardPadder, .cardImageContainer.defaultCardBackground { background-color: var(--surface-1) !important; }
+.defaultCardBackground1, .defaultCardBackground2, .defaultCardBackground3, .defaultCardBackground4, .defaultCardBackground5 { background-color: var(--surface-2) !important; }
+.visualCardBox { background: var(--surface-1) !important; border: 1px solid var(--border) !important; border-radius: var(--r-md); }
+.visualCardBox:hover { background: var(--surface-2) !important; }
+.mainDrawer, .backgroundContainer { background: var(--bg) !important; }
+.mainDrawer { border-right: 1px solid var(--border); }
+.listItemIcon { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+.alphaPickerButton { color: var(--muted) !important; }
+.alphaPickerButton:hover, .alphaPickerButton-selected { color: var(--primary-70) !important; background: #7386D01F !important; }
+.detailPageSecondaryContainer { background: var(--bg) !important; }
+.paperList { background: var(--surface-1) !important; border: 1px solid var(--border); border-radius: var(--r-md); }
+.mediaInfoItem.mediaInfoText { background: var(--surface-2) !important; border-radius: 6px; }
+.layout-mobile .itemDetailPage p { color: var(--muted); }
+/* PC dropdown lists: Chrome and Edge 135+ let CSS draw the open list; older browsers keep the system list. */
+.layout-desktop select.emby-select-withcolor, .layout-desktop select.emby-select-withcolor::picker(select) { appearance: base-select; }
+.layout-desktop select.emby-select-withcolor::picker(select) { background: var(--surface-1); border: 2px solid #3A4060; border-radius: 12px; padding: 6px; margin-top: 6px; box-shadow: 0 12px 32px #000a; }
+.layout-desktop select.emby-select-withcolor option { padding: 8px 12px; border-radius: 8px; color: var(--on-surface); background: transparent; }
+.layout-desktop select.emby-select-withcolor option:hover { background: var(--surface-2); }
+.layout-desktop select.emby-select-withcolor option:checked { background: var(--surface-3); color: var(--primary-70); }
+.layout-desktop select.emby-select-withcolor option::checkmark { color: var(--primary-70); order: 1; margin-left: auto; }
+.layout-desktop select.emby-select-withcolor::picker-icon { display: none; }
+/* Stock zooms raised buttons 1.2x on TV; the standard's TV zoom is 1.06. */
+.layout-tv .raised.show-focus:focus, .layout-tv .homeLibraryButton:focus { transform: scale(1.06) !important; }
+/* Menu rows clip their own content, so the ring is drawn inside; the check moves to the right edge. */
+html .actionSheetMenuItem.actionSheetMenuItem:focus { transform: none !important; outline: none !important; box-shadow: inset 0 0 0 3px var(--primary) !important; border-radius: var(--r-md) !important; }
+/* Stock rounds focused rows to 0.2em; the theme keeps rows at 12px in every state. */
+.listItem:focus { border-radius: var(--r-md) !important; }
+/* Settings links wrap a .listItem; stock paints the focused link cyan and square around it, so the ring moves to the row. */
+html.layout-tv .emby-button.listItem-border.listItem-border:focus { background: none !important; outline: none !important; border-color: transparent !important; }
+.layout-tv .listItem-border:focus > .listItem { background: var(--surface-2); box-shadow: inset 0 0 0 3px var(--primary); }
+.actionSheetMenuItem { display: flex !important; align-items: center; }
+/* Menu standard: action icons on the left in muted; a chosen option's check stays on the right; delete reads in error. */
+.actionsheetMenuItemIcon.actionsheetMenuItemIcon { order: -1; margin: 0 14px 0 0 !important; color: var(--muted) !important; background: none !important; }
+.actionsheetMenuItemIcon.actionsheetMenuItemIcon.check { order: 2; margin: 0 0 0 auto !important; color: var(--primary-70) !important; }
+.actionSheetMenuItem[data-id="delete"], .actionSheetMenuItem[data-id="delete"] .actionsheetMenuItemIcon, .actionSheetMenuItem[data-id="delete"] .actionSheetItemText { color: #CA5F71 !important; }
+/* Close button: a plain icon button at the top left, muted, with the icon-hover tint. */
+.btnCloseActionSheet.btnCloseActionSheet { color: var(--muted) !important; background: none !important; border-radius: var(--r-sm) !important; }
+.btnCloseActionSheet.btnCloseActionSheet:hover, .btnCloseActionSheet.btnCloseActionSheet:focus { color: var(--primary-70) !important; background: #7386D01F !important; outline: none !important; }
+.layout-tv .btnCloseActionSheet.btnCloseActionSheet:focus { box-shadow: inset 0 0 0 3px var(--primary) !important; transform: none !important; }
+.layout-tv .lnkUserProfile:focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+

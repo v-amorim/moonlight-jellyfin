@@ -9,7 +9,7 @@
 .layout-tv .card:focus .cardScalable { border: 0 !important; }
 .progressring-spiner { border-color: var(--primary) !important; }
 
-.layout-tv .emby-button:focus,
+.layout-tv .emby-button:not(.emby-tab-button):not(.actionSheetMenuItem):focus,
 .layout-tv .mainDetailButtons .detailButton:focus {
   outline: 3px solid var(--primary) !important;
   outline-offset: 2px !important;

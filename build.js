@@ -24,7 +24,9 @@ const css = layers.map((f) => `/* ${f} */\n${fs.readFileSync(path.join(SRC, f), 
   .replace(FONT_URL, `data:font/woff2;base64,${font.toString('base64')}`);
 
 const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
-const hits = UNSUPPORTED.filter(([re]) => re.test(code)).map(([, name]) => name);
+// PC-only rules may use :has(); the TV's Chromium 94 drops them, which is harmless when they are scoped to .layout-desktop.
+const tvCode = code.replace(/[^{}]*\.layout-desktop[^{}]*:has\([^{}]*\{[^}]*\}/g, '');
+const hits = UNSUPPORTED.filter(([re]) => re.test(tvCode)).map(([, name]) => name);
 if (hits.length) fail(`uses ${hits.join(', ')}`);
 if (/https?:\/\//.test(code)) fail('the build still references a network URL');
 const open = (code.match(/\{/g) || []).length;

@@ -1,0 +1,27 @@
+/* PC cards, rounds 13 to 15: a framed card, the series name as a header strip, the title under the picture, a Play pill. */
+.layout-desktop .card .cardText{text-align:left!important}
+.layout-desktop .card .cardText-secondary{font-size:16px!important;font-weight:600!important;color:var(--on-surface)!important}
+.layout-desktop .card .cardText-secondary::before{content:"Continue  ";color:var(--primary-70);font-weight:700}
+.layout-desktop .card .cardBox{display:flex!important;flex-direction:column}
+.layout-desktop .card .cardScalable{order:0}
+.layout-desktop .card .cardText-secondary{order:1;padding-top:10px!important}
+.layout-desktop .card .cardText-first{order:2}
+.layout-desktop .card .cardText-first a,.layout-desktop .card .cardText-first .textActionButton{color:var(--muted)!important}
+.layout-desktop .card .cardOverlayFab-primary{top:auto!important;bottom:12px!important;left:12px!important;transform:none!important;margin:0!important;width:auto!important;height:40px!important;padding:0 16px 0 10px!important;border-radius:999px!important;display:flex!important;align-items:center;gap:4px}
+.layout-desktop .card .cardOverlayFab-primary::after{content:"Play";font:600 14px Inter,sans-serif;color:var(--on-primary)}
+.layout-desktop .card{contain:none!important}
+.layout-desktop .card .cardBox{background:var(--surface-1)!important;border:1px solid var(--border)!important;border-radius:16px!important;padding:8px!important;margin:0 8px 16px!important}
+.layout-desktop .card:hover .cardBox{background:var(--surface-2)!important}
+.layout-desktop .card .cardScalable{border-radius:8px!important;overflow:hidden}
+.layout-desktop .card .cardScalable .cardImageContainer{border-radius:8px!important}
+.layout-desktop .card .cardBox{display:flex!important;flex-direction:column}
+.layout-desktop .card .cardText-first{order:-1;padding:2px 8px 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
+.layout-desktop .card .cardText-secondary{order:2;padding:10px 8px 4px!important}
+.layout-desktop .card .cardText-secondary::before{content:none!important}
+.layout-desktop .card .cardOverlayFab-primary::after{content:"Continue"!important}
+/* The pill says Continue only on items already started; :has() is PC-only, and the TV shows no Play button on cards. */
+.layout-desktop .card .cardOverlayFab-primary::after { content: "Play" !important; }
+.layout-desktop .card:has(.itemProgressBar) .cardOverlayFab-primary::after { content: "Continue" !important; }
+/* Portrait posters are too narrow for the pill text next to the corner icons. */
+.layout-desktop .portraitCard .cardOverlayFab-primary::after, .layout-desktop .overflowPortraitCard .cardOverlayFab-primary::after { content: none !important; }
+.layout-desktop .portraitCard .cardOverlayFab-primary, .layout-desktop .overflowPortraitCard .cardOverlayFab-primary { padding: 0 !important; width: 40px !important; justify-content: center; }

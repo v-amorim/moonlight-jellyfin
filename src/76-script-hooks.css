@@ -1,0 +1,71 @@
+/* Styles for the theme script (repo/script); every rule waits for html.ml-js, which the script sets. */
+
+/* Season toggle: closed it is the bar; open it shows every episode as a four-column wall. */
+html.ml-js .ml-collapsible:not(.ml-open) .emby-scroller { display: none !important; }
+html.ml-js .ml-collapsible.ml-open .itemsContainer {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 16px;
+  padding: 8px !important;
+  white-space: normal !important;
+  transform: none !important;
+}
+html.ml-js .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+html.ml-js .ml-collapsible.ml-open .card { width: auto !important; }
+html.ml-js .ml-collapsible.ml-open .cardText { font-size: 15px !important; }
+/* Six people columns leave too little width for one line, so names and roles wrap to two. */
+html.ml-js .ml-people.ml-open .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.25 !important; height: auto !important; min-height: 2.5em; box-sizing: content-box; padding-bottom: 0 !important; margin-bottom: 8px; }
+/* The TV renders text larger than the PC, so six columns still cut the roles there. */
+html.ml-js.layout-tv .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.ml-season-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 0 12px;
+  padding: 18px 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-1);
+  color: var(--on-surface);
+  font: 600 18px Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.ml-season-toggle:hover { background: var(--surface-2); }
+.ml-season-toggle:focus { outline: none; background: var(--surface-2); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+.ml-season-toggle-icon { color: var(--muted); transition: transform 160ms var(--ease); }
+.ml-open .ml-season-toggle-icon { transform: rotate(180deg); color: var(--primary-70); }
+
+/* Player clock: top right, only while the controls are hidden. */
+.ml-osd-clock {
+  position: fixed;
+  top: 8px;
+  right: 10px;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 3px 3px 9px;
+  border-radius: 999px;
+  background: #0D0E1714;
+  color: #EEEEFA40;
+  font: 700 13px Inter, sans-serif;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.ml-osd-clock.ml-show { display: flex; }
+.ml-osd-clock-left { padding: 1px 7px; border-radius: 999px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
+.ml-osd-clock-left:empty { display: none; }
+/* Seen from the couch on bright scenes, so the TV pill is darker and carries the contrast. */
+.layout-tv .ml-osd-clock { font-size: 16px; top: 12px; right: 16px; background: #0D0E1759; color: #EEEEFA8C; }
+.layout-tv .ml-osd-clock-left { background: #0D0E1740; color: #EEEEFA6B; }
+
+/* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
+.ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
+.ml-trick-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--primary-70); }
+
+/* Menu close button: Jellyfin hides it while the mouse is idle on TV; with the script it is focusable, so it stays. */
+html.ml-js .mouseIdle-tv .actionSheet .btnCloseActionSheet.hide-mouse-idle-tv { display: flex !important; }
