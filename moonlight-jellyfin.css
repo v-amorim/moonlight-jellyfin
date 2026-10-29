@@ -869,6 +869,35 @@ html.ml-js.layout-tv .ml-people.ml-open .itemsContainer { grid-template-columns:
 .layout-tv .ml-osd-clock { font-size: 16px; top: 12px; right: 16px; background: #0D0E1759; color: #EEEEFA8C; }
 .layout-tv .ml-osd-clock-left { background: #0D0E1740; color: #EEEEFA6B; }
 
+/* Pause card: after 15 s paused the controls fade, the frame dims 65% and the episode's details show in the middle. */
+html.ml-pause-idle #videoOsdPage .videoOsdBottom, html.ml-pause-idle .skinHeader { opacity: 0 !important; transition: opacity 300ms var(--ease); }
+html.ml-pause-idle .ml-osd-clock { display: none; }
+.ml-pause-card {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  width: 880px;
+  max-width: calc(100vw - 64px);
+  padding: 40px 48px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #141726E6;
+  box-shadow: 0 0 0 200vmax #0D0E17A6, 0 12px 40px #0D0E1799;
+  color: var(--on-surface);
+  font-family: Inter, sans-serif;
+  text-align: center;
+  pointer-events: none;
+  animation: ml-pc-in 400ms var(--ease) both;
+}
+@keyframes ml-pc-in { from { opacity: 0; } to { opacity: 1; } }
+.ml-pc-series { font: 600 14px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--primary-70); }
+.ml-pc-title { margin: 6px 0 10px; font: 700 48px/1.15 Inter, sans-serif; }
+.ml-pc-meta { display: flex; justify-content: center; gap: 14px; font: 500 16px Inter, sans-serif; color: var(--muted); }
+.ml-pc-overview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; margin: 14px 0 0; font: 400 19px/1.5 Inter, sans-serif; color: #EEEEFAD9; }
+
 /* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
 .ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
 .ml-trick-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--primary-70); }

@@ -254,4 +254,82 @@
       });
     }, 250);
   });
+
+  // 5. Pause card: 15 s into a pause the controls fade and the episode's details show; any key or pointer move brings them back.
+  var PAUSE_DELAY = 15000;
+  var pauseTimer = null;
+  var pauseCard = null;
+
+  function hidePauseCard() {
+    clearTimeout(pauseTimer);
+    pauseTimer = null;
+    root.classList.remove('ml-pause-idle');
+    if (pauseCard) pauseCard.remove();
+    pauseCard = null;
+  }
+
+  function armPauseCard() {
+    hidePauseCard();
+    var video = document.querySelector('video');
+    if (video && video.paused && document.querySelector('#videoOsdPage:not(.hide)')) pauseTimer = setTimeout(showPauseCard, PAUSE_DELAY);
+  }
+
+  function playingItem() {
+    var api = window.ApiClient;
+    return api.getJSON(api.getUrl('Sessions', { DeviceId: api.deviceId() })).then(function (sessions) {
+      var now = sessions[0] && sessions[0].NowPlayingItem;
+      return now ? api.getItem(api.getCurrentUserId(), now.Id) : null;
+    });
+  }
+
+  function text(tag, cls, value) {
+    var el = document.createElement(tag);
+    el.className = cls;
+    el.textContent = value;
+    return el;
+  }
+
+  function showPauseCard() {
+    pauseTimer = null;
+    playingItem().then(function (item) {
+      var video = document.querySelector('video');
+      if (!item || !video || !video.paused || pauseCard || !document.querySelector('#videoOsdPage:not(.hide)')) return;
+      var card = document.createElement('div');
+      card.className = 'ml-pause-card';
+      if (item.SeriesName) card.appendChild(text('div', 'ml-pc-series', item.SeriesName));
+      card.appendChild(text('div', 'ml-pc-title', item.Name));
+      var meta = document.createElement('div');
+      meta.className = 'ml-pc-meta';
+      if (item.IndexNumber != null) meta.appendChild(text('span', '', 'S' + item.ParentIndexNumber + ' · E' + item.IndexNumber));
+      if (item.RunTimeTicks) meta.appendChild(text('span', '', Math.round(item.RunTimeTicks / 6e8) + ' min'));
+      var ends = document.querySelector('.osdEndsTime, .endsAtText');
+      if (ends && ends.textContent.trim()) meta.appendChild(text('span', '', ends.textContent.trim()));
+      card.appendChild(meta);
+      if (item.Overview) card.appendChild(text('p', 'ml-pc-overview', item.Overview));
+      document.body.appendChild(card);
+      pauseCard = card;
+      root.classList.add('ml-pause-idle');
+    }).catch(function () {});
+  }
+
+  function onActivity(e) {
+    if (!pauseTimer && !pauseCard) return;
+    var shown = !!pauseCard;
+    armPauseCard();
+    // The dismissing key presses no hidden button; the synthetic pointer move makes Jellyfin show its controls.
+    if (shown && e.type === 'keydown') {
+      e.preventDefault();
+      e.stopPropagation();
+      var at = { bubbles: true, pointerType: 'mouse', clientX: Math.random() * 100, clientY: Math.random() * 100, screenX: Math.random() * 100, screenY: Math.random() * 100 };
+      document.body.dispatchEvent(window.PointerEvent ? new PointerEvent('pointermove', at) : new MouseEvent('mousemove', at));
+    }
+  }
+
+  document.addEventListener('pause', function (e) { if (e.target.tagName === 'VIDEO') armPauseCard(); }, true);
+  document.addEventListener('play', function (e) { if (e.target.tagName === 'VIDEO') hidePauseCard(); }, true);
+  document.addEventListener('ended', function (e) { if (e.target.tagName === 'VIDEO') hidePauseCard(); }, true);
+  window.addEventListener('hashchange', hidePauseCard);
+  ['keydown', 'mousemove', 'pointerdown', 'touchstart', 'wheel'].forEach(function (type) {
+    document.addEventListener(type, onActivity, true);
+  });
 })();

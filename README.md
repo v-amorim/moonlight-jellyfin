@@ -26,6 +26,7 @@ A small script adds what CSS cannot do. Without it the theme works as before.
 | --- | --- |
 | Episode list, Cast & Crew and Guest Stars as toggles that stay open or closed | Detail page |
 | A faint clock with the remaining time while the controls are hidden, switched in the gear menu | Player |
+| After 15 s paused, the controls fade and a card shows the episode's title, number, end time and synopsis | Player |
 | Hovering an episode or movie card scrubs its trickplay previews | PC |
 | The menu close button is reachable with the arrow keys | TV |
 
