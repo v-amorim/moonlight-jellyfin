@@ -92,6 +92,7 @@
       }
       enhanceCloseButtons();
       enhancePlayerMenu();
+      enhanceItemMenu();
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -146,6 +147,55 @@
       tickClock();
     });
     repeat.parentNode.insertBefore(item, repeat.nextSibling);
+  }
+
+  // 6. Item menus get "Reset progress" when the episode or movie was started but not finished.
+  var menuItemId = null;
+
+  // The menu does not say which item opened it, so remember the card or detail page behind the last menu press.
+  function rememberMenuItem(e) {
+    var btn = e.target.closest && e.target.closest('.btnMoreCommands, [data-action="menu"], .card[data-id]');
+    if (!btn) return;
+    var card = btn.closest('.card[data-id]');
+    var page = /[?&]id=([0-9a-f]+)/i.exec(location.hash);
+    menuItemId = card ? card.dataset.id : page ? page[1] : null;
+  }
+  document.addEventListener('click', rememberMenuItem, true);
+  document.addEventListener('contextmenu', rememberMenuItem, true);
+  document.addEventListener('keydown', function (e) {
+    if (e.target.closest && e.target.closest('.card[data-id]')) menuItemId = e.target.closest('.card[data-id]').dataset.id;
+  }, true);
+
+  function enhanceItemMenu() {
+    var anchor = document.querySelector('.actionSheet .actionSheetMenuItem[data-id="copy-stream"], .actionSheet .actionSheetMenuItem[data-id="delete"]');
+    if (!anchor || !menuItemId || anchor.parentNode.querySelector('[data-id="ml-reset"]')) return;
+    var id = menuItemId;
+    var api = window.ApiClient;
+    var item = anchor.cloneNode(true);
+    item.setAttribute('data-id', 'ml-reset');
+    item.classList.add('hide');
+    var icon = item.querySelector('.actionsheetMenuItemIcon');
+    if (icon) icon.className = 'actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons replay';
+    item.querySelector('.actionSheetItemText').textContent = 'Reset progress';
+    var copy = anchor.parentNode.querySelector('[data-id="copy-stream"]');
+    anchor.parentNode.insertBefore(item, copy ? copy.nextSibling : anchor);
+    api.getJSON(api.getUrl('UserItems/' + id + '/UserData', { userId: api.getCurrentUserId() })).then(function (data) {
+      // A started episode keeps its series in Next Up through its last-played date, even at position 0.
+      if (data && !data.Played && (data.PlaybackPositionTicks > 0 || data.LastPlayedDate)) item.classList.remove('hide');
+    }).catch(function () {});
+    // Jellyfin's own menu handler would close the menu with an id it does not know, so this row handles itself.
+    item.addEventListener('click', function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+      // Mark unplayed clears the position, play count and last-played date, so the series also leaves Next Up.
+      api.ajax({
+        type: 'DELETE',
+        url: api.getUrl('UserPlayedItems/' + id, { userId: api.getCurrentUserId() })
+      }).then(function () {
+        var close = document.querySelector('.actionSheet .btnCloseActionSheet');
+        if (close) close.click(); else history.back();
+      });
+    });
   }
 
   function tickClock() {

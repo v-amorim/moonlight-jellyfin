@@ -765,7 +765,8 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   padding: 10px !important;
   margin: 0 10px 20px !important;
 }
-.layout-tv .card .cardScalable { order: 0; border-radius: 8px !important; overflow: hidden; }
+/* Stock keeps a 10 px transparent border for its old focus ring; the hairline then framed the picture 10 px out. */
+.layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 8px !important; overflow: hidden; }
 .layout-tv .card .cardScalable .cardImageContainer { border-radius: 8px !important; }
 .layout-tv .card .cardText { text-align: left !important; }
 .layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
@@ -947,6 +948,29 @@ html .cardScalable .cardIndicators {
   box-shadow: 0 0 0 2px #EEEEFA59;
 }
 .playedIndicator::after { content: "Watched"; font: 600 14px Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--on-surface); }
+
+/* 78-recent.css */
+/* Recently Added: no line under a new series or a single new episode; the badge says how many arrived, so a single episode gets "1". */
+.homeSectionsContainer .groupedCard .cardText-secondary,
+.homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardText-secondary { display: none !important; }
+.homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardScalable::after {
+  content: "1";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #FFFFFF26;
+  color: var(--primary-70);
+  font: 600 13px Inter, sans-serif;
+  width: 44px;
+  height: 26px;
+  background: #141726D9;
+}
+.layout-tv .homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardScalable::after { width: 35px; height: 35px; font-size: 17.6px; background: var(--surface-3); }
 
 /* 80-sweep.css */
 /* Sweep: every control and text style the earlier rounds never reached. Jellyfin drops custom CSS on Dashboard pages. */
