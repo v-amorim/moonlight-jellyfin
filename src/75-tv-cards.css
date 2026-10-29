@@ -4,13 +4,14 @@
   flex-direction: column;
   background: var(--surface-1) !important;
   border: 1px solid var(--border) !important;
-  border-radius: 16px !important;
+  border-radius: var(--r-md) !important;
   padding: 10px !important;
   margin: 0 10px 20px !important;
 }
 /* Stock keeps a 10 px transparent border for its old focus ring; the hairline then framed the picture 10 px out. */
-.layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 8px !important; overflow: hidden; }
-.layout-tv .card .cardScalable .cardImageContainer { border-radius: 8px !important; }
+.layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 2px !important; overflow: hidden; }
+.layout-tv .card .cardScalable .cardImageContainer,
+.layout-tv .card .cardScalable .cardOverlayContainer { border-radius: 2px !important; }
 .layout-tv .card .cardText { text-align: left !important; }
 .layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
 .layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }

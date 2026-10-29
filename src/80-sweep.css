@@ -48,17 +48,29 @@ html.layout-tv .emby-select-withcolor:focus { transform: none !important; outlin
 .mediaInfoItem.mediaInfoText { background: var(--surface-2) !important; border-radius: 6px; }
 .layout-mobile .itemDetailPage p { color: var(--muted); }
 /* PC dropdown lists: Chrome and Edge 135+ let CSS draw the open list; older browsers keep the system list. */
-.layout-desktop select.emby-select-withcolor, .layout-desktop select.emby-select-withcolor::picker(select) { appearance: base-select; }
-.layout-desktop select.emby-select-withcolor::picker(select) { background: var(--surface-1); border: 2px solid #3A4060; border-radius: 12px; padding: 6px; margin-top: 6px; box-shadow: 0 12px 32px #000a; }
-.layout-desktop select.emby-select-withcolor option { padding: 8px 12px; border-radius: 8px; color: var(--on-surface); background: transparent; }
-.layout-desktop select.emby-select-withcolor option:hover { background: var(--surface-2); }
-.layout-desktop select.emby-select-withcolor option:checked { background: var(--surface-3); color: var(--primary-70); }
-.layout-desktop select.emby-select-withcolor option::checkmark { color: var(--primary-70); order: 1; margin-left: auto; }
-.layout-desktop select.emby-select-withcolor::picker-icon { display: none; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor, :is(.layout-desktop, .layout-mobile) select.emby-select-withcolor::picker(select) { appearance: base-select; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor::picker(select) { background: var(--surface-1); border: 2px solid #3A4060; border-radius: 12px; padding: 6px; margin-top: 6px; box-shadow: 0 12px 32px #000a; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option { padding: 8px 12px; border-radius: 8px; color: var(--on-surface); background: transparent; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option:hover { background: var(--surface-2); }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option:checked { background: var(--surface-3); color: var(--primary-70); }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option::checkmark { color: var(--primary-70); order: 1; margin-left: auto; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor::picker-icon { display: none; }
 /* Stock zooms raised buttons 1.2x on TV; the standard's TV zoom is 1.06. */
 .layout-tv .raised.show-focus:focus, .layout-tv .homeLibraryButton:focus { transform: scale(1.06) !important; }
 /* Menu rows clip their own content, so the ring is drawn inside; the check moves to the right edge. */
 html .actionSheetMenuItem.actionSheetMenuItem:focus { transform: none !important; outline: none !important; box-shadow: inset 0 0 0 3px var(--primary) !important; border-radius: var(--r-md) !important; }
+/* Side menu follows the standard sidebar: surface-1 panel with a hairline, 8 px rows, the current page on surface-3 in primary-70. */
+.mainDrawer { background: var(--surface-1) !important; border-right: 1px solid var(--border) !important; }
+.mainDrawer .navMenuOption { margin: 2px 8px !important; border-radius: var(--r-sm) !important; padding-left: 12px !important; }
+.mainDrawer .navMenuOption:hover, .mainDrawer .navMenuOption:focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+.mainDrawer .navMenuOption-selected, .mainDrawer .navMenuOption-selected:hover { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+.mainDrawer .navMenuOptionIcon { color: var(--muted) !important; }
+.mainDrawer .navMenuOption-selected .navMenuOptionIcon { color: var(--primary-70) !important; }
+.mainDrawer .sidebarHeader { padding-left: 20px !important; color: var(--dim) !important; font: 600 12px Inter, sans-serif !important; letter-spacing: .08em; text-transform: uppercase; }
+/* Chips over artwork sit 8 px in, so 4 px corners (badge over artwork rule); the labelled Play pill is 8 px like every pill. */
+html body .card .countIndicator { border-radius: var(--r-xs) !important; }
+html body :is(.layout-desktop, .layout-mobile) .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary,
+html:is(.layout-desktop, .layout-mobile) body .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary { border-radius: var(--r-sm) !important; }
 /* Stock rounds focused rows to 0.2em; the theme keeps rows at 12px in every state. */
 .listItem:focus { border-radius: var(--r-md) !important; }
 /* Settings links wrap a .listItem; stock paints the focused link cyan and square around it, so the ring moves to the row. */

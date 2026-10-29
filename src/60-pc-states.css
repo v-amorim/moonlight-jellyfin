@@ -1,10 +1,12 @@
 /* PC card hover: primary Play circle; the corner icons hover to primary-70 instead of stock cyan. */
-.layout-desktop .cardOverlayFab-primary { background: var(--primary) !important; color: var(--on-primary) !important; }
+:is(.layout-desktop, .layout-mobile) .cardOverlayFab-primary { background: var(--primary) !important; color: var(--on-primary) !important; }
 .layout-desktop .cardOverlayFab-primary:hover { background: var(--primary-60) !important; }
-.layout-desktop .cardOverlayFab-primary .cardOverlayButtonIcon { color: var(--on-primary) !important; }
-.layout-desktop .cardOverlayButton-br .cardOverlayButton,
-.layout-desktop .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
+:is(.layout-desktop, .layout-mobile) .cardOverlayFab-primary .cardOverlayButtonIcon { color: var(--on-primary) !important; }
+:is(.layout-desktop, .layout-mobile, .layout-tv) .cardOverlayButton-br .cardOverlayButton,
+:is(.layout-desktop, .layout-mobile, .layout-tv) .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
 .layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
+/* Phone cards carry only a play button in that corner; it takes the primary circle of the PC Play button. */
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: var(--primary) !important; color: var(--on-primary) !important; }
 
 /* Selection mode: quiet bar, hairline card edges, primary only on the checked box. */
 .selectionCommandsPanel { background: var(--surface-1) !important; color: var(--on-surface) !important; border-bottom: 1px solid var(--border); }
@@ -13,8 +15,8 @@
 .itemSelectionPanel .emby-checkbox:checked + span + .checkboxOutline { background: var(--primary) !important; border-color: var(--primary) !important; color: var(--on-primary) !important; }
 
 /* Episode count nests in the card's 12px corner: 8px in, so 4px corners. */
-.layout-desktop .cardIndicators { top: 8px !important; right: 8px !important; }
-.layout-desktop .countIndicator {
+:is(.layout-desktop, .layout-mobile, .layout-tv) .cardIndicators { top: 8px !important; right: 8px !important; }
+:is(.layout-desktop, .layout-mobile, .layout-tv) .countIndicator {
   border-radius: 4px !important;
   background: #141726D9 !important;
   border: 1px solid var(--border) !important;

@@ -291,24 +291,10 @@ a, .button-link { color: var(--secondary); }
 .listItem-overview { -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* 20-detail-page.css */
-/* TV-only on purpose: PC and phone keep jellyfin-web's own detail layout. */
+/* TV sizes for the detail page; the layout itself is shared (81-detail-header). */
 
 .layout-tv .sectionTitle { font-size: 24px !important; font-weight: 700 !important; letter-spacing: .12em !important; }
 
-.layout-tv .detailLogo {
-  display: block !important;
-  position: absolute !important;
-  z-index: 3;
-  opacity: 1 !important;
-  left: 32.4vw;
-  top: 84px;
-  width: 24vw;
-  height: 104px;
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-  background-position: left center !important;
-}
-.layout-tv .infoWrapper { padding-top: 120px !important; }
 .layout-tv .itemName.infoText { font-size: var(--title) !important; }
 
 .layout-tv .mainDetailButtons { gap: 12px; }
@@ -475,12 +461,14 @@ a, .button-link { color: var(--secondary); }
 
 /* 60-pc-states.css */
 /* PC card hover: primary Play circle; the corner icons hover to primary-70 instead of stock cyan. */
-.layout-desktop .cardOverlayFab-primary { background: var(--primary) !important; color: var(--on-primary) !important; }
+:is(.layout-desktop, .layout-mobile) .cardOverlayFab-primary { background: var(--primary) !important; color: var(--on-primary) !important; }
 .layout-desktop .cardOverlayFab-primary:hover { background: var(--primary-60) !important; }
-.layout-desktop .cardOverlayFab-primary .cardOverlayButtonIcon { color: var(--on-primary) !important; }
-.layout-desktop .cardOverlayButton-br .cardOverlayButton,
-.layout-desktop .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
+:is(.layout-desktop, .layout-mobile) .cardOverlayFab-primary .cardOverlayButtonIcon { color: var(--on-primary) !important; }
+:is(.layout-desktop, .layout-mobile, .layout-tv) .cardOverlayButton-br .cardOverlayButton,
+:is(.layout-desktop, .layout-mobile, .layout-tv) .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
 .layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
+/* Phone cards carry only a play button in that corner; it takes the primary circle of the PC Play button. */
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: var(--primary) !important; color: var(--on-primary) !important; }
 
 /* Selection mode: quiet bar, hairline card edges, primary only on the checked box. */
 .selectionCommandsPanel { background: var(--surface-1) !important; color: var(--on-surface) !important; border-bottom: 1px solid var(--border); }
@@ -489,8 +477,8 @@ a, .button-link { color: var(--secondary); }
 .itemSelectionPanel .emby-checkbox:checked + span + .checkboxOutline { background: var(--primary) !important; border-color: var(--primary) !important; color: var(--on-primary) !important; }
 
 /* Episode count nests in the card's 12px corner: 8px in, so 4px corners. */
-.layout-desktop .cardIndicators { top: 8px !important; right: 8px !important; }
-.layout-desktop .countIndicator {
+:is(.layout-desktop, .layout-mobile, .layout-tv) .cardIndicators { top: 8px !important; right: 8px !important; }
+:is(.layout-desktop, .layout-mobile, .layout-tv) .countIndicator {
   border-radius: 4px !important;
   background: #141726D9 !important;
   border: 1px solid var(--border) !important;
@@ -663,8 +651,8 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   color: var(--muted);
 }
 
-.layout-desktop .trackSelections { display: flex !important; flex-wrap: wrap; gap: 16px; }
-.layout-desktop .trackSelections .selectContainer:not(.hide) {
+:is(.layout-desktop, .layout-mobile) .trackSelections { display: flex !important; flex-wrap: wrap; gap: 16px; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) {
   display: flex !important;
   flex-direction: column;
   align-items: flex-start !important;
@@ -676,7 +664,7 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   width: auto !important;
   max-width: 560px;
 }
-.layout-desktop .trackSelections .selectContainer:not(.hide) .selectLabel {
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) .selectLabel {
   flex: none !important;
   font-size: 13px !important;
   text-transform: uppercase;
@@ -685,7 +673,7 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   margin: 0 !important;
   width: auto !important;
 }
-.layout-desktop .trackSelections .selectContainer:not(.hide) select {
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -696,63 +684,70 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   line-height: 1.3 !important;
 }
 /* Track tiles: a fixed gap under the buttons, and rows spaced by the grid gap alone. */
-.layout-desktop .trackSelections { margin-top: 24px !important; }
-.layout-desktop .trackSelections .selectContainer:not(.hide), .layout-tv .trackSelections .selectContainer:not(.hide) { margin: 0 !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections { margin-top: 24px !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide), .layout-tv .trackSelections .selectContainer:not(.hide) { margin: 0 !important; }
 /* The dropdown stretches under the label to the tile's edges, so a click anywhere on the tile opens it. */
-.layout-desktop .trackSelections .selectContainer:not(.hide) { position: relative; }
-.layout-desktop .trackSelections .selectContainer:not(.hide) .selectLabel { position: relative; z-index: 1; pointer-events: none; }
-.layout-desktop .trackSelections .selectContainer:not(.hide) select { align-self: stretch; width: auto !important; margin: -38px -16px -14px !important; padding: 38px 44px 14px 16px !important; box-sizing: border-box !important; border-radius: 12px !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) { position: relative; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) .selectLabel { position: relative; z-index: 1; pointer-events: none; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select { align-self: stretch; width: auto !important; margin: -38px -16px -14px !important; padding: 38px 44px 14px 16px !important; box-sizing: border-box !important; border-radius: 12px !important; }
 /* Tile arrow: centred on the right, ignores clicks, turns while the list is open. */
-.layout-desktop .trackSelections .selectContainer:not(.hide) select:disabled { opacity: 1; }
-.layout-desktop .trackSelections .selectContainer:not(.hide):has(select:disabled) { opacity: .38; }
-.layout-desktop .trackSelections .selectArrowContainer { position: absolute !important; right: 14px !important; top: 50% !important; transform: translateY(-50%) !important; pointer-events: none; color: var(--muted) !important; }
-.layout-desktop .trackSelections .selectArrow { transition: transform 160ms var(--ease); }
-.layout-desktop .trackSelections .selectContainer:has(select:open) .selectArrow { transform: rotate(180deg); color: var(--primary-70) !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select:disabled { opacity: 1; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide):has(select:disabled) { opacity: .38; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectArrowContainer { position: absolute !important; right: 14px !important; top: 50% !important; transform: translateY(-50%) !important; pointer-events: none; color: var(--muted) !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectArrow { transition: transform 160ms var(--ease); }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:has(select:open) .selectArrow { transform: rotate(180deg); color: var(--primary-70) !important; }
 /* One row of equal tiles; long values end in an ellipsis. */
-.layout-desktop .trackSelections { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); max-width: 1180px; }
-.layout-desktop .trackSelections .selectContainer:not(.hide) { max-width: none !important; min-width: 0; }
-.layout-desktop .trackSelections .selectContainer:not(.hide) select { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:is(.layout-desktop, .layout-mobile) .trackSelections { display: grid !important; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); max-width: 1180px; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) { max-width: none !important; min-width: 0; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* 73-pc-cards.css */
-/* PC cards, rounds 13 to 15: a framed card, the series name as a header strip, the title under the picture, a Play pill. */
-.layout-desktop .card .cardText{text-align:left!important}
-.layout-desktop .card .cardText-secondary{font-size:16px!important;font-weight:600!important;color:var(--on-surface)!important}
-.layout-desktop .card .cardText-secondary::before{content:"Continue  ";color:var(--primary-70);font-weight:700}
-.layout-desktop .card .cardBox{display:flex!important;flex-direction:column}
-.layout-desktop .card .cardScalable{order:0}
-.layout-desktop .card .cardText-secondary{order:1;padding-top:10px!important}
-.layout-desktop .card .cardText-first{order:2}
-.layout-desktop .card .cardText-first a,.layout-desktop .card .cardText-first .textActionButton{color:var(--muted)!important}
-.layout-desktop .card .cardOverlayFab-primary{top:auto!important;bottom:12px!important;left:12px!important;transform:none!important;margin:0!important;width:auto!important;height:40px!important;padding:0 16px 0 10px!important;border-radius:999px!important;display:flex!important;align-items:center;gap:4px}
-.layout-desktop .card .cardOverlayFab-primary::after{content:"Play";font:600 14px Inter,sans-serif;color:var(--on-primary)}
-.layout-desktop .card{contain:none!important}
-.layout-desktop .card .cardBox{background:var(--surface-1)!important;border:1px solid var(--border)!important;border-radius:16px!important;padding:8px!important;margin:0 8px 16px!important}
-.layout-desktop .card:hover .cardBox{background:var(--surface-2)!important}
-.layout-desktop .card .cardScalable{border-radius:8px!important;overflow:hidden}
-.layout-desktop .card .cardScalable .cardImageContainer{border-radius:8px!important}
-.layout-desktop .card .cardBox{display:flex!important;flex-direction:column}
-.layout-desktop .card .cardText-first{order:-1;padding:2px 8px 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
-.layout-desktop .card .cardText-secondary{order:2;padding:10px 8px 4px!important}
-.layout-desktop .card .cardText-secondary::before{content:none!important}
-.layout-desktop .card .cardOverlayFab-primary::after{content:"Continue"!important}
-/* The pill says Continue only on items already started; :has() is PC-only, and the TV shows no Play button on cards. */
-.layout-desktop .card .cardOverlayFab-primary::after { content: "Play" !important; }
-.layout-desktop .card:has(.itemProgressBar) .cardOverlayFab-primary::after { content: "Continue" !important; }
+/* PC and phone cards, rounds 13 to 15 (TV: 75-tv-cards): a framed card, the series name as a header strip, the title under the picture, a Play pill. */
+:is(.layout-desktop, .layout-mobile) .card .cardText{text-align:left!important}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{font-size:16px!important;font-weight:600!important;color:var(--on-surface)!important}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary::before{content:"Continue  ";color:var(--primary-70);font-weight:700}
+:is(.layout-desktop, .layout-mobile) .card .cardBox{display:flex!important;flex-direction:column}
+:is(.layout-desktop, .layout-mobile) .card .cardScalable{order:0}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{order:1;padding-top:10px!important}
+:is(.layout-desktop, .layout-mobile) .card .cardText-first{order:2}
+:is(.layout-desktop, .layout-mobile) .card .cardText-first a,:is(.layout-desktop, .layout-mobile) .card .cardText-first .textActionButton{color:var(--muted)!important}
+:is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary{top:auto!important;bottom:12px!important;left:12px!important;transform:none!important;margin:0!important;width:auto!important;height:40px!important;padding:0 16px 0 10px!important;border-radius:999px!important;display:flex!important;align-items:center;gap:4px}
+:is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after{content:"Play";font:600 14px Inter,sans-serif;color:var(--on-primary)}
+:is(.layout-desktop, .layout-mobile) .card{contain:none!important}
+:is(.layout-desktop, .layout-mobile) .card .cardBox{background:var(--surface-1)!important;border:1px solid var(--border)!important;border-radius:var(--r-md)!important;padding:8px!important;margin:0 8px 16px!important}
+:is(.layout-desktop, .layout-mobile) .card:hover .cardBox{background:var(--surface-2)!important}
+:is(.layout-desktop, .layout-mobile) .card .cardScalable{border-radius:4px!important;overflow:hidden}
+:is(.layout-desktop, .layout-mobile) .card .cardScalable .cardImageContainer,:is(.layout-desktop, .layout-mobile) .card .cardScalable .cardOverlayContainer{border-radius:4px!important}
+:is(.layout-desktop, .layout-mobile) .card .cardBox{display:flex!important;flex-direction:column}
+:is(.layout-desktop, .layout-mobile) .card .cardText-first{order:-1;padding:2px 8px 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{order:2;padding:10px 8px 4px!important}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary::before{content:none!important}
+:is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after{content:"Continue"!important}
+/* The pill says Continue only on items already started; :has() is PC and phone only, and the TV shows no Play button on cards. */
+:is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after { content: "Play" !important; }
+.layout-desktop .card:has(.itemProgressBar) .cardOverlayFab-primary::after, .layout-mobile .card:has(.itemProgressBar) .cardOverlayFab-primary::after { content: "Continue" !important; }
 /* Portrait posters are too narrow for the pill text next to the corner icons. */
-.layout-desktop .portraitCard .cardOverlayFab-primary::after, .layout-desktop .overflowPortraitCard .cardOverlayFab-primary::after { content: none !important; }
-.layout-desktop .portraitCard .cardOverlayFab-primary, .layout-desktop .overflowPortraitCard .cardOverlayFab-primary { padding: 0 !important; width: 40px !important; justify-content: center; }
+:is(.layout-desktop, .layout-mobile) .portraitCard .cardOverlayFab-primary::after, :is(.layout-desktop, .layout-mobile) .overflowPortraitCard .cardOverlayFab-primary::after { content: none !important; }
+:is(.layout-desktop, .layout-mobile) .portraitCard .cardOverlayFab-primary, :is(.layout-desktop, .layout-mobile) .overflowPortraitCard .cardOverlayFab-primary { padding: 0 !important; width: 40px !important; justify-content: center; }
+/* Phone: the same frame at phone sizes. */
+.layout-mobile .card .cardBox { padding: 6px !important; margin: 0 4px 10px !important; }
+.layout-mobile .card .cardText-first { padding: 0 4px 6px !important; font-size: 11px !important; }
+.layout-mobile .card .cardText-secondary { padding: 6px 4px 2px !important; font-size: 14px !important; }
 
 /* 74-pc-detail-header.css */
-/* PC detail header: title 40px, labelled buttons left under the info; labels come from each button title so they follow the UI language. */
-.layout-desktop .detailRibbon{flex-direction:column!important;align-items:flex-start!important;gap:20px;margin-bottom:28px!important}
-.layout-desktop .mainDetailButtons{margin:0!important;justify-content:flex-start!important}
+/* PC and phone detail header: the title, then the buttons, all left aligned; PC buttons carry labels from each button title, so they follow the UI language. */
+:is(.layout-desktop, .layout-mobile) .detailRibbon{flex-direction:column!important;align-items:flex-start!important;gap:20px;margin-bottom:28px!important}
+:is(.layout-desktop, .layout-mobile) .mainDetailButtons{margin:0!important;justify-content:flex-start!important}
 .layout-desktop .mainDetailButtons .detailButton{flex-direction:row!important;align-items:center!important;height:44px!important;width:auto!important;padding:0 18px 0 14px!important;border-radius:var(--r-sm)!important}
 .layout-desktop .mainDetailButtons .detailButton .detailButton-content{flex-direction:row!important;gap:8px;align-items:center}
 .layout-desktop .mainDetailButtons .detailButton .detailButton-content::after{content:attr(title);font:600 14px Inter,sans-serif}
 .layout-desktop .mainDetailButtons .detailButton[title] .detailButton-content::after{content:none}
 .layout-desktop .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 14px Inter,sans-serif;margin-left:8px}
 .layout-desktop .detailRibbon .nameContainer .parentNameLast{font-size:40px!important;line-height:1.1!important}
-.layout-desktop .originalTitle{color:var(--muted)!important}
+.layout-mobile .detailRibbon .nameContainer .parentNameLast{font-size:28px!important;line-height:1.15!important}
+.originalTitle{color:var(--muted)!important}
+/* Phones centre the header; the theme keeps it on the left like the other layouts. */
+.layout-mobile .detailRibbon .infoWrapper,.layout-mobile .detailRibbon .nameContainer,.layout-mobile .detailRibbon .itemMiscInfo{text-align:left!important;justify-content:flex-start!important;align-items:flex-start!important}
 
 /* 75-tv-cards.css */
 /* TV cards: the PC frame from rounds 13 to 15 at TV sizes; no Play pill, and the focus ring sits on the frame. */
@@ -761,13 +756,14 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   flex-direction: column;
   background: var(--surface-1) !important;
   border: 1px solid var(--border) !important;
-  border-radius: 16px !important;
+  border-radius: var(--r-md) !important;
   padding: 10px !important;
   margin: 0 10px 20px !important;
 }
 /* Stock keeps a 10 px transparent border for its old focus ring; the hairline then framed the picture 10 px out. */
-.layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 8px !important; overflow: hidden; }
-.layout-tv .card .cardScalable .cardImageContainer { border-radius: 8px !important; }
+.layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 2px !important; overflow: hidden; }
+.layout-tv .card .cardScalable .cardImageContainer,
+.layout-tv .card .cardScalable .cardOverlayContainer { border-radius: 2px !important; }
 .layout-tv .card .cardText { text-align: left !important; }
 .layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
 .layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }
@@ -899,6 +895,28 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
 .ml-pc-meta { display: flex; justify-content: center; gap: 14px; font: 500 16px Inter, sans-serif; color: var(--muted); }
 .ml-pc-overview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; margin: 14px 0 0; font: 400 19px/1.5 Inter, sans-serif; color: #EEEEFAD9; }
 
+/* Series cards: one row of small 4 px chips under the picture (years, seasons, star score, tomato score); home shows only the scores. */
+.ml-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 4px 2px; }
+.ml-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--on-surface); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
+.ml-chip-seasons, .ml-chip-crit { color: var(--muted); }
+.ml-chip-code { color: var(--primary-70); }
+.ml-chip .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1.1em; height: 1.1em; font-size: 1.1em !important; line-height: 1; color: #E8C46A; }
+.ml-tomato { width: 1.15em; height: 1.15em; }
+.layout-tv .ml-info { margin: 10px 4px 2px; }
+.layout-tv .ml-chip { font-size: 15px; }
+.layout-mobile .ml-info { gap: 4px; margin: 6px 2px 2px; }
+.layout-mobile .ml-chip { font-size: 11px; padding: 1px 6px; }
+html.ml-js .card.ml-info-on .cardText-secondary { display: none !important; }
+
+/* Library switcher: on library pages the title becomes a pill of every library; the current one on surface-3 in primary-70. */
+html.ml-libnav-on .skinHeader .pageTitle { display: none !important; }
+.ml-libnav { display: inline-flex; gap: 2px; margin-left: 12px; padding: 3px; border-radius: var(--r-sm); background: var(--surface-1); box-shadow: 0 0 0 1px var(--border); }
+.ml-libnav-item { padding: 5px 12px; border: 0; border-radius: 5px; background: none; color: var(--muted); font: 600 14px Inter, sans-serif; cursor: pointer; }
+.ml-libnav-item:hover { background: var(--surface-2); color: var(--on-surface); }
+.ml-libnav-item.ml-on { background: var(--surface-3); color: var(--primary-70); }
+.ml-libnav-item:focus-visible, .layout-tv .ml-libnav-item:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+.layout-tv .ml-libnav-item { font-size: 16px; padding: 6px 14px; }
+
 /* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
 .ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
 .ml-trick-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--primary-70); }
@@ -971,6 +989,72 @@ html .cardScalable .cardIndicators {
   background: #141726D9;
 }
 .layout-tv .homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardScalable::after { width: 35px; height: 35px; font-size: 17.6px; background: var(--surface-3); }
+/* Series cards on library pages put the name strip above the picture like home; they keep the year range. */
+.card[data-type="Series"] .visualCardBox { display: flex !important; flex-direction: column; }
+/* The footer holds both lines; dissolving it lets the name go above the picture and the years stay below. */
+.card[data-type="Series"] .visualCardBox > .cardFooter { display: contents; }
+.card[data-type="Series"] .visualCardBox .cardText-first { order: -1; }
+.card[data-type="Series"] .visualCardBox .cardText-secondary { order: 2; }
+
+/* 79-season-page.css */
+/* Season page: episode tiles in a 4-column grid, the poster 220 px beside the header (fades on scroll), episode chips.
+   Scoped to the script's ml-season-page class, so without the script the stock season page stays. */
+html body .itemDetailPage.ml-season-page .detailPageContent,
+html body .itemDetailPage.ml-season-page .detailPagePrimaryContent { padding-left: 3.3vw !important; }
+html body .itemDetailPage.ml-season-page .detailRibbon { padding-left: calc(3.3vw + 260px) !important; }
+
+html body .itemDetailPage.ml-season-page .detailImageContainer { float: none !important; }
+html body .itemDetailPage.ml-season-page .detailImageContainer .card {
+  position: absolute !important; left: 3.3vw; z-index: 2; width: 220px !important;
+  transition: width 250ms var(--ease), opacity 250ms var(--ease);
+}
+html body .itemDetailPage.ml-season-page.ml-scrolled .detailImageContainer .card { opacity: 0; }
+html body .itemDetailPage.ml-season-page .detailSection > .detailSectionContent,
+html body .itemDetailPage.ml-season-page .detailSection > .itemExternalLinks { padding-left: 260px !important; }
+html body .itemDetailPage.ml-season-page .detailSection .overview { margin-left: 0 !important; }
+
+html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem,
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-content { flex-direction: column !important; align-items: stretch !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem { margin: 0 !important; padding: 8px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemImage { width: 100% !important; height: auto !important; aspect-ratio: 16/9; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { display: block !important; width: auto !important; padding: 6px 2px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listViewUserDataButtons { justify-content: flex-start; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-overview { display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* Phones repeat the synopsis under the row; the tile already shows it. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-bottomoverview { display: none !important; }
+/* Tile actions: only More, small, at the title's right end (the script moves the buttons there). */
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { position: relative; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { padding-right: 36px; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions { position: absolute; top: 0; right: 0; display: flex !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton:not([data-action="menu"]) { display: none !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton { width: 32px !important; height: 32px !important; padding: 4px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton .material-icons { font-size: 20px !important; }
+/* Phone: too narrow for a poster beside the name, so the header takes the full width; one tile per row. */
+html.layout-mobile body .itemDetailPage.ml-season-page .detailImageContainer { display: none !important; }
+html.layout-mobile body .itemDetailPage.ml-season-page .detailRibbon { padding-left: 3.3vw !important; }
+html.layout-mobile body .itemDetailPage.ml-season-page .detailSection > .detailSectionContent,
+html.layout-mobile body .itemDetailPage.ml-season-page .detailSection > .itemExternalLinks { padding-left: 0 !important; }
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { grid-template-columns: minmax(0, 1fr); }
+/* Watched tiles get the cards' veil: the list row's top-right indicator box grows to cover the picture. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItemImage { position: relative; overflow: hidden; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemIndicators { position: absolute !important; inset: 0 !important; width: auto !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: none !important; pointer-events: none; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemIndicators .playedIndicator {
+  position: absolute !important; inset: 0 !important; width: auto !important; height: auto !important; margin: 0 !important;
+  border-radius: 0 !important; box-shadow: none !important; display: flex !important; flex-direction: column !important;
+  align-items: center !important; justify-content: center !important; gap: 8px; background: #0D0E17A6 !important; color: var(--on-surface) !important;
+}
+/* The tile's Play button matches the cards': hidden until hover or focus, then the primary circle. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton { opacity: 0; transition: opacity 150ms var(--ease); width: 56px !important; height: 56px !important; padding: 0 !important; border-radius: 50% !important; background: var(--primary) !important; color: var(--on-primary) !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton .listItemImageButton-icon { color: var(--on-primary) !important; font-size: 32px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem:hover .listItemImage .listItemImageButton,
+html body .itemDetailPage.ml-season-page #childrenContent .listItem:focus-within .listItemImage .listItemImageButton { opacity: 1; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton:hover { background: var(--primary-60) !important; }
+/* The chip boxes start on the title's left edge. */
+html body .itemDetailPage.ml-season-page #childrenContent .ml-info { margin-left: 0; margin-right: 0; }
+
+/* Season cards on the series page: the average of the episode scores is marked as such. */
+.ml-avg { opacity: .6; font-weight: 500; }
 
 /* 80-sweep.css */
 /* Sweep: every control and text style the earlier rounds never reached. Jellyfin drops custom CSS on Dashboard pages. */
@@ -1023,17 +1107,29 @@ html.layout-tv .emby-select-withcolor:focus { transform: none !important; outlin
 .mediaInfoItem.mediaInfoText { background: var(--surface-2) !important; border-radius: 6px; }
 .layout-mobile .itemDetailPage p { color: var(--muted); }
 /* PC dropdown lists: Chrome and Edge 135+ let CSS draw the open list; older browsers keep the system list. */
-.layout-desktop select.emby-select-withcolor, .layout-desktop select.emby-select-withcolor::picker(select) { appearance: base-select; }
-.layout-desktop select.emby-select-withcolor::picker(select) { background: var(--surface-1); border: 2px solid #3A4060; border-radius: 12px; padding: 6px; margin-top: 6px; box-shadow: 0 12px 32px #000a; }
-.layout-desktop select.emby-select-withcolor option { padding: 8px 12px; border-radius: 8px; color: var(--on-surface); background: transparent; }
-.layout-desktop select.emby-select-withcolor option:hover { background: var(--surface-2); }
-.layout-desktop select.emby-select-withcolor option:checked { background: var(--surface-3); color: var(--primary-70); }
-.layout-desktop select.emby-select-withcolor option::checkmark { color: var(--primary-70); order: 1; margin-left: auto; }
-.layout-desktop select.emby-select-withcolor::picker-icon { display: none; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor, :is(.layout-desktop, .layout-mobile) select.emby-select-withcolor::picker(select) { appearance: base-select; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor::picker(select) { background: var(--surface-1); border: 2px solid #3A4060; border-radius: 12px; padding: 6px; margin-top: 6px; box-shadow: 0 12px 32px #000a; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option { padding: 8px 12px; border-radius: 8px; color: var(--on-surface); background: transparent; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option:hover { background: var(--surface-2); }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option:checked { background: var(--surface-3); color: var(--primary-70); }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor option::checkmark { color: var(--primary-70); order: 1; margin-left: auto; }
+:is(.layout-desktop, .layout-mobile) select.emby-select-withcolor::picker-icon { display: none; }
 /* Stock zooms raised buttons 1.2x on TV; the standard's TV zoom is 1.06. */
 .layout-tv .raised.show-focus:focus, .layout-tv .homeLibraryButton:focus { transform: scale(1.06) !important; }
 /* Menu rows clip their own content, so the ring is drawn inside; the check moves to the right edge. */
 html .actionSheetMenuItem.actionSheetMenuItem:focus { transform: none !important; outline: none !important; box-shadow: inset 0 0 0 3px var(--primary) !important; border-radius: var(--r-md) !important; }
+/* Side menu follows the standard sidebar: surface-1 panel with a hairline, 8 px rows, the current page on surface-3 in primary-70. */
+.mainDrawer { background: var(--surface-1) !important; border-right: 1px solid var(--border) !important; }
+.mainDrawer .navMenuOption { margin: 2px 8px !important; border-radius: var(--r-sm) !important; padding-left: 12px !important; }
+.mainDrawer .navMenuOption:hover, .mainDrawer .navMenuOption:focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+.mainDrawer .navMenuOption-selected, .mainDrawer .navMenuOption-selected:hover { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+.mainDrawer .navMenuOptionIcon { color: var(--muted) !important; }
+.mainDrawer .navMenuOption-selected .navMenuOptionIcon { color: var(--primary-70) !important; }
+.mainDrawer .sidebarHeader { padding-left: 20px !important; color: var(--dim) !important; font: 600 12px Inter, sans-serif !important; letter-spacing: .08em; text-transform: uppercase; }
+/* Chips over artwork sit 8 px in, so 4 px corners (badge over artwork rule); the labelled Play pill is 8 px like every pill. */
+html body .card .countIndicator { border-radius: var(--r-xs) !important; }
+html body :is(.layout-desktop, .layout-mobile) .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary,
+html:is(.layout-desktop, .layout-mobile) body .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary { border-radius: var(--r-sm) !important; }
 /* Stock rounds focused rows to 0.2em; the theme keeps rows at 12px in every state. */
 .listItem:focus { border-radius: var(--r-md) !important; }
 /* Settings links wrap a .listItem; stock paints the focused link cyan and square around it, so the ring moves to the row. */
@@ -1050,6 +1146,58 @@ html.layout-tv .emby-button.listItem-border.listItem-border:focus { background: 
 .layout-tv .btnCloseActionSheet.btnCloseActionSheet:focus { box-shadow: inset 0 0 0 3px var(--primary) !important; transform: none !important; }
 .layout-tv .lnkUserProfile:focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
 
+
+/* 81-detail-header.css */
+/* Detail header, every layout: the logo as a faint watermark at the right, a short band above the header, and tight spacing down to the synopsis. */
+.itemDetailPage .itemBackdrop { height: 290px !important; min-height: 0 !important; }
+.itemDetailPage .detailLogo {
+  display: block !important; position: absolute !important; z-index: 0; left: auto; right: 3.3vw; top: 120px; width: 760px; height: 300px;
+  opacity: .1 !important; pointer-events: none;
+  background-size: contain !important; background-repeat: no-repeat !important; background-position: right center !important;
+}
+
+/* Stock stacks fixed margins under a header row its buttons overflow; these replace them with one set of gaps. */
+.itemDetailPage .detailRibbon { height: auto !important; min-height: 0 !important; gap: 12px !important; margin-bottom: 16px !important; }
+.itemDetailPage .itemMiscInfo-primary { margin: 4px 0 0 !important; }
+.itemDetailPage .infoWrapper { padding-top: 0 !important; }
+/* The band shows the banner, never the show's backdrop photo (phones draw one there). */
+.itemDetailPage .itemBackdrop { background-image: none !important; }
+.layout-mobile .itemDetailPage .detailLogo { top: 72px; width: 70vw; height: 140px; }
+/* Phones keep room on the left of the name for a poster and centre the name itself. */
+.layout-mobile .itemDetailPage .infoWrapper { padding-left: 0 !important; }
+.layout-mobile .itemDetailPage .nameContainer .itemName { text-align: left !important; }
+/* TV has no band above the header, so the name gets room under the top bar. */
+.layout-tv .itemDetailPage .detailRibbon { padding-top: 56px !important; }
+.itemDetailPage .detailPagePrimaryContent { padding-top: 0 !important; }
+.itemDetailPage .detailSection { margin-top: 0 !important; padding-top: 0 !important; }
+.itemDetailPage .detailSection > :first-child,
+.itemDetailPage .detailSectionContent .overview { margin-top: 0 !important; }
+.itemDetailPage .detailSectionContent > *,
+.itemDetailPage .itemDetailsGroup,
+.itemDetailPage .detailSection > .verticalSection { margin-top: 12px !important; }
+.itemDetailPage .detailSectionContent > :first-child { margin-top: 0 !important; }
+
+/* With the script, the poster leaves its column for a faded banner behind the header, and the text starts at the page edge. */
+.itemDetailPage.ml-banner-on .detailImageContainer { display: none !important; }
+.itemDetailPage.ml-banner-on .detailRibbon,
+.itemDetailPage.ml-banner-on .detailPagePrimaryContent,
+.itemDetailPage.ml-banner-on .detailPageContent { padding-left: 3.3vw !important; }
+.itemDetailPage .ml-banner {
+  position: absolute; top: 0; left: 0; right: 0; height: 520px; z-index: 0; pointer-events: none;
+  background-size: cover; background-position: center 25%; opacity: .35; -webkit-mask-image: linear-gradient(#000 40%, transparent);
+}
+.itemDetailPage.ml-banner-on .detailPageWrapperContainer { position: relative; z-index: 1; }
+
+/* Tags and links as details rows (script); a long tag list folds behind Show all. */
+html.ml-js .itemDetailPage .ml-moved { display: none !important; }
+.ml-tags-row:not(.ml-open) .ml-fold { display: none; }
+.ml-tags-row .content a, .ml-links-row .content a { color: inherit !important; }
+.ml-fold-toggle { margin-left: 8px; padding: 0; border: 0; background: none; color: var(--primary-70); font: 600 13px Inter, sans-serif; cursor: pointer; }
+.ml-fold-toggle:hover { text-decoration: underline; }
+
+/* The poster, opened full screen from the page's More menu. */
+.ml-poster-view { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: #0D0E17E6; cursor: zoom-out; outline: none; }
+.ml-poster-view img { max-width: 92vw; max-height: 92vh; border-radius: var(--r-md); box-shadow: 0 24px 64px #0D0E17; }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

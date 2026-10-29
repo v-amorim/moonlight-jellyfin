@@ -1,0 +1,50 @@
+/* Detail header, every layout: the logo as a faint watermark at the right, a short band above the header, and tight spacing down to the synopsis. */
+.itemDetailPage .itemBackdrop { height: 290px !important; min-height: 0 !important; }
+.itemDetailPage .detailLogo {
+  display: block !important; position: absolute !important; z-index: 0; left: auto; right: 3.3vw; top: 120px; width: 760px; height: 300px;
+  opacity: .1 !important; pointer-events: none;
+  background-size: contain !important; background-repeat: no-repeat !important; background-position: right center !important;
+}
+
+/* Stock stacks fixed margins under a header row its buttons overflow; these replace them with one set of gaps. */
+.itemDetailPage .detailRibbon { height: auto !important; min-height: 0 !important; gap: 12px !important; margin-bottom: 16px !important; }
+.itemDetailPage .itemMiscInfo-primary { margin: 4px 0 0 !important; }
+.itemDetailPage .infoWrapper { padding-top: 0 !important; }
+/* The band shows the banner, never the show's backdrop photo (phones draw one there). */
+.itemDetailPage .itemBackdrop { background-image: none !important; }
+.layout-mobile .itemDetailPage .detailLogo { top: 72px; width: 70vw; height: 140px; }
+/* Phones keep room on the left of the name for a poster and centre the name itself. */
+.layout-mobile .itemDetailPage .infoWrapper { padding-left: 0 !important; }
+.layout-mobile .itemDetailPage .nameContainer .itemName { text-align: left !important; }
+/* TV has no band above the header, so the name gets room under the top bar. */
+.layout-tv .itemDetailPage .detailRibbon { padding-top: 56px !important; }
+.itemDetailPage .detailPagePrimaryContent { padding-top: 0 !important; }
+.itemDetailPage .detailSection { margin-top: 0 !important; padding-top: 0 !important; }
+.itemDetailPage .detailSection > :first-child,
+.itemDetailPage .detailSectionContent .overview { margin-top: 0 !important; }
+.itemDetailPage .detailSectionContent > *,
+.itemDetailPage .itemDetailsGroup,
+.itemDetailPage .detailSection > .verticalSection { margin-top: 12px !important; }
+.itemDetailPage .detailSectionContent > :first-child { margin-top: 0 !important; }
+
+/* With the script, the poster leaves its column for a faded banner behind the header, and the text starts at the page edge. */
+.itemDetailPage.ml-banner-on .detailImageContainer { display: none !important; }
+.itemDetailPage.ml-banner-on .detailRibbon,
+.itemDetailPage.ml-banner-on .detailPagePrimaryContent,
+.itemDetailPage.ml-banner-on .detailPageContent { padding-left: 3.3vw !important; }
+.itemDetailPage .ml-banner {
+  position: absolute; top: 0; left: 0; right: 0; height: 520px; z-index: 0; pointer-events: none;
+  background-size: cover; background-position: center 25%; opacity: .35; -webkit-mask-image: linear-gradient(#000 40%, transparent);
+}
+.itemDetailPage.ml-banner-on .detailPageWrapperContainer { position: relative; z-index: 1; }
+
+/* Tags and links as details rows (script); a long tag list folds behind Show all. */
+html.ml-js .itemDetailPage .ml-moved { display: none !important; }
+.ml-tags-row:not(.ml-open) .ml-fold { display: none; }
+.ml-tags-row .content a, .ml-links-row .content a { color: inherit !important; }
+.ml-fold-toggle { margin-left: 8px; padding: 0; border: 0; background: none; color: var(--primary-70); font: 600 13px Inter, sans-serif; cursor: pointer; }
+.ml-fold-toggle:hover { text-decoration: underline; }
+
+/* The poster, opened full screen from the page's More menu. */
+.ml-poster-view { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: #0D0E17E6; cursor: zoom-out; outline: none; }
+.ml-poster-view img { max-width: 92vw; max-height: 92vh; border-radius: var(--r-md); box-shadow: 0 24px 64px #0D0E17; }

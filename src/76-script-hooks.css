@@ -92,6 +92,28 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
 .ml-pc-meta { display: flex; justify-content: center; gap: 14px; font: 500 16px Inter, sans-serif; color: var(--muted); }
 .ml-pc-overview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; margin: 14px 0 0; font: 400 19px/1.5 Inter, sans-serif; color: #EEEEFAD9; }
 
+/* Series cards: one row of small 4 px chips under the picture (years, seasons, star score, tomato score); home shows only the scores. */
+.ml-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 4px 2px; }
+.ml-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--on-surface); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
+.ml-chip-seasons, .ml-chip-crit { color: var(--muted); }
+.ml-chip-code { color: var(--primary-70); }
+.ml-chip .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1.1em; height: 1.1em; font-size: 1.1em !important; line-height: 1; color: #E8C46A; }
+.ml-tomato { width: 1.15em; height: 1.15em; }
+.layout-tv .ml-info { margin: 10px 4px 2px; }
+.layout-tv .ml-chip { font-size: 15px; }
+.layout-mobile .ml-info { gap: 4px; margin: 6px 2px 2px; }
+.layout-mobile .ml-chip { font-size: 11px; padding: 1px 6px; }
+html.ml-js .card.ml-info-on .cardText-secondary { display: none !important; }
+
+/* Library switcher: on library pages the title becomes a pill of every library; the current one on surface-3 in primary-70. */
+html.ml-libnav-on .skinHeader .pageTitle { display: none !important; }
+.ml-libnav { display: inline-flex; gap: 2px; margin-left: 12px; padding: 3px; border-radius: var(--r-sm); background: var(--surface-1); box-shadow: 0 0 0 1px var(--border); }
+.ml-libnav-item { padding: 5px 12px; border: 0; border-radius: 5px; background: none; color: var(--muted); font: 600 14px Inter, sans-serif; cursor: pointer; }
+.ml-libnav-item:hover { background: var(--surface-2); color: var(--on-surface); }
+.ml-libnav-item.ml-on { background: var(--surface-3); color: var(--primary-70); }
+.ml-libnav-item:focus-visible, .layout-tv .ml-libnav-item:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+.layout-tv .ml-libnav-item { font-size: 16px; padding: 6px 14px; }
+
 /* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
 .ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
 .ml-trick-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--primary-70); }

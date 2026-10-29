@@ -1,21 +1,7 @@
-/* TV-only on purpose: PC and phone keep jellyfin-web's own detail layout. */
+/* TV sizes for the detail page; the layout itself is shared (81-detail-header). */
 
 .layout-tv .sectionTitle { font-size: 24px !important; font-weight: 700 !important; letter-spacing: .12em !important; }
 
-.layout-tv .detailLogo {
-  display: block !important;
-  position: absolute !important;
-  z-index: 3;
-  opacity: 1 !important;
-  left: 32.4vw;
-  top: 84px;
-  width: 24vw;
-  height: 104px;
-  background-size: contain !important;
-  background-repeat: no-repeat !important;
-  background-position: left center !important;
-}
-.layout-tv .infoWrapper { padding-top: 120px !important; }
 .layout-tv .itemName.infoText { font-size: var(--title) !important; }
 
 .layout-tv .mainDetailButtons { gap: 12px; }
