@@ -1,0 +1,33 @@
+/* PC card hover: primary Play circle; the corner icons hover to primary-70 instead of stock cyan. */
+.layout-desktop .cardOverlayFab-primary { background: var(--primary) !important; color: var(--on-primary) !important; }
+.layout-desktop .cardOverlayFab-primary:hover { background: var(--primary-60) !important; }
+.layout-desktop .cardOverlayFab-primary .cardOverlayButtonIcon { color: var(--on-primary) !important; }
+.layout-desktop .cardOverlayButton-br .cardOverlayButton,
+.layout-desktop .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
+.layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
+
+/* Selection mode: quiet bar, hairline card edges, primary only on the checked box. */
+.selectionCommandsPanel { background: var(--surface-1) !important; color: var(--on-surface) !important; border-bottom: 1px solid var(--border); }
+.itemSelectionPanel { border-color: var(--border) !important; }
+.itemSelectionPanel .checkboxOutline { border-color: var(--border-strong) !important; background: #0D0E17B3 !important; }
+.itemSelectionPanel .emby-checkbox:checked + span + .checkboxOutline { background: var(--primary) !important; border-color: var(--primary) !important; color: var(--on-primary) !important; }
+
+/* Episode count: a pill on a translucent surface-1 with a hairline. */
+.layout-desktop .countIndicator {
+  border-radius: 999px !important;
+  background: #141726D9 !important;
+  border: 1px solid var(--border) !important;
+  min-width: 28px;
+  height: 24px !important;
+  padding: 0 8px !important;
+  font-weight: 600;
+}
+
+/* Active item: primary at 12% with primary-70 text; hover is one surface step up. */
+.navMenuOption-selected { background: #7386D01F !important; color: var(--primary-70) !important; }
+.mdl-radio__button:checked + .mdl-radio__circles .mdl-radio__outer-circle,
+.mdl-radio__button:checked + .mdl-radio__circles .mdl-radio__inner-circle { color: var(--primary-70) !important; }
+.mdl-radio__focus-circle { background: var(--primary) !important; }
+/* The player page is a .libraryPage too; its buttons have their own hover. */
+.libraryPage:not(#videoOsdPage) .paper-icon-button-light:not(.cardOverlayButton):hover,
+.libraryPage:not(#videoOsdPage) .paper-icon-button-light:not(.cardOverlayButton):focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }

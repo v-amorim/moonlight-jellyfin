@@ -1,0 +1,10 @@
+/* Icon-button hover everywhere: primary at 12% with a primary-70 icon, in the Play chip's shape. */
+.videoOsdBottom .paper-icon-button-light:not(.btnPause):hover,
+.headerButton:hover,
+.libraryPage:not(#videoOsdPage) .paper-icon-button-light:not(.cardOverlayButton):hover {
+  background: #7386D01F !important;
+  color: var(--primary-70) !important;
+  border-radius: var(--r-sm) !important;
+}
+.headerButton:hover .material-icons,
+.videoOsdBottom .paper-icon-button-light:not(.btnPause):hover .material-icons { color: var(--primary-70) !important; }

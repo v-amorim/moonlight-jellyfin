@@ -1,0 +1,16 @@
+/* Seek target on TV: a playhead tab where Enter will jump, apart from the fill that shows playback. */
+.layout-tv .osdControls .osdPositionSlider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  opacity: 1 !important;
+  width: 4px;
+  height: 40px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--primary-70);
+  box-shadow: 0 0 0 2px #0D0E17;
+}
+
+/* Stock gives the player header a fixed 7.5em; the band only needs the icons plus 8px above and below. */
+.transparentDocument .skinHeader.osdHeader { height: auto !important; }
+.transparentDocument .skinHeader.osdHeader .headerTop { padding-top: 8px !important; padding-bottom: 8px !important; }

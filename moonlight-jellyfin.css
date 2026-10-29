@@ -202,6 +202,8 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .layout-tv .card.show-focus:focus .cardScalable {
   box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important;
 }
+/* Stock cards paint-contain to their box, which has no left margin, so the ring was cut on the left. */
+.layout-tv .card { contain: layout style !important; }
 .layout-tv .emby-button:focus, .layout-tv .listItem:focus, .layout-tv .emby-tab-button:focus {
   outline: 3px solid var(--primary);
   outline-offset: 2px;
@@ -391,6 +393,11 @@ a, .button-link { color: var(--secondary); }
 
 .videoOsdBottom .paper-icon-button-light { color: var(--muted) !important; background: none !important; }
 .videoOsdBottom .btnPause { color: var(--on-surface) !important; background: var(--surface-3) !important; border-radius: var(--r-sm) !important; }
+/* Hover is one surface step up, in the Play chip's shape instead of stock's circle. */
+.videoOsdBottom .paper-icon-button-light:hover { background: var(--surface-2) !important; border-radius: var(--r-sm) !important; color: var(--on-surface) !important; }
+.videoOsdBottom .btnPause:hover { background: var(--surface-4) !important; }
+/* Player buttons are not .emby-button, so the TV ring never reached them. */
+.layout-tv .videoOsdBottom .paper-icon-button-light:focus { outline: 3px solid var(--primary) !important; outline-offset: 2px; border-radius: var(--r-sm) !important; color: var(--on-surface) !important; }
 
 /* 45-player-cards.css */
 /* Player chrome after the mpv top card and toasts: one card style for the header, notices and the seek preview. */
@@ -426,6 +433,24 @@ a, .button-link { color: var(--secondary); }
 
 .videoOsdBottom .osdTimeText { color: var(--muted) !important; font-size: 13px !important; }
 
+/* 46-player-seek-band.css */
+/* Seek target on TV: a playhead tab where Enter will jump, apart from the fill that shows playback. */
+.layout-tv .osdControls .osdPositionSlider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  opacity: 1 !important;
+  width: 4px;
+  height: 40px;
+  margin-top: -6px;
+  border: 0;
+  border-radius: 2px;
+  background: var(--primary-70);
+  box-shadow: 0 0 0 2px #0D0E17;
+}
+
+/* Stock gives the player header a fixed 7.5em; the band only needs the icons plus 8px above and below. */
+.transparentDocument .skinHeader.osdHeader { height: auto !important; }
+.transparentDocument .skinHeader.osdHeader .headerTop { padding-top: 8px !important; padding-bottom: 8px !important; }
+
 /* 50-skip-button.css */
 /* Skip Intro / Skip Outro: the view's one filled action. */
 
@@ -438,6 +463,53 @@ a, .button-link { color: var(--secondary); }
   box-shadow: 0 12px 32px #000a !important;
 }
 .skip-button:focus { background: var(--primary-60) !important; outline: 3px solid var(--primary) !important; outline-offset: 2px !important; }
+
+/* 60-pc-states.css */
+/* PC card hover: primary Play circle; the corner icons hover to primary-70 instead of stock cyan. */
+.layout-desktop .cardOverlayFab-primary { background: var(--primary) !important; color: var(--on-primary) !important; }
+.layout-desktop .cardOverlayFab-primary:hover { background: var(--primary-60) !important; }
+.layout-desktop .cardOverlayFab-primary .cardOverlayButtonIcon { color: var(--on-primary) !important; }
+.layout-desktop .cardOverlayButton-br .cardOverlayButton,
+.layout-desktop .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
+.layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
+
+/* Selection mode: quiet bar, hairline card edges, primary only on the checked box. */
+.selectionCommandsPanel { background: var(--surface-1) !important; color: var(--on-surface) !important; border-bottom: 1px solid var(--border); }
+.itemSelectionPanel { border-color: var(--border) !important; }
+.itemSelectionPanel .checkboxOutline { border-color: var(--border-strong) !important; background: #0D0E17B3 !important; }
+.itemSelectionPanel .emby-checkbox:checked + span + .checkboxOutline { background: var(--primary) !important; border-color: var(--primary) !important; color: var(--on-primary) !important; }
+
+/* Episode count: a pill on a translucent surface-1 with a hairline. */
+.layout-desktop .countIndicator {
+  border-radius: 999px !important;
+  background: #141726D9 !important;
+  border: 1px solid var(--border) !important;
+  min-width: 28px;
+  height: 24px !important;
+  padding: 0 8px !important;
+  font-weight: 600;
+}
+
+/* Active item: primary at 12% with primary-70 text; hover is one surface step up. */
+.navMenuOption-selected { background: #7386D01F !important; color: var(--primary-70) !important; }
+.mdl-radio__button:checked + .mdl-radio__circles .mdl-radio__outer-circle,
+.mdl-radio__button:checked + .mdl-radio__circles .mdl-radio__inner-circle { color: var(--primary-70) !important; }
+.mdl-radio__focus-circle { background: var(--primary) !important; }
+/* The player page is a .libraryPage too; its buttons have their own hover. */
+.libraryPage:not(#videoOsdPage) .paper-icon-button-light:not(.cardOverlayButton):hover,
+.libraryPage:not(#videoOsdPage) .paper-icon-button-light:not(.cardOverlayButton):focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+
+/* 65-icon-hover.css */
+/* Icon-button hover everywhere: primary at 12% with a primary-70 icon, in the Play chip's shape. */
+.videoOsdBottom .paper-icon-button-light:not(.btnPause):hover,
+.headerButton:hover,
+.libraryPage:not(#videoOsdPage) .paper-icon-button-light:not(.cardOverlayButton):hover {
+  background: #7386D01F !important;
+  color: var(--primary-70) !important;
+  border-radius: var(--r-sm) !important;
+}
+.headerButton:hover .material-icons,
+.videoOsdBottom .paper-icon-button-light:not(.btnPause):hover .material-icons { color: var(--primary-70) !important; }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

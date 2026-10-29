@@ -201,6 +201,8 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .layout-tv .card.show-focus:focus .cardScalable {
   box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important;
 }
+/* Stock cards paint-contain to their box, which has no left margin, so the ring was cut on the left. */
+.layout-tv .card { contain: layout style !important; }
 .layout-tv .emby-button:focus, .layout-tv .listItem:focus, .layout-tv .emby-tab-button:focus {
   outline: 3px solid var(--primary);
   outline-offset: 2px;

@@ -46,3 +46,8 @@
 
 .videoOsdBottom .paper-icon-button-light { color: var(--muted) !important; background: none !important; }
 .videoOsdBottom .btnPause { color: var(--on-surface) !important; background: var(--surface-3) !important; border-radius: var(--r-sm) !important; }
+/* Hover is one surface step up, in the Play chip's shape instead of stock's circle. */
+.videoOsdBottom .paper-icon-button-light:hover { background: var(--surface-2) !important; border-radius: var(--r-sm) !important; color: var(--on-surface) !important; }
+.videoOsdBottom .btnPause:hover { background: var(--surface-4) !important; }
+/* Player buttons are not .emby-button, so the TV ring never reached them. */
+.layout-tv .videoOsdBottom .paper-icon-button-light:focus { outline: 3px solid var(--primary) !important; outline-offset: 2px; border-radius: var(--r-sm) !important; color: var(--on-surface) !important; }
