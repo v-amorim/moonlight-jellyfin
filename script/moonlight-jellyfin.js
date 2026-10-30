@@ -100,6 +100,8 @@
       enhancePosterMenu();
       enhanceDetailRows();
       enhanceLibrarySwitcher();
+      enhanceViewStrip();
+      enhanceCardTargets();
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -262,11 +264,15 @@
     if (info.IndexNumber != null) row.appendChild(chip('ml-chip-code', '')).textContent = 'S' + info.ParentIndexNumber + ':E' + info.IndexNumber;
     episodeChips(row, info);
     title.parentNode.insertBefore(row, title.nextSibling);
-    // Only More stays on the tile, at the title's right end; watched and favourite are in its menu.
+    // Desktop builds these tiles with action "none" and an Info button the theme hides, so the tile itself opens the episode.
+    item.setAttribute('data-action', 'link');
+    // Only More stays on the tile, in the picture's corner as on cards; watched and favourite are in its menu.
     var actions = item.querySelector('.listViewUserDataButtons');
+    var picture = item.querySelector('.listItemImage');
     if (actions) {
       actions.classList.add('ml-tile-actions');
-      title.parentNode.insertBefore(actions, title.nextSibling);
+      if (picture) picture.appendChild(actions);
+      else title.parentNode.insertBefore(actions, title.nextSibling);
     }
   }
 
@@ -497,6 +503,30 @@
     group.appendChild(row);
   }
 
+  // Person pages print "Born: <date>" as one translated line; split at the first colon it reads as a label and value row like Links.
+  function factRows(page, group) {
+    var anchor = group.firstChild;
+    ['itemBirthday', 'itemBirthLocation', 'itemDeathDate'].forEach(function (id) {
+      var source = page.querySelector('#' + id);
+      var cls = 'ml-fact-' + id;
+      var row = group.querySelector('.' + cls);
+      var text = source && !source.classList.contains('hide') ? source.textContent : '';
+      var cut = text.indexOf(':');
+      if (row && row.getAttribute('data-sig') === text) { anchor = row.nextSibling; return; }
+      if (row) row.remove();
+      if (!source || cut < 0) return;
+      source.classList.add('ml-moved');
+      row = document.createElement('div');
+      row.className = 'detailsGroupItem ' + cls;
+      row.setAttribute('data-sig', text);
+      row.innerHTML = '<div class="label"></div><div class="content"></div>';
+      row.firstChild.textContent = text.slice(0, cut).trim();
+      row.lastChild.textContent = text.slice(cut + 1).trim();
+      group.insertBefore(row, anchor);
+      anchor = row.nextSibling;
+    });
+  }
+
   function enhanceDetailRows() {
     var page = document.querySelector('.itemDetailPage:not(.hide)');
     if (!page) return;
@@ -508,6 +538,7 @@
     }
     var group = page.querySelector('.itemDetailsGroup');
     if (!group) return;
+    factRows(page, group);
     var tags = page.querySelector('.itemTags');
     var links = page.querySelector('.itemExternalLinks');
     if (tags) detailRow(group, tags, 'ml-tags-row', (tags.firstChild && tags.firstChild.nodeType === 3 ? tags.firstChild.textContent : 'Tags').replace(/[:\s]+$/, '') || 'Tags', true);
@@ -564,6 +595,58 @@
   }
   window.addEventListener('hashchange', enhanceLibrarySwitcher);
 
+  // The card frame (padding, chips row) is not an item action, so a tap there did nothing; Jellyfin takes the innermost action, so buttons and links keep theirs.
+  function enhanceCardTargets() {
+    if (isTv()) return;
+    var boxes = document.querySelectorAll('.card[data-id] .cardBox:not([data-action])');
+    for (var i = 0; i < boxes.length; i++) {
+      boxes[i].classList.add('itemAction');
+      boxes[i].setAttribute('data-action', 'link');
+    }
+    // Phone home cards come with Play only; they get the More button the library cards have.
+    if (!root.classList.contains('layout-mobile')) return;
+    var pics = document.querySelectorAll('.card[data-id] .cardScalable:not(.ml-more-on)');
+    for (var j = 0; j < pics.length; j++) {
+      pics[j].classList.add('ml-more-on');
+      if (pics[j].querySelector('[data-action="menu"]') || pics[j].closest('.detailImageContainer')) continue;
+      var more = document.createElement('button');
+      more.type = 'button';
+      more.className = 'ml-card-more itemAction';
+      more.setAttribute('data-action', 'menu');
+      more.title = 'More';
+      more.innerHTML = '<span class="material-icons" aria-hidden="true">more_vert</span>';
+      pics[j].appendChild(more);
+    }
+  }
+
+  // 12.x Modern shell on PC: a pill strip for the view menu; the menu stays mounted while closed, so each pill clicks its item.
+  function enhanceViewStrip() {
+    var items = document.querySelectorAll('#library-view-menu .MuiMenuItem-root');
+    var button = document.querySelector('[aria-controls="library-view-menu"]');
+    var existing = document.querySelector('.ml-viewnav');
+    if (!isDesktop() || !items.length || !button) {
+      if (existing) existing.remove();
+      root.classList.remove('ml-viewnav-on');
+      return;
+    }
+    var key = Array.prototype.map.call(items, function (it) { return (it.classList.contains('Mui-selected') ? '*' : '') + it.textContent; }).join('|');
+    if (existing && existing.getAttribute('data-key') === key && existing.nextSibling === button) return;
+    if (existing) existing.remove();
+    var nav = document.createElement('div');
+    nav.className = 'ml-libnav ml-viewnav';
+    nav.setAttribute('data-key', key);
+    Array.prototype.forEach.call(items, function (it) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ml-libnav-item' + (it.classList.contains('Mui-selected') ? ' ml-on' : '');
+      btn.textContent = it.textContent;
+      btn.addEventListener('click', function () { it.click(); });
+      nav.appendChild(btn);
+    });
+    button.parentNode.insertBefore(nav, button);
+    root.classList.add('ml-viewnav-on');
+  }
+
   function tickClock() {
     var bottom = document.querySelector('#videoOsdPage:not(.hide) .videoOsdBottom');
     var show = clockOn() && !!bottom && (bottom.classList.contains('hide') || bottom.classList.contains('videoOsdBottom-hidden'));
@@ -600,6 +683,21 @@
     return trickCache[id];
   }
 
+  // 12.x rejects the api_key URL parameter, so each frame sheet is fetched with the auth header and shown from a blob URL.
+  var sheetCache = {};
+
+  function sheetUrl(id, t, tile) {
+    var key = id + '/' + t.width + '/' + tile;
+    if (sheetCache[key]) return sheetCache[key];
+    var api = window.ApiClient;
+    var url = api.getUrl('Videos/' + id + '/Trickplay/' + t.width + '/' + tile + '.jpg', { MediaSourceId: t.source });
+    sheetCache[key] = fetch(url, { headers: { Authorization: 'MediaBrowser Token="' + api.accessToken() + '"' } })
+      .then(function (res) { if (!res.ok) throw new Error(res.status); return res.blob(); })
+      .then(function (blob) { return URL.createObjectURL(blob); })
+      .catch(function () { delete sheetCache[key]; return null; });
+    return sheetCache[key];
+  }
+
   var hover = null;
 
   function endHover() {
@@ -607,8 +705,9 @@
     clearTimeout(hover.timer);
     hover.card.removeEventListener('mousemove', onMove);
     hover.card.removeEventListener('mouseleave', endHover);
-    var layer = hover.card.querySelector('.ml-trick');
-    if (layer) layer.remove();
+    var layers = hover.card.querySelectorAll('.ml-trick, .ml-trick-none');
+    for (var i = 0; i < layers.length; i++) layers[i].remove();
+    hover.card.classList.remove('ml-scrubbing');
     hover = null;
   }
 
@@ -621,34 +720,59 @@
     if (hover.trick) draw();
   }
 
-  function draw() {
+  // Paints frame `index` onto `el`. Every sheet is the full grid, the last one padded with black, so the grid size never changes.
+  function paintFrame(el, index) {
     var t = hover.trick;
     var info = t.info;
-    var count = info.ThumbnailCount;
-    var perTile = info.TileWidth * info.TileHeight;
-    var index = Math.min(count - 1, Math.floor(hover.frac * count));
-    var tile = Math.floor(index / perTile);
-    var k = index % perTile;
-    // Every sheet is the full grid, the last one padded with black, so the grid size never changes.
     var cols = info.TileWidth;
     var rows = info.TileHeight;
-    var col = k % info.TileWidth;
-    var row = Math.floor(k / info.TileWidth);
+    var perTile = cols * rows;
+    var k = index % perTile;
+    var col = k % cols;
+    var row = Math.floor(k / cols);
+    var mine = hover;
+    el.setAttribute('data-frame', index);
+    sheetUrl(hover.card.dataset.id, t, Math.floor(index / perTile)).then(function (url) {
+      if (hover !== mine || el.getAttribute('data-frame') !== String(index)) return;
+      if (!url) { mine.card.querySelectorAll('.ml-trick').forEach(function (n) { n.remove(); }); return markNoPreview(mine.card); }
+      el.style.backgroundImage = 'url("' + url + '")';
+    });
+    el.style.backgroundSize = (cols * 100) + '% ' + (rows * 100) + '%';
+    el.style.backgroundPosition = (cols > 1 ? col / (cols - 1) * 100 : 0) + '% ' + (rows > 1 ? row / (rows - 1) * 100 : 0) + '%';
+  }
+
+  // The frame under the pointer fills the picture; a filmstrip of its neighbours runs along the bottom, the current one ringed.
+  function draw() {
+    var count = hover.trick.info.ThumbnailCount;
+    var index = Math.min(count - 1, Math.floor(hover.frac * count));
     var host = hover.card.querySelector('.cardImageContainer');
     if (!host) return;
     var layer = host.querySelector('.ml-trick');
     if (!layer) {
       layer = document.createElement('div');
       layer.className = 'ml-trick';
-      layer.innerHTML = '<div class="ml-trick-bar"></div>';
+      layer.innerHTML = '<div class="ml-trick-strip">' + '<span></span>'.repeat(5) + '</div>';
       host.appendChild(layer);
+      hover.card.classList.add('ml-scrubbing');
     }
-    var api = window.ApiClient;
-    var url = api.getUrl('Videos/' + hover.card.dataset.id + '/Trickplay/' + t.width + '/' + tile + '.jpg', { MediaSourceId: t.source, api_key: api.accessToken() });
-    layer.style.backgroundImage = 'url("' + url + '")';
-    layer.style.backgroundSize = (cols * 100) + '% ' + (rows * 100) + '%';
-    layer.style.backgroundPosition = (cols > 1 ? col / (cols - 1) * 100 : 0) + '% ' + (rows > 1 ? row / (rows - 1) * 100 : 0) + '%';
-    layer.firstChild.style.width = (hover.frac * 100) + '%';
+    paintFrame(layer, index);
+    var minis = layer.querySelectorAll('.ml-trick-strip span');
+    for (var i = 0; i < minis.length; i++) {
+      var n = index + i - 2;
+      minis[i].style.visibility = n < 0 || n >= count ? 'hidden' : '';
+      minis[i].className = i === 2 ? 'ml-now' : '';
+      if (n >= 0 && n < count) paintFrame(minis[i], n);
+    }
+  }
+
+  // Without frames the pointer would do nothing, so the picture says why.
+  function markNoPreview(card) {
+    var host = card.querySelector('.cardImageContainer');
+    if (!host || host.querySelector('.ml-trick-none')) return;
+    var chip = document.createElement('div');
+    chip.className = 'ml-trick-none';
+    chip.textContent = 'No preview';
+    host.appendChild(chip);
   }
 
   document.addEventListener('mouseover', function (e) {
@@ -664,7 +788,8 @@
     hover.timer = setTimeout(function () {
       var mine = hover;
       trickInfo(card.dataset.id).then(function (t) {
-        if (!t || hover !== mine) return;
+        if (hover !== mine) return;
+        if (!t) return markNoPreview(card);
         mine.trick = t;
         draw();
       });

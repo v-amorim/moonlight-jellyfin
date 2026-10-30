@@ -22,9 +22,10 @@
 /* The pill says Continue only on items already started; :has() is PC and phone only, and the TV shows no Play button on cards. */
 :is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after { content: "Play" !important; }
 .layout-desktop .card:has(.itemProgressBar) .cardOverlayFab-primary::after, .layout-mobile .card:has(.itemProgressBar) .cardOverlayFab-primary::after { content: "Continue" !important; }
-/* Portrait posters are too narrow for the pill text next to the corner icons. */
-:is(.layout-desktop, .layout-mobile) .portraitCard .cardOverlayFab-primary::after, :is(.layout-desktop, .layout-mobile) .overflowPortraitCard .cardOverlayFab-primary::after { content: none !important; }
-:is(.layout-desktop, .layout-mobile) .portraitCard .cardOverlayFab-primary, :is(.layout-desktop, .layout-mobile) .overflowPortraitCard .cardOverlayFab-primary { padding: 0 !important; width: 40px !important; justify-content: center; }
+/* Rows give back the card box's side margin, so the first card starts on the section heading's left edge. */
+html.layout-desktop .verticalSection .itemsContainer { margin-left: -8px !important; }
+html.layout-mobile .verticalSection .itemsContainer { margin-left: -4px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { margin-left: 0 !important; }
 /* Phone: the same frame at phone sizes. */
 .layout-mobile .card .cardBox { padding: 6px !important; margin: 0 4px 10px !important; }
 .layout-mobile .card .cardText-first { padding: 0 4px 6px !important; font-size: 11px !important; }

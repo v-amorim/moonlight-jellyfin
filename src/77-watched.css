@@ -38,4 +38,6 @@ html .cardScalable .cardIndicators {
   background: #0D0E1780;
   box-shadow: 0 0 0 2px #EEEEFA59;
 }
+/* 12.x Modern draws the check as an MUI svg instead of a font glyph; inset it so it sits inside the ring at the glyph's size. */
+.playedIndicator svg.indicatorIcon { padding: 12px; fill: var(--on-surface) !important; color: var(--on-surface) !important; }
 .playedIndicator::after { content: "Watched"; font: 600 14px Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--on-surface); }

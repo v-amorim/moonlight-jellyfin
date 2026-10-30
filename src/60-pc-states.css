@@ -7,8 +7,17 @@
 .layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
 /* The corner keeps only More, as on episode tiles; watched and favourite are in its menu. */
 .cardOverlayButton-br .cardOverlayButton:not([data-action="menu"]) { display: none !important; }
-/* Phone cards carry only a play button in that corner; it takes the primary circle of the PC Play button. */
-.layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: var(--primary) !important; color: var(--on-primary) !important; }
+/* Phone cards carry only a play button in that corner; it becomes the same Play pill as on PC, bottom-left. */
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br {
+  right: auto !important; left: 8px !important; bottom: 8px !important; width: auto !important; height: 36px !important; padding: 0 12px 0 6px !important;
+  display: flex !important; align-items: center; gap: 2px; border-radius: var(--r-sm) !important; background: var(--primary) !important;
+}
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: none !important; color: var(--on-primary) !important; }
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br::after { content: "Play"; font: 600 13px Inter, sans-serif; color: var(--on-primary); }
+.layout-mobile .card:has(.itemProgressBar) .cardOverlayButton.cardOverlayButton-br::after { content: "Continue"; }
+/* The script adds More to phone cards that came without one, level with the Play pill. */
+.ml-card-more { position: absolute; right: 2px; bottom: 8px; z-index: 3; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--on-surface); cursor: pointer; }
+.ml-card-more .material-icons { font-size: 24px; }
 
 /* Selection mode: quiet bar, hairline card edges, primary only on the checked box. */
 .selectionCommandsPanel { background: var(--surface-1) !important; color: var(--on-surface) !important; border-bottom: 1px solid var(--border); }

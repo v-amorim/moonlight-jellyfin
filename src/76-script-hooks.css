@@ -17,6 +17,9 @@ html.ml-js .ml-collapsible.ml-open .cardText { font-size: 15px !important; }
 html.ml-js .ml-people.ml-open .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.25 !important; height: auto !important; min-height: 2.5em; box-sizing: content-box; padding-bottom: 0 !important; margin-bottom: 8px; }
 /* The TV renders text larger than the PC, so six columns still cut the roles there. */
 html.ml-js.layout-tv .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Phone: one episode per row, as on the season page, and three people per row. */
+html.ml-js.layout-mobile .ml-collapsible.ml-open .itemsContainer { grid-template-columns: minmax(0, 1fr); padding: 8px 0 !important; }
+html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .ml-season-toggle {
   display: flex;
   align-items: center;
@@ -116,7 +119,14 @@ html.ml-libnav-on .skinHeader .pageTitle { display: none !important; }
 
 /* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
 .ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
-.ml-trick-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--primary-70); }
+/* Filmstrip of the frames around the pointer along the picture's bottom; Play and More move up above it. */
+.ml-trick-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 24%; display: flex; align-items: center; justify-content: center; gap: 4px; background: #0D0E17D9; }
+.ml-trick-strip span { height: 62%; aspect-ratio: 16 / 9; border-radius: 3px; background-repeat: no-repeat; opacity: .6; }
+.ml-trick-strip span.ml-now { height: 82%; opacity: 1; box-shadow: 0 0 0 2px var(--primary-70); }
+.card.ml-scrubbing .cardOverlayFab-primary { bottom: calc(24% + 8px) !important; }
+.card.ml-scrubbing .cardOverlayButton-br { bottom: calc(24% + 4px) !important; }
+/* Shown instead of the scrub when the item has no trickplay frames, in the count badge's style. */
+.ml-trick-none { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 4px 8px; border-radius: var(--r-xs); background: #141726D9; box-shadow: 0 0 0 1px #FFFFFF26; color: var(--muted); font: 600 12px Inter, sans-serif; pointer-events: none; }
 
 /* Menu close button: Jellyfin hides it while the mouse is idle on TV; with the script it is focusable, so it stays. */
 html.ml-js .mouseIdle-tv .actionSheet .btnCloseActionSheet.hide-mouse-idle-tv { display: flex !important; }

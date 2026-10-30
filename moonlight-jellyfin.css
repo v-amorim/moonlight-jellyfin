@@ -53,8 +53,7 @@
 html, body, .skinBody, .backgroundContainer, .mainAnimatedPage, .page {
   background: var(--bg) !important;
   color: var(--on-surface);
-}
-/* The player page sits on top of the video element, so it must stay see-through. */
+}/* The player page sits on top of the video element, so it must stay see-through. */
 html.transparentDocument, .transparentDocument body, .transparentDocument .skinBody,
 .transparentDocument .page, .transparentDocument .mainAnimatedPage { background: transparent !important; }
 
@@ -72,6 +71,9 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .layout-tv .skinHeader { border-bottom-color: transparent; }
 .headerButton, .headerTop .material-icons, .headerButton .material-icons { color: var(--muted); }
 .headerButton:hover .material-icons { color: var(--on-surface); }
+/* TV library toolbar (count, view, sort, filter) is muted like the header icons; focus still lights it. */
+.layout-tv .page:not(.hide) .paging, .layout-tv .page:not(.hide) :is(.btnSelectView, .btnSort, .btnFilter):not(:focus),
+.layout-tv .page:not(.hide) :is(.btnSelectView, .btnSort, .btnFilter):not(:focus) .material-icons { color: var(--muted) !important; }
 
 .headerTabs .emby-tabs-slider, .sectionTabs .emby-tabs-slider {
   background: var(--surface-1);
@@ -152,7 +154,13 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .itemName.infoText { font-size: var(--heading-lg); }
 .parentName, .itemName.originalTitle { color: var(--muted); font-size: var(--title) !important; font-weight: 500; }
 .itemMiscInfo, .itemMiscInfo .mediaInfoItem, .endsAt { color: var(--muted); font-size: var(--title); }
-.starIcon { color: var(--primary-70) !important; }
+/* Star and tomato match the script's card chips, which show one tomato for any score. */
+.starIcon { color: #E8C46A !important; }
+.mediaInfoCriticRatingFresh, .mediaInfoCriticRatingRotten {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2016%2016'%3E%3Ccircle%20cx%3D'8'%20cy%3D'9.5'%20r%3D'5.5'%20fill%3D'%23E2725B'%2F%3E%3Cpath%20d%3D'M8%204.2%206%202.6l1.3%202.2-2.4.2%202.2.9L8%207.5l.9-1.6%202.2-.9-2.4-.2L10%202.6z'%20fill%3D'%237FC98B'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: 1.15em 1.15em !important;
+  background-position: left center !important;
+}
 .overview, .detail-clamp-text { color: var(--muted); font-size: var(--body); line-height: 1.55; }
 .itemDetailsGroup .label, .detailsGroupItem .label { color: var(--dim); }
 .detailImageContainer .cardScalable { box-shadow: 0 0 0 1px var(--border), 0 12px 32px #000a; }
@@ -233,6 +241,12 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .mdl-slider-background-lower { background: var(--primary) !important; }
 .mdl-slider-background-upper, .mdl-slider-background-flex, .mdl-slider-background-flex-inner { background: #252A42B3 !important; }
 .mdl-slider::-webkit-slider-thumb { background: var(--primary) !important; }
+/* The last stock-blue controls: slider colour, checked toggle thumb, focused radio and the loading spinner. */
+.mdl-slider { color: var(--primary) !important; }
+.mdl-switch__input:checked + .mdl-switch__label + .mdl-switch__trackContainer > .mdl-switch__thumb { background: var(--primary) !important; }
+.mdl-radio.show-focus .mdl-radio__button:focus + .mdl-radio__circles .mdl-radio__outer-circle,
+.mdl-radio.show-focus .mdl-radio__button:focus + .mdl-radio__circles .mdl-radio__inner-circle { color: var(--primary) !important; }
+.mdl-spinner__layer { border-color: var(--primary) !important; }
 .transparentDocument .skinHeader { background: linear-gradient(#0D0E17CC, transparent) !important; border-bottom: 0 !important; }
 .sliderMarker {
   width: 10px !important;
@@ -256,7 +270,8 @@ a, .button-link { color: var(--secondary); }
 
 /* 05-logo.css */
 /* Logo: the Moonlight moon on a surface-1 tile. */
-.pageTitleWithDefaultLogo {
+.pageTitleWithDefaultLogo,
+.MuiAppBar-root a[href="#/"] .MuiButton-startIcon {
   background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'3%203%2018%2018'%3E%3Cdefs%3E%3ClinearGradient%20id%3D'g'%20x1%3D'0'%20y1%3D'0'%20x2%3D'0'%20y2%3D'1'%3E%3Cstop%20offset%3D'0'%20stop-color%3D'%23B9C6F5'%2F%3E%3Cstop%20offset%3D'1'%20stop-color%3D'%237386D0'%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D'url(%23g)'%20d%3D'M12%2C3c-4.97%2C0%20-9%2C4.03%20-9%2C9s4.03%2C9%209%2C9s9%2C-4.03%209%2C-9c0%2C-0.46%20-0.04%2C-0.92%20-0.1%2C-1.36c-0.98%2C1.37%20-2.58%2C2.26%20-4.4%2C2.26c-2.98%2C0%20-5.4%2C-2.42%20-5.4%2C-5.4c0%2C-1.81%200.89%2C-3.42%202.26%2C-4.4C12.92%2C3.04%2012.46%2C3%2012%2C3L12%2C3z'%2F%3E%3C%2Fsvg%3E") !important;
   background-size: 20px 20px !important;
   background-position: center !important;
@@ -296,6 +311,8 @@ a, .button-link { color: var(--secondary); }
 .layout-tv .sectionTitle { font-size: 24px !important; font-weight: 700 !important; letter-spacing: .12em !important; }
 
 .layout-tv .itemName.infoText { font-size: var(--title) !important; }
+/* The main title leads the header, as on PC (40 px) and phone (28 px). */
+.layout-tv .detailRibbon .nameContainer .parentNameLast { font-size: var(--hero) !important; line-height: 1.1 !important; }
 
 .layout-tv .mainDetailButtons { gap: 12px; }
 .layout-tv .mainDetailButtons .detailButton,
@@ -469,8 +486,17 @@ a, .button-link { color: var(--secondary); }
 .layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
 /* The corner keeps only More, as on episode tiles; watched and favourite are in its menu. */
 .cardOverlayButton-br .cardOverlayButton:not([data-action="menu"]) { display: none !important; }
-/* Phone cards carry only a play button in that corner; it takes the primary circle of the PC Play button. */
-.layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: var(--primary) !important; color: var(--on-primary) !important; }
+/* Phone cards carry only a play button in that corner; it becomes the same Play pill as on PC, bottom-left. */
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br {
+  right: auto !important; left: 8px !important; bottom: 8px !important; width: auto !important; height: 36px !important; padding: 0 12px 0 6px !important;
+  display: flex !important; align-items: center; gap: 2px; border-radius: var(--r-sm) !important; background: var(--primary) !important;
+}
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: none !important; color: var(--on-primary) !important; }
+.layout-mobile .card .cardOverlayButton.cardOverlayButton-br::after { content: "Play"; font: 600 13px Inter, sans-serif; color: var(--on-primary); }
+.layout-mobile .card:has(.itemProgressBar) .cardOverlayButton.cardOverlayButton-br::after { content: "Continue"; }
+/* The script adds More to phone cards that came without one, level with the Play pill. */
+.ml-card-more { position: absolute; right: 2px; bottom: 8px; z-index: 3; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--on-surface); cursor: pointer; }
+.ml-card-more .material-icons { font-size: 24px; }
 
 /* Selection mode: quiet bar, hairline card edges, primary only on the checked box. */
 .selectionCommandsPanel { background: var(--surface-1) !important; color: var(--on-surface) !important; border-bottom: 1px solid var(--border); }
@@ -609,7 +635,11 @@ html.layout-desktop .button-link.button-link:hover {
   transform: none !important;
   color: var(--primary-70) !important;
   background: #1E2340 !important;
-  box-shadow: 0 0 0 6px #1E2340, 0 0 0 8px var(--primary) !important;
+  text-decoration: none !important;
+  /* The ring sits inside the link: the title headings clip anything drawn outside them. Negative margin keeps the text in place. */
+  box-shadow: inset 0 0 0 2px var(--primary) !important;
+  padding: 0 6px !important;
+  margin: 0 -6px !important;
   border-radius: 4px !important;
 }
 
@@ -728,9 +758,10 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
 /* The pill says Continue only on items already started; :has() is PC and phone only, and the TV shows no Play button on cards. */
 :is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after { content: "Play" !important; }
 .layout-desktop .card:has(.itemProgressBar) .cardOverlayFab-primary::after, .layout-mobile .card:has(.itemProgressBar) .cardOverlayFab-primary::after { content: "Continue" !important; }
-/* Portrait posters are too narrow for the pill text next to the corner icons. */
-:is(.layout-desktop, .layout-mobile) .portraitCard .cardOverlayFab-primary::after, :is(.layout-desktop, .layout-mobile) .overflowPortraitCard .cardOverlayFab-primary::after { content: none !important; }
-:is(.layout-desktop, .layout-mobile) .portraitCard .cardOverlayFab-primary, :is(.layout-desktop, .layout-mobile) .overflowPortraitCard .cardOverlayFab-primary { padding: 0 !important; width: 40px !important; justify-content: center; }
+/* Rows give back the card box's side margin, so the first card starts on the section heading's left edge. */
+html.layout-desktop .verticalSection .itemsContainer { margin-left: -8px !important; }
+html.layout-mobile .verticalSection .itemsContainer { margin-left: -4px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { margin-left: 0 !important; }
 /* Phone: the same frame at phone sizes. */
 .layout-mobile .card .cardBox { padding: 6px !important; margin: 0 4px 10px !important; }
 .layout-mobile .card .cardText-first { padding: 0 4px 6px !important; font-size: 11px !important; }
@@ -822,6 +853,9 @@ html.ml-js .ml-collapsible.ml-open .cardText { font-size: 15px !important; }
 html.ml-js .ml-people.ml-open .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.25 !important; height: auto !important; min-height: 2.5em; box-sizing: content-box; padding-bottom: 0 !important; margin-bottom: 8px; }
 /* The TV renders text larger than the PC, so six columns still cut the roles there. */
 html.ml-js.layout-tv .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Phone: one episode per row, as on the season page, and three people per row. */
+html.ml-js.layout-mobile .ml-collapsible.ml-open .itemsContainer { grid-template-columns: minmax(0, 1fr); padding: 8px 0 !important; }
+html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .ml-season-toggle {
   display: flex;
   align-items: center;
@@ -921,7 +955,14 @@ html.ml-libnav-on .skinHeader .pageTitle { display: none !important; }
 
 /* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
 .ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
-.ml-trick-bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--primary-70); }
+/* Filmstrip of the frames around the pointer along the picture's bottom; Play and More move up above it. */
+.ml-trick-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 24%; display: flex; align-items: center; justify-content: center; gap: 4px; background: #0D0E17D9; }
+.ml-trick-strip span { height: 62%; aspect-ratio: 16 / 9; border-radius: 3px; background-repeat: no-repeat; opacity: .6; }
+.ml-trick-strip span.ml-now { height: 82%; opacity: 1; box-shadow: 0 0 0 2px var(--primary-70); }
+.card.ml-scrubbing .cardOverlayFab-primary { bottom: calc(24% + 8px) !important; }
+.card.ml-scrubbing .cardOverlayButton-br { bottom: calc(24% + 4px) !important; }
+/* Shown instead of the scrub when the item has no trickplay frames, in the count badge's style. */
+.ml-trick-none { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 4px 8px; border-radius: var(--r-xs); background: #141726D9; box-shadow: 0 0 0 1px #FFFFFF26; color: var(--muted); font: 600 12px Inter, sans-serif; pointer-events: none; }
 
 /* Menu close button: Jellyfin hides it while the mouse is idle on TV; with the script it is focusable, so it stays. */
 html.ml-js .mouseIdle-tv .actionSheet .btnCloseActionSheet.hide-mouse-idle-tv { display: flex !important; }
@@ -967,12 +1008,17 @@ html .cardScalable .cardIndicators {
   background: #0D0E1780;
   box-shadow: 0 0 0 2px #EEEEFA59;
 }
+/* 12.x Modern draws the check as an MUI svg instead of a font glyph; inset it so it sits inside the ring at the glyph's size. */
+.playedIndicator svg.indicatorIcon { padding: 12px; fill: var(--on-surface) !important; color: var(--on-surface) !important; }
 .playedIndicator::after { content: "Watched"; font: 600 14px Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--on-surface); }
 
 /* 78-recent.css */
 /* Recently Added: no line under a new series or a single new episode; the badge says how many arrived, so a single episode gets "1". */
 .homeSectionsContainer .groupedCard .cardText-secondary,
+.homeSectionsContainer .overflowPortraitCard[data-type="Season"] .cardText-secondary,
 .homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardText-secondary { display: none !important; }
+/* A single new episode shows only its score, like the series cards beside it. */
+.homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .ml-info .ml-chip:not(.ml-chip-com) { display: none !important; }
 .homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardScalable::after {
   content: "1";
   position: absolute;
@@ -1002,6 +1048,7 @@ html .cardScalable .cardIndicators {
 /* Season page: episode tiles in a 4-column grid, the poster 220 px beside the header (fades on scroll), episode chips.
    Scoped to the script's ml-season-page class, so without the script the stock season page stays. */
 html body .itemDetailPage.ml-season-page .detailPageContent,
+html body .itemDetailPage.ml-season-page .detailPageSecondaryContainer.padded-left,
 html body .itemDetailPage.ml-season-page .detailPagePrimaryContent { padding-left: 3.3vw !important; }
 html body .itemDetailPage.ml-season-page .detailRibbon { padding-left: calc(3.3vw + 260px) !important; }
 
@@ -1018,20 +1065,37 @@ html body .itemDetailPage.ml-season-page .detailSection .overview { margin-left:
 html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem,
 html body .itemDetailPage.ml-season-page #childrenContent .listItem-content { flex-direction: column !important; align-items: stretch !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItem { margin: 0 !important; padding: 8px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem { margin: 0 !important; padding: 8px !important; cursor: pointer; user-select: none; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItemImage { width: 100% !important; height: auto !important; aspect-ratio: 16/9; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { display: block !important; width: auto !important; padding: 6px 2px !important; }
+/* The tile takes the card look: its body dissolves so the title can sit above the picture as the name strip, chips and synopsis below. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-content { display: flex !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { display: contents !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child {
+  order: -1; padding: 2px 4px 8px !important; color: var(--muted) !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: .06em; text-transform: uppercase;
+}
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { font-size: 11px !important; padding: 0 4px 6px !important; }
+html.layout-tv body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { font-size: var(--meta) !important; padding: 2px 8px 10px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemImage { order: 0; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > :not(:first-child) { order: 1; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-overview { padding: 6px 2px 0 !important; }
 html body .itemDetailPage.ml-season-page #childrenContent .listViewUserDataButtons { justify-content: flex-start; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem-overview { display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 /* Phones repeat the synopsis under the row; the tile already shows it. */
 html body .itemDetailPage.ml-season-page #childrenContent .listItem-bottomoverview { display: none !important; }
-/* Tile actions: only More, small, at the title's right end (the script moves the buttons there). */
-html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { position: relative; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { padding-right: 36px; }
-html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions { position: absolute; top: 0; right: 0; display: flex !important; }
+/* Tile actions: only More, in the picture's bottom-right corner like a card's (the script moves the buttons there); shown with the Play pill. */
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions {
+  position: absolute; right: 4px; bottom: 12px; z-index: 2; display: flex !important; align-items: center; height: 40px; margin: 0 !important; padding: 0 !important;
+  opacity: 0; transition: opacity 150ms var(--ease);
+}
+html body .itemDetailPage.ml-season-page #childrenContent .listItem:hover .ml-tile-actions,
+html body .itemDetailPage.ml-season-page #childrenContent .listItem:focus-within .ml-tile-actions { opacity: 1; }
 html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton:not([data-action="menu"]) { display: none !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton { width: 32px !important; height: 32px !important; padding: 4px !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton .material-icons { font-size: 20px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton { width: 36px !important; height: 36px !important; padding: 6px !important; margin: 0 !important; background: none !important; color: var(--on-surface) !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton .material-icons { font-size: 24px !important; color: var(--on-surface) !important; }
+html.layout-desktop body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton:hover .material-icons { color: var(--primary-70) !important; }
+/* Phone has no hover, so Play and More stay shown, as on phone cards. */
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions,
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton { opacity: 1; }
 /* Phone: too narrow for a poster beside the name, so the header takes the full width; one tile per row. */
 html.layout-mobile body .itemDetailPage.ml-season-page .detailImageContainer { display: none !important; }
 html.layout-mobile body .itemDetailPage.ml-season-page .detailRibbon { padding-left: 3.3vw !important; }
@@ -1046,9 +1110,16 @@ html body .itemDetailPage.ml-season-page #childrenContent .listItemIndicators .p
   border-radius: 0 !important; box-shadow: none !important; display: flex !important; flex-direction: column !important;
   align-items: center !important; justify-content: center !important; gap: 8px; background: #0D0E17A6 !important; color: var(--on-surface) !important;
 }
-/* The tile's Play button matches the cards': hidden until hover or focus, then the primary circle. */
-html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton { opacity: 0; transition: opacity 150ms var(--ease); width: 56px !important; height: 56px !important; padding: 0 !important; border-radius: 50% !important; background: var(--primary) !important; color: var(--on-primary) !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton .listItemImageButton-icon { color: var(--on-primary) !important; font-size: 32px !important; }
+/* The tile's Play button matches the cards': hidden until hover or focus, then the Play pill in the bottom-left corner. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton {
+  opacity: 0; transition: opacity 150ms var(--ease); position: absolute !important; top: auto !important; right: auto !important; left: 12px !important; bottom: 12px !important;
+  transform: none !important; margin: 0 !important; width: auto !important; height: 40px !important; padding: 0 16px 0 10px !important;
+  display: flex !important; align-items: center; gap: 4px; border-radius: var(--r-sm) !important; background: var(--primary) !important; color: var(--on-primary) !important;
+}
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton .listItemImageButton-icon { color: var(--on-primary) !important; font-size: 24px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton::after { content: "Play"; font: 600 14px Inter, sans-serif; color: var(--on-primary); }
+.layout-desktop .itemDetailPage.ml-season-page #childrenContent .listItem:has(.itemProgressBar) .listItemImageButton::after,
+.layout-mobile .itemDetailPage.ml-season-page #childrenContent .listItem:has(.itemProgressBar) .listItemImageButton::after { content: "Continue"; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem:hover .listItemImage .listItemImageButton,
 html body .itemDetailPage.ml-season-page #childrenContent .listItem:focus-within .listItemImage .listItemImageButton { opacity: 1; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton:hover { background: var(--primary-60) !important; }
@@ -1130,8 +1201,8 @@ html .actionSheetMenuItem.actionSheetMenuItem:focus { transform: none !important
 .mainDrawer .sidebarHeader { padding-left: 20px !important; color: var(--dim) !important; font: 600 12px Inter, sans-serif !important; letter-spacing: .08em; text-transform: uppercase; }
 /* Chips over artwork sit 8 px in, so 4 px corners (badge over artwork rule); the labelled Play pill is 8 px like every pill. */
 html body .card .countIndicator { border-radius: var(--r-xs) !important; }
-html body :is(.layout-desktop, .layout-mobile) .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary,
-html:is(.layout-desktop, .layout-mobile) body .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary { border-radius: var(--r-sm) !important; }
+html body :is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary,
+html:is(.layout-desktop, .layout-mobile) body .card .cardOverlayFab-primary { border-radius: var(--r-sm) !important; }
 /* Stock rounds focused rows to 0.2em; the theme keeps rows at 12px in every state. */
 .listItem:focus { border-radius: var(--r-md) !important; }
 /* Settings links wrap a .listItem; stock paints the focused link cyan and square around it, so the ring moves to the row. */
@@ -1147,6 +1218,21 @@ html.layout-tv .emby-button.listItem-border.listItem-border:focus { background: 
 .btnCloseActionSheet.btnCloseActionSheet:hover, .btnCloseActionSheet.btnCloseActionSheet:focus { color: var(--primary-70) !important; background: #7386D01F !important; outline: none !important; }
 .layout-tv .btnCloseActionSheet.btnCloseActionSheet:focus { box-shadow: inset 0 0 0 3px var(--primary) !important; transform: none !important; }
 .layout-tv .lnkUserProfile:focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+/* Subtitle settings: the preview stands for a video frame, so a dark Moonlight scene replaces the stock purple-cyan gradient; its text keeps the user's subtitle style. */
+.subtitleappearance-preview.subtitleappearance-preview { background: linear-gradient(140deg, #252A42, #0D0E17 60%, #2F3654) !important; border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--border); }
+/* Profile without a picture: the stock white silhouette (cut flat at the bottom) becomes the header's avatar look. An uploaded picture is untouched. */
+#image[style*="avatar.png"] {
+  background: var(--surface-3) url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20fill%3D'%23A2B0EA'%20d%3D'M12%2012c2.21%200%204-1.79%204-4s-1.79-4-4-4-4%201.79-4%204%201.79%204%204%204m0%202c-2.67%200-8%201.34-8%204v2h16v-2c0-2.66-5.33-4-8-4'%2F%3E%3C%2Fsvg%3E") center / 60% no-repeat !important;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+/* Section heading "More" (person page rows): a text link like "Show all", not a raised button. */
+.sectionTitleContainer .raised.more.more {
+  min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; background: none !important;
+  color: var(--primary-70) !important; font: 600 13px Inter, sans-serif !important; text-transform: none !important; letter-spacing: 0;
+}
+.sectionTitleContainer .raised.more.more:hover { text-decoration: underline; }
+.layout-tv .sectionTitleContainer .raised.more.more { font-size: var(--meta) !important; }
+.layout-tv .sectionTitleContainer .raised.more.more:focus { outline: 3px solid var(--primary) !important; outline-offset: 4px; border-radius: 4px; transform: none !important; }
 
 
 /* 81-detail-header.css */
@@ -1183,12 +1269,17 @@ html.layout-tv .emby-button.listItem-border.listItem-border:focus { background: 
 .itemDetailPage.ml-banner-on .detailImageContainer { display: none !important; }
 .itemDetailPage.ml-banner-on .detailRibbon,
 .itemDetailPage.ml-banner-on .detailPagePrimaryContent,
-.itemDetailPage.ml-banner-on .detailPageContent { padding-left: 3.3vw !important; }
+.itemDetailPage.ml-banner-on .detailPageContent,
+.itemDetailPage.ml-banner-on .detailPageSecondaryContainer.padded-left { padding-left: 3.3vw !important; }
 .itemDetailPage .ml-banner {
   position: absolute; top: 0; left: 0; right: 0; height: 520px; z-index: 0; pointer-events: none;
   background-size: cover; background-position: center 25%; opacity: .35; -webkit-mask-image: linear-gradient(#000 40%, transparent);
 }
 .itemDetailPage.ml-banner-on .detailPageWrapperContainer { position: relative; z-index: 1; }
+/* 12.x paints the MUI default #101010 here; the page's own background shows through instead. */
+.noBackdropTransparency .detailPageWrapperContainer { background: transparent !important; }
+/* The stock backdrop layer is 0.86 opaque, so it leaks through wherever the wrapper is see-through; the banner replaces it. */
+.backgroundContainer.withBackdrop { opacity: 1 !important; }
 
 /* Tags and links as details rows (script); a long tag list folds behind Show all. */
 html.ml-js .itemDetailPage .ml-moved { display: none !important; }
@@ -1200,6 +1291,106 @@ html.ml-js .itemDetailPage .ml-moved { display: none !important; }
 /* The poster, opened full screen from the page's More menu. */
 .ml-poster-view { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: #0D0E17E6; cursor: zoom-out; outline: none; }
 .ml-poster-view img { max-width: 92vw; max-height: 92vh; border-radius: var(--r-md); box-shadow: 0 24px 64px #0D0E17; }
+
+/* 82-modern-shell.css */
+/* Jellyfin 12.x Modern shell (MUI): the app bar, library toolbar, menus and settings forms.
+   MUI reads its colours from --jf-palette-* on :root; :root:root outranks its `:root, [data-theme]` rule. */
+:root:root {
+  --jf-palette-primary-main: #7386D0;
+  --jf-palette-primary-light: #A2B0EA;
+  --jf-palette-primary-dark: #8A9BE0;
+  --jf-palette-primary-contrastText: #0D0E17;
+  --jf-palette-primary-mainChannel: 115 134 208;
+  --jf-palette-primary-lightChannel: 162 176 234;
+  --jf-palette-primary-darkChannel: 138 155 224;
+  --jf-palette-primary-contrastTextChannel: 13 14 23;
+  --jf-palette-secondary-main: #7386D0;
+  --jf-palette-secondary-light: #A2B0EA;
+  --jf-palette-secondary-dark: #8A9BE0;
+  --jf-palette-secondary-contrastText: #0D0E17;
+  --jf-palette-secondary-mainChannel: 115 134 208;
+  --jf-palette-secondary-lightChannel: 162 176 234;
+  --jf-palette-secondary-darkChannel: 138 155 224;
+  --jf-palette-secondary-contrastTextChannel: 13 14 23;
+  --jf-palette-info-main: #7386D0;
+  --jf-palette-info-mainChannel: 115 134 208;
+  --jf-palette-background-default: #0D0E17;
+  --jf-palette-background-paper: #141726;
+  --jf-palette-background-defaultChannel: 13 14 23;
+  --jf-palette-background-paperChannel: 20 23 38;
+  --jf-palette-AppBar-defaultBg: #0D0E17;
+  --jf-palette-text-primary: #EEEEFA;
+  --jf-palette-text-secondary: #9BA3C4;
+  --jf-palette-text-primaryChannel: 238 238 250;
+  --jf-palette-text-secondaryChannel: 155 163 196;
+  --jf-palette-text-icon: #9BA3C4;
+  --jf-palette-divider: #9BA3C41F;
+  --jf-palette-FilledInput-bg: #141726;
+  --jf-palette-FilledInput-hoverBg: #1C2033;
+  --jf-palette-Tooltip-bg: #252A42;
+  --jf-palette-Avatar-defaultBg: #252A42;
+  --jf-palette-SnackbarContent-bg: #1C2033;
+}
+
+.MuiTypography-root, .MuiButtonBase-root, .MuiInputBase-root, .MuiInputLabel-root, .MuiFormLabel-root,
+.MuiFormHelperText-root, .MuiMenuItem-root, .MuiChip-root, .MuiTooltip-tooltip { font-family: "Inter", "Segoe UI", Roboto, system-ui, sans-serif !important; }
+
+/* App bar: stays on bg with the hairline, as the legacy header, instead of turning grey once the page scrolls. */
+html:not(.transparentDocument) .MuiAppBar-root {
+  background: var(--bg) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border);
+}
+.MuiAppBar-root a[href="#/"] img { display: none !important; }
+
+/* Library links: muted text; the open library gets the same lit segment as the legacy switcher. */
+.MuiAppBar-root .MuiButton-text { min-height: 0 !important; padding-top: 4px !important; padding-bottom: 4px !important; align-self: center; border-radius: var(--r-sm) !important; color: var(--muted) !important; text-transform: none !important; font-weight: 600 !important; }
+.MuiAppBar-root .MuiButton-text:hover { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+.MuiAppBar-root a.MuiButton-textPrimary { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+.MuiAppBar-root a[href="#/"].MuiButton-text { color: var(--on-surface) !important; background: none !important; }
+.MuiAppBar-root .MuiIconButton-root { color: var(--muted) !important; }
+.MuiAppBar-root .MuiIconButton-root:hover { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+
+/* Library toolbar: the view menu reads as a segment, the count as a chip, the icon buttons as the legacy ones. */
+.MuiAppBar-root .MuiToolbar-root + .MuiToolbar-root > .MuiButton-text {
+  background: var(--surface-1) !important; box-shadow: 0 0 0 1px var(--border); padding: 4px 12px !important;
+}
+.MuiAppBar-root .MuiToolbar-root + .MuiToolbar-root > .MuiButton-text .MuiTypography-root { font: 600 15px Inter, sans-serif !important; color: var(--on-surface); }
+/* With the script on PC, the pill strip (76-script-hooks' .ml-libnav look) replaces the view menu button. */
+html.ml-viewnav-on [aria-controls="library-view-menu"] { display: none !important; }
+.ml-viewnav { margin-left: 0 !important; margin-right: 8px; }
+.MuiAppBar-root .MuiChip-root {
+  height: 24px !important; border-radius: var(--r-xs) !important; background: var(--surface-2) !important;
+  box-shadow: 0 0 0 1px var(--border); color: var(--muted) !important; font: 600 13px Inter, sans-serif !important;
+}
+.MuiButtonGroup-contained { box-shadow: none !important; border-radius: var(--r-sm) !important; }
+.MuiButton-contained { box-shadow: none !important; text-transform: none !important; font-weight: 600 !important; }
+.MuiButton-containedPrimary { background: var(--primary) !important; color: var(--on-primary) !important; }
+.MuiButton-containedPrimary:hover { background: var(--primary-60) !important; }
+.MuiButtonGroup-grouped:not(:last-of-type) { border-color: #0D0E1733 !important; }
+.MuiButtonGroup-text .MuiButtonGroup-grouped { border-color: var(--border) !important; }
+.MuiButtonGroup-text .MuiButton-text { color: var(--muted) !important; }
+.MuiButtonGroup-text .MuiButton-text:hover { color: var(--on-surface) !important; }
+
+/* Menus and popovers: surface-2 card with the hairline; the open item is lit like a selected tab. */
+.MuiPaper-root { background-image: none !important; }
+.MuiMenu-paper, .MuiPopover-paper {
+  background: var(--surface-2) !important; border: 1px solid var(--border); border-radius: var(--r-md) !important;
+  box-shadow: 0 12px 32px #000a !important;
+}
+.MuiMenuItem-root { border-radius: var(--r-xs); margin: 0 4px !important; color: var(--on-surface) !important; }
+.MuiMenuItem-root:hover, .MuiMenuItem-root.Mui-focusVisible { background: var(--surface-3) !important; }
+.MuiMenuItem-root.Mui-selected { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+
+/* Settings forms: filled fields on surface-1 with a hairline instead of a white underline. */
+.MuiFilledInput-root { border-radius: var(--r-sm) !important; box-shadow: 0 0 0 1px var(--border); }
+.MuiFilledInput-root::before, .MuiFilledInput-root:hover:not(.Mui-disabled)::before { border-bottom-color: transparent !important; }
+.MuiFilledInput-root::after { border-radius: 0 0 var(--r-sm) var(--r-sm); }
+.MuiFormHelperText-root, .MuiInputLabel-root:not(.Mui-focused) { color: var(--muted) !important; }
+.MuiCheckbox-root { color: var(--muted) !important; }
+.MuiCheckbox-root.Mui-checked, .MuiSwitch-switchBase.Mui-checked { color: var(--primary) !important; }
+.MuiLink-root, .MuiTypography-root a { color: var(--primary-70) !important; }
+.MuiTooltip-tooltip { border: 1px solid var(--border); border-radius: var(--r-xs) !important; color: var(--on-surface) !important; }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

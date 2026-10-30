@@ -52,8 +52,7 @@
 html, body, .skinBody, .backgroundContainer, .mainAnimatedPage, .page {
   background: var(--bg) !important;
   color: var(--on-surface);
-}
-/* The player page sits on top of the video element, so it must stay see-through. */
+}/* The player page sits on top of the video element, so it must stay see-through. */
 html.transparentDocument, .transparentDocument body, .transparentDocument .skinBody,
 .transparentDocument .page, .transparentDocument .mainAnimatedPage { background: transparent !important; }
 
@@ -71,6 +70,9 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .layout-tv .skinHeader { border-bottom-color: transparent; }
 .headerButton, .headerTop .material-icons, .headerButton .material-icons { color: var(--muted); }
 .headerButton:hover .material-icons { color: var(--on-surface); }
+/* TV library toolbar (count, view, sort, filter) is muted like the header icons; focus still lights it. */
+.layout-tv .page:not(.hide) .paging, .layout-tv .page:not(.hide) :is(.btnSelectView, .btnSort, .btnFilter):not(:focus),
+.layout-tv .page:not(.hide) :is(.btnSelectView, .btnSort, .btnFilter):not(:focus) .material-icons { color: var(--muted) !important; }
 
 .headerTabs .emby-tabs-slider, .sectionTabs .emby-tabs-slider {
   background: var(--surface-1);
@@ -151,7 +153,13 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .itemName.infoText { font-size: var(--heading-lg); }
 .parentName, .itemName.originalTitle { color: var(--muted); font-size: var(--title) !important; font-weight: 500; }
 .itemMiscInfo, .itemMiscInfo .mediaInfoItem, .endsAt { color: var(--muted); font-size: var(--title); }
-.starIcon { color: var(--primary-70) !important; }
+/* Star and tomato match the script's card chips, which show one tomato for any score. */
+.starIcon { color: #E8C46A !important; }
+.mediaInfoCriticRatingFresh, .mediaInfoCriticRatingRotten {
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2016%2016'%3E%3Ccircle%20cx%3D'8'%20cy%3D'9.5'%20r%3D'5.5'%20fill%3D'%23E2725B'%2F%3E%3Cpath%20d%3D'M8%204.2%206%202.6l1.3%202.2-2.4.2%202.2.9L8%207.5l.9-1.6%202.2-.9-2.4-.2L10%202.6z'%20fill%3D'%237FC98B'%2F%3E%3C%2Fsvg%3E") !important;
+  background-size: 1.15em 1.15em !important;
+  background-position: left center !important;
+}
 .overview, .detail-clamp-text { color: var(--muted); font-size: var(--body); line-height: 1.55; }
 .itemDetailsGroup .label, .detailsGroupItem .label { color: var(--dim); }
 .detailImageContainer .cardScalable { box-shadow: 0 0 0 1px var(--border), 0 12px 32px #000a; }
@@ -232,6 +240,12 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .mdl-slider-background-lower { background: var(--primary) !important; }
 .mdl-slider-background-upper, .mdl-slider-background-flex, .mdl-slider-background-flex-inner { background: #252A42B3 !important; }
 .mdl-slider::-webkit-slider-thumb { background: var(--primary) !important; }
+/* The last stock-blue controls: slider colour, checked toggle thumb, focused radio and the loading spinner. */
+.mdl-slider { color: var(--primary) !important; }
+.mdl-switch__input:checked + .mdl-switch__label + .mdl-switch__trackContainer > .mdl-switch__thumb { background: var(--primary) !important; }
+.mdl-radio.show-focus .mdl-radio__button:focus + .mdl-radio__circles .mdl-radio__outer-circle,
+.mdl-radio.show-focus .mdl-radio__button:focus + .mdl-radio__circles .mdl-radio__inner-circle { color: var(--primary) !important; }
+.mdl-spinner__layer { border-color: var(--primary) !important; }
 .transparentDocument .skinHeader { background: linear-gradient(#0D0E17CC, transparent) !important; border-bottom: 0 !important; }
 .sliderMarker {
   width: 10px !important;

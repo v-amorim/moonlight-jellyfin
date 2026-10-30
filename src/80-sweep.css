@@ -69,8 +69,8 @@ html .actionSheetMenuItem.actionSheetMenuItem:focus { transform: none !important
 .mainDrawer .sidebarHeader { padding-left: 20px !important; color: var(--dim) !important; font: 600 12px Inter, sans-serif !important; letter-spacing: .08em; text-transform: uppercase; }
 /* Chips over artwork sit 8 px in, so 4 px corners (badge over artwork rule); the labelled Play pill is 8 px like every pill. */
 html body .card .countIndicator { border-radius: var(--r-xs) !important; }
-html body :is(.layout-desktop, .layout-mobile) .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary,
-html:is(.layout-desktop, .layout-mobile) body .card:not(.portraitCard):not(.overflowPortraitCard) .cardOverlayFab-primary { border-radius: var(--r-sm) !important; }
+html body :is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary,
+html:is(.layout-desktop, .layout-mobile) body .card .cardOverlayFab-primary { border-radius: var(--r-sm) !important; }
 /* Stock rounds focused rows to 0.2em; the theme keeps rows at 12px in every state. */
 .listItem:focus { border-radius: var(--r-md) !important; }
 /* Settings links wrap a .listItem; stock paints the focused link cyan and square around it, so the ring moves to the row. */
@@ -86,4 +86,19 @@ html.layout-tv .emby-button.listItem-border.listItem-border:focus { background: 
 .btnCloseActionSheet.btnCloseActionSheet:hover, .btnCloseActionSheet.btnCloseActionSheet:focus { color: var(--primary-70) !important; background: #7386D01F !important; outline: none !important; }
 .layout-tv .btnCloseActionSheet.btnCloseActionSheet:focus { box-shadow: inset 0 0 0 3px var(--primary) !important; transform: none !important; }
 .layout-tv .lnkUserProfile:focus { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+/* Subtitle settings: the preview stands for a video frame, so a dark Moonlight scene replaces the stock purple-cyan gradient; its text keeps the user's subtitle style. */
+.subtitleappearance-preview.subtitleappearance-preview { background: linear-gradient(140deg, #252A42, #0D0E17 60%, #2F3654) !important; border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--border); }
+/* Profile without a picture: the stock white silhouette (cut flat at the bottom) becomes the header's avatar look. An uploaded picture is untouched. */
+#image[style*="avatar.png"] {
+  background: var(--surface-3) url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20fill%3D'%23A2B0EA'%20d%3D'M12%2012c2.21%200%204-1.79%204-4s-1.79-4-4-4-4%201.79-4%204%201.79%204%204%204m0%202c-2.67%200-8%201.34-8%204v2h16v-2c0-2.66-5.33-4-8-4'%2F%3E%3C%2Fsvg%3E") center / 60% no-repeat !important;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+/* Section heading "More" (person page rows): a text link like "Show all", not a raised button. */
+.sectionTitleContainer .raised.more.more {
+  min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; background: none !important;
+  color: var(--primary-70) !important; font: 600 13px Inter, sans-serif !important; text-transform: none !important; letter-spacing: 0;
+}
+.sectionTitleContainer .raised.more.more:hover { text-decoration: underline; }
+.layout-tv .sectionTitleContainer .raised.more.more { font-size: var(--meta) !important; }
+.layout-tv .sectionTitleContainer .raised.more.more:focus { outline: 3px solid var(--primary) !important; outline-offset: 4px; border-radius: 4px; transform: none !important; }
 

@@ -4,7 +4,11 @@ html.layout-desktop .button-link.button-link:hover {
   transform: none !important;
   color: var(--primary-70) !important;
   background: #1E2340 !important;
-  box-shadow: 0 0 0 6px #1E2340, 0 0 0 8px var(--primary) !important;
+  text-decoration: none !important;
+  /* The ring sits inside the link: the title headings clip anything drawn outside them. Negative margin keeps the text in place. */
+  box-shadow: inset 0 0 0 2px var(--primary) !important;
+  padding: 0 6px !important;
+  margin: 0 -6px !important;
   border-radius: 4px !important;
 }
 

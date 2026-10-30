@@ -1,6 +1,7 @@
 /* Season page: episode tiles in a 4-column grid, the poster 220 px beside the header (fades on scroll), episode chips.
    Scoped to the script's ml-season-page class, so without the script the stock season page stays. */
 html body .itemDetailPage.ml-season-page .detailPageContent,
+html body .itemDetailPage.ml-season-page .detailPageSecondaryContainer.padded-left,
 html body .itemDetailPage.ml-season-page .detailPagePrimaryContent { padding-left: 3.3vw !important; }
 html body .itemDetailPage.ml-season-page .detailRibbon { padding-left: calc(3.3vw + 260px) !important; }
 
@@ -17,20 +18,37 @@ html body .itemDetailPage.ml-season-page .detailSection .overview { margin-left:
 html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem,
 html body .itemDetailPage.ml-season-page #childrenContent .listItem-content { flex-direction: column !important; align-items: stretch !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItem { margin: 0 !important; padding: 8px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem { margin: 0 !important; padding: 8px !important; cursor: pointer; user-select: none; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItemImage { width: 100% !important; height: auto !important; aspect-ratio: 16/9; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { display: block !important; width: auto !important; padding: 6px 2px !important; }
+/* The tile takes the card look: its body dissolves so the title can sit above the picture as the name strip, chips and synopsis below. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-content { display: flex !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { display: contents !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child {
+  order: -1; padding: 2px 4px 8px !important; color: var(--muted) !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: .06em; text-transform: uppercase;
+}
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { font-size: 11px !important; padding: 0 4px 6px !important; }
+html.layout-tv body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { font-size: var(--meta) !important; padding: 2px 8px 10px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemImage { order: 0; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > :not(:first-child) { order: 1; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem-overview { padding: 6px 2px 0 !important; }
 html body .itemDetailPage.ml-season-page #childrenContent .listViewUserDataButtons { justify-content: flex-start; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem-overview { display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 /* Phones repeat the synopsis under the row; the tile already shows it. */
 html body .itemDetailPage.ml-season-page #childrenContent .listItem-bottomoverview { display: none !important; }
-/* Tile actions: only More, small, at the title's right end (the script moves the buttons there). */
-html body .itemDetailPage.ml-season-page #childrenContent .listItemBody { position: relative; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItemBody > .listItemBodyText:first-child { padding-right: 36px; }
-html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions { position: absolute; top: 0; right: 0; display: flex !important; }
+/* Tile actions: only More, in the picture's bottom-right corner like a card's (the script moves the buttons there); shown with the Play pill. */
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions {
+  position: absolute; right: 4px; bottom: 12px; z-index: 2; display: flex !important; align-items: center; height: 40px; margin: 0 !important; padding: 0 !important;
+  opacity: 0; transition: opacity 150ms var(--ease);
+}
+html body .itemDetailPage.ml-season-page #childrenContent .listItem:hover .ml-tile-actions,
+html body .itemDetailPage.ml-season-page #childrenContent .listItem:focus-within .ml-tile-actions { opacity: 1; }
 html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton:not([data-action="menu"]) { display: none !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton { width: 32px !important; height: 32px !important; padding: 4px !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton .material-icons { font-size: 20px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton { width: 36px !important; height: 36px !important; padding: 6px !important; margin: 0 !important; background: none !important; color: var(--on-surface) !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton .material-icons { font-size: 24px !important; color: var(--on-surface) !important; }
+html.layout-desktop body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions .listItemButton:hover .material-icons { color: var(--primary-70) !important; }
+/* Phone has no hover, so Play and More stay shown, as on phone cards. */
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .ml-tile-actions,
+html.layout-mobile body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton { opacity: 1; }
 /* Phone: too narrow for a poster beside the name, so the header takes the full width; one tile per row. */
 html.layout-mobile body .itemDetailPage.ml-season-page .detailImageContainer { display: none !important; }
 html.layout-mobile body .itemDetailPage.ml-season-page .detailRibbon { padding-left: 3.3vw !important; }
@@ -45,9 +63,16 @@ html body .itemDetailPage.ml-season-page #childrenContent .listItemIndicators .p
   border-radius: 0 !important; box-shadow: none !important; display: flex !important; flex-direction: column !important;
   align-items: center !important; justify-content: center !important; gap: 8px; background: #0D0E17A6 !important; color: var(--on-surface) !important;
 }
-/* The tile's Play button matches the cards': hidden until hover or focus, then the primary circle. */
-html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton { opacity: 0; transition: opacity 150ms var(--ease); width: 56px !important; height: 56px !important; padding: 0 !important; border-radius: 50% !important; background: var(--primary) !important; color: var(--on-primary) !important; }
-html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton .listItemImageButton-icon { color: var(--on-primary) !important; font-size: 32px !important; }
+/* The tile's Play button matches the cards': hidden until hover or focus, then the Play pill in the bottom-left corner. */
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton {
+  opacity: 0; transition: opacity 150ms var(--ease); position: absolute !important; top: auto !important; right: auto !important; left: 12px !important; bottom: 12px !important;
+  transform: none !important; margin: 0 !important; width: auto !important; height: 40px !important; padding: 0 16px 0 10px !important;
+  display: flex !important; align-items: center; gap: 4px; border-radius: var(--r-sm) !important; background: var(--primary) !important; color: var(--on-primary) !important;
+}
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton .listItemImageButton-icon { color: var(--on-primary) !important; font-size: 24px !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton::after { content: "Play"; font: 600 14px Inter, sans-serif; color: var(--on-primary); }
+.layout-desktop .itemDetailPage.ml-season-page #childrenContent .listItem:has(.itemProgressBar) .listItemImageButton::after,
+.layout-mobile .itemDetailPage.ml-season-page #childrenContent .listItem:has(.itemProgressBar) .listItemImageButton::after { content: "Continue"; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem:hover .listItemImage .listItemImageButton,
 html body .itemDetailPage.ml-season-page #childrenContent .listItem:focus-within .listItemImage .listItemImageButton { opacity: 1; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem .listItemImage .listItemImageButton:hover { background: var(--primary-60) !important; }

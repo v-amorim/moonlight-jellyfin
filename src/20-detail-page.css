@@ -3,6 +3,8 @@
 .layout-tv .sectionTitle { font-size: 24px !important; font-weight: 700 !important; letter-spacing: .12em !important; }
 
 .layout-tv .itemName.infoText { font-size: var(--title) !important; }
+/* The main title leads the header, as on PC (40 px) and phone (28 px). */
+.layout-tv .detailRibbon .nameContainer .parentNameLast { font-size: var(--hero) !important; line-height: 1.1 !important; }
 
 .layout-tv .mainDetailButtons { gap: 12px; }
 .layout-tv .mainDetailButtons .detailButton,

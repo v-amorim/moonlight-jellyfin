@@ -31,12 +31,17 @@
 .itemDetailPage.ml-banner-on .detailImageContainer { display: none !important; }
 .itemDetailPage.ml-banner-on .detailRibbon,
 .itemDetailPage.ml-banner-on .detailPagePrimaryContent,
-.itemDetailPage.ml-banner-on .detailPageContent { padding-left: 3.3vw !important; }
+.itemDetailPage.ml-banner-on .detailPageContent,
+.itemDetailPage.ml-banner-on .detailPageSecondaryContainer.padded-left { padding-left: 3.3vw !important; }
 .itemDetailPage .ml-banner {
   position: absolute; top: 0; left: 0; right: 0; height: 520px; z-index: 0; pointer-events: none;
   background-size: cover; background-position: center 25%; opacity: .35; -webkit-mask-image: linear-gradient(#000 40%, transparent);
 }
 .itemDetailPage.ml-banner-on .detailPageWrapperContainer { position: relative; z-index: 1; }
+/* 12.x paints the MUI default #101010 here; the page's own background shows through instead. */
+.noBackdropTransparency .detailPageWrapperContainer { background: transparent !important; }
+/* The stock backdrop layer is 0.86 opaque, so it leaks through wherever the wrapper is see-through; the banner replaces it. */
+.backgroundContainer.withBackdrop { opacity: 1 !important; }
 
 /* Tags and links as details rows (script); a long tag list folds behind Show all. */
 html.ml-js .itemDetailPage .ml-moved { display: none !important; }

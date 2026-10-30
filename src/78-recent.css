@@ -1,6 +1,9 @@
 /* Recently Added: no line under a new series or a single new episode; the badge says how many arrived, so a single episode gets "1". */
 .homeSectionsContainer .groupedCard .cardText-secondary,
+.homeSectionsContainer .overflowPortraitCard[data-type="Season"] .cardText-secondary,
 .homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardText-secondary { display: none !important; }
+/* A single new episode shows only its score, like the series cards beside it. */
+.homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .ml-info .ml-chip:not(.ml-chip-com) { display: none !important; }
 .homeSectionsContainer .overflowPortraitCard[data-type="Episode"] .cardScalable::after {
   content: "1";
   position: absolute;

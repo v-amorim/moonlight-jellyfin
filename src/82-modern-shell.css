@@ -1,0 +1,98 @@
+/* Jellyfin 12.x Modern shell (MUI): the app bar, library toolbar, menus and settings forms.
+   MUI reads its colours from --jf-palette-* on :root; :root:root outranks its `:root, [data-theme]` rule. */
+:root:root {
+  --jf-palette-primary-main: #7386D0;
+  --jf-palette-primary-light: #A2B0EA;
+  --jf-palette-primary-dark: #8A9BE0;
+  --jf-palette-primary-contrastText: #0D0E17;
+  --jf-palette-primary-mainChannel: 115 134 208;
+  --jf-palette-primary-lightChannel: 162 176 234;
+  --jf-palette-primary-darkChannel: 138 155 224;
+  --jf-palette-primary-contrastTextChannel: 13 14 23;
+  --jf-palette-secondary-main: #7386D0;
+  --jf-palette-secondary-light: #A2B0EA;
+  --jf-palette-secondary-dark: #8A9BE0;
+  --jf-palette-secondary-contrastText: #0D0E17;
+  --jf-palette-secondary-mainChannel: 115 134 208;
+  --jf-palette-secondary-lightChannel: 162 176 234;
+  --jf-palette-secondary-darkChannel: 138 155 224;
+  --jf-palette-secondary-contrastTextChannel: 13 14 23;
+  --jf-palette-info-main: #7386D0;
+  --jf-palette-info-mainChannel: 115 134 208;
+  --jf-palette-background-default: #0D0E17;
+  --jf-palette-background-paper: #141726;
+  --jf-palette-background-defaultChannel: 13 14 23;
+  --jf-palette-background-paperChannel: 20 23 38;
+  --jf-palette-AppBar-defaultBg: #0D0E17;
+  --jf-palette-text-primary: #EEEEFA;
+  --jf-palette-text-secondary: #9BA3C4;
+  --jf-palette-text-primaryChannel: 238 238 250;
+  --jf-palette-text-secondaryChannel: 155 163 196;
+  --jf-palette-text-icon: #9BA3C4;
+  --jf-palette-divider: #9BA3C41F;
+  --jf-palette-FilledInput-bg: #141726;
+  --jf-palette-FilledInput-hoverBg: #1C2033;
+  --jf-palette-Tooltip-bg: #252A42;
+  --jf-palette-Avatar-defaultBg: #252A42;
+  --jf-palette-SnackbarContent-bg: #1C2033;
+}
+
+.MuiTypography-root, .MuiButtonBase-root, .MuiInputBase-root, .MuiInputLabel-root, .MuiFormLabel-root,
+.MuiFormHelperText-root, .MuiMenuItem-root, .MuiChip-root, .MuiTooltip-tooltip { font-family: "Inter", "Segoe UI", Roboto, system-ui, sans-serif !important; }
+
+/* App bar: stays on bg with the hairline, as the legacy header, instead of turning grey once the page scrolls. */
+html:not(.transparentDocument) .MuiAppBar-root {
+  background: var(--bg) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--border);
+}
+.MuiAppBar-root a[href="#/"] img { display: none !important; }
+
+/* Library links: muted text; the open library gets the same lit segment as the legacy switcher. */
+.MuiAppBar-root .MuiButton-text { min-height: 0 !important; padding-top: 4px !important; padding-bottom: 4px !important; align-self: center; border-radius: var(--r-sm) !important; color: var(--muted) !important; text-transform: none !important; font-weight: 600 !important; }
+.MuiAppBar-root .MuiButton-text:hover { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+.MuiAppBar-root a.MuiButton-textPrimary { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+.MuiAppBar-root a[href="#/"].MuiButton-text { color: var(--on-surface) !important; background: none !important; }
+.MuiAppBar-root .MuiIconButton-root { color: var(--muted) !important; }
+.MuiAppBar-root .MuiIconButton-root:hover { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+
+/* Library toolbar: the view menu reads as a segment, the count as a chip, the icon buttons as the legacy ones. */
+.MuiAppBar-root .MuiToolbar-root + .MuiToolbar-root > .MuiButton-text {
+  background: var(--surface-1) !important; box-shadow: 0 0 0 1px var(--border); padding: 4px 12px !important;
+}
+.MuiAppBar-root .MuiToolbar-root + .MuiToolbar-root > .MuiButton-text .MuiTypography-root { font: 600 15px Inter, sans-serif !important; color: var(--on-surface); }
+/* With the script on PC, the pill strip (76-script-hooks' .ml-libnav look) replaces the view menu button. */
+html.ml-viewnav-on [aria-controls="library-view-menu"] { display: none !important; }
+.ml-viewnav { margin-left: 0 !important; margin-right: 8px; }
+.MuiAppBar-root .MuiChip-root {
+  height: 24px !important; border-radius: var(--r-xs) !important; background: var(--surface-2) !important;
+  box-shadow: 0 0 0 1px var(--border); color: var(--muted) !important; font: 600 13px Inter, sans-serif !important;
+}
+.MuiButtonGroup-contained { box-shadow: none !important; border-radius: var(--r-sm) !important; }
+.MuiButton-contained { box-shadow: none !important; text-transform: none !important; font-weight: 600 !important; }
+.MuiButton-containedPrimary { background: var(--primary) !important; color: var(--on-primary) !important; }
+.MuiButton-containedPrimary:hover { background: var(--primary-60) !important; }
+.MuiButtonGroup-grouped:not(:last-of-type) { border-color: #0D0E1733 !important; }
+.MuiButtonGroup-text .MuiButtonGroup-grouped { border-color: var(--border) !important; }
+.MuiButtonGroup-text .MuiButton-text { color: var(--muted) !important; }
+.MuiButtonGroup-text .MuiButton-text:hover { color: var(--on-surface) !important; }
+
+/* Menus and popovers: surface-2 card with the hairline; the open item is lit like a selected tab. */
+.MuiPaper-root { background-image: none !important; }
+.MuiMenu-paper, .MuiPopover-paper {
+  background: var(--surface-2) !important; border: 1px solid var(--border); border-radius: var(--r-md) !important;
+  box-shadow: 0 12px 32px #000a !important;
+}
+.MuiMenuItem-root { border-radius: var(--r-xs); margin: 0 4px !important; color: var(--on-surface) !important; }
+.MuiMenuItem-root:hover, .MuiMenuItem-root.Mui-focusVisible { background: var(--surface-3) !important; }
+.MuiMenuItem-root.Mui-selected { background: var(--surface-3) !important; color: var(--primary-70) !important; }
+
+/* Settings forms: filled fields on surface-1 with a hairline instead of a white underline. */
+.MuiFilledInput-root { border-radius: var(--r-sm) !important; box-shadow: 0 0 0 1px var(--border); }
+.MuiFilledInput-root::before, .MuiFilledInput-root:hover:not(.Mui-disabled)::before { border-bottom-color: transparent !important; }
+.MuiFilledInput-root::after { border-radius: 0 0 var(--r-sm) var(--r-sm); }
+.MuiFormHelperText-root, .MuiInputLabel-root:not(.Mui-focused) { color: var(--muted) !important; }
+.MuiCheckbox-root { color: var(--muted) !important; }
+.MuiCheckbox-root.Mui-checked, .MuiSwitch-switchBase.Mui-checked { color: var(--primary) !important; }
+.MuiLink-root, .MuiTypography-root a { color: var(--primary-70) !important; }
+.MuiTooltip-tooltip { border: 1px solid var(--border); border-radius: var(--r-xs) !important; color: var(--on-surface) !important; }
