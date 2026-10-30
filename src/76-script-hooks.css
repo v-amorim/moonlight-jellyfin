@@ -52,7 +52,7 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
   align-items: center;
   gap: 6px;
   padding: 3px 3px 3px 9px;
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   background: #0D0E1714;
   color: #EEEEFA40;
   font: 700 13px Inter, sans-serif;
@@ -60,7 +60,8 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
   pointer-events: none;
 }
 .ml-osd-clock.ml-show { display: flex; }
-.ml-osd-clock-left { padding: 1px 7px; border-radius: 999px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
+/* 8 px outer corner minus the 3 px inset. */
+.ml-osd-clock-left { padding: 1px 7px; border-radius: 5px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
 .ml-osd-clock-left:empty { display: none; }
 /* Seen from the couch on bright scenes, so the TV pill is darker and carries the contrast. */
 .layout-tv .ml-osd-clock { font-size: 16px; top: 12px; right: 16px; background: #0D0E1759; color: #EEEEFA8C; }

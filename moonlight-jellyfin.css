@@ -890,7 +890,7 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
   align-items: center;
   gap: 6px;
   padding: 3px 3px 3px 9px;
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   background: #0D0E1714;
   color: #EEEEFA40;
   font: 700 13px Inter, sans-serif;
@@ -898,7 +898,8 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
   pointer-events: none;
 }
 .ml-osd-clock.ml-show { display: flex; }
-.ml-osd-clock-left { padding: 1px 7px; border-radius: 999px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
+/* 8 px outer corner minus the 3 px inset. */
+.ml-osd-clock-left { padding: 1px 7px; border-radius: 5px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
 .ml-osd-clock-left:empty { display: none; }
 /* Seen from the couch on bright scenes, so the TV pill is darker and carries the contrast. */
 .layout-tv .ml-osd-clock { font-size: 16px; top: 12px; right: 16px; background: #0D0E1759; color: #EEEEFA8C; }
@@ -1565,6 +1566,59 @@ html.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .detailButton:focus
 .layout-tv .itemDetailPage.ml-bleed .detailSection { display: flex; flex-direction: column; }
 .layout-tv .itemDetailPage.ml-bleed .detailSection > #listChildrenCollapsible { order: 1; }
 .layout-tv .itemDetailPage.ml-bleed .detailSection > .nextUpSection { order: 2; }
+
+/* 85-tv-header.css */
+/* TV header (script): the clock alone on the right opens a menu with the header's buttons; the hero home drops its Home and Favourites tabs. */
+/* Only once the script has made the clock a button: a device with an older or no script keeps the stock buttons. */
+html.ml-clock-on.layout-tv .skinHeader .headerRight .headerButton { display: none !important; }
+html.ml-hero-on .skinHeader .headerTabs { display: none !important; }
+
+/* The player clock's pill; the sub-pill holds the profile icon where the player's holds the time left. */
+.layout-tv .ml-clock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px 6px 18px;
+  border-radius: var(--r-sm);
+  background: #0D0E1759;
+  /* 80-sweep.css paints .currentTimeText with !important. */
+  color: #EEEEFA8C !important;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.layout-tv .ml-clock-btn::after { content: 'person'; padding: 3px 8px; border-radius: var(--r-xs); background: #0D0E1740; color: #EEEEFA6B; font: normal 22px 'Material Icons'; }
+.layout-tv .ml-clock-btn:focus { outline: none; background: #7386D01F; box-shadow: inset 0 0 0 3px var(--primary); }
+
+.ml-clock-menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 280px;
+  padding: 8px;
+  border-radius: var(--r-lg);
+  background: #0D0E17CC;
+  box-shadow: 0 12px 40px #0D0E1799;
+}
+.ml-clock-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--on-surface);
+  font: 600 20px Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+.ml-clock-item .material-icons { font-size: 26px; color: var(--muted); }
+.ml-clock-item:hover, .ml-clock-item:focus { outline: none; background: #EEEEFA1F; }
+.ml-clock-item:focus { box-shadow: inset 0 0 0 3px var(--primary); }
+.ml-clock-item:focus .material-icons { color: var(--primary-70); }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

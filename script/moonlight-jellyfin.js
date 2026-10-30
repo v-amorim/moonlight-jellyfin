@@ -104,6 +104,7 @@
       enhanceCardTargets();
       enhanceHero();
       enhanceDetailBleed();
+      enhanceClock();
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -889,7 +890,7 @@
   window.addEventListener('keydown', function (e) {
     if (!(e.key === 'ArrowDown' || e.keyCode === 40) || !hero || !root.classList.contains('ml-hero-on')) return;
     var btn = hero.querySelector('.ml-hero-btn');
-    if (!btn || !document.activeElement || !document.activeElement.closest('.skinHeader')) return;
+    if (!btn || !document.activeElement || !document.activeElement.closest('.skinHeader') || document.activeElement.closest('.ml-clock-menu')) return;
     e.preventDefault();
     e.stopPropagation();
     btn.focus();
@@ -1024,6 +1025,101 @@
     lockDetailLinks(group.closest('.itemDetailPage'));
   });
   window.addEventListener('hashchange', function () { setTimeout(enhanceDetailBleed, 0); });
+
+  // 15. TV header: only the clock stays on the right; OK on it opens a menu with what the header buttons did, plus Favourites, whose tab the hero home hides.
+  var clockMenu = null;
+
+  function closeClockMenu(refocus) {
+    if (!clockMenu) return;
+    clockMenu.remove();
+    clockMenu = null;
+    var clockEl = document.querySelector('.skinHeader .currentTimeText');
+    if (refocus && clockEl) clockEl.focus();
+  }
+
+  function clockMenuItem(icon, label, act) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ml-clock-item';
+    btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span><span></span>';
+    btn.lastChild.textContent = label;
+    btn.addEventListener('click', function () { closeClockMenu(false); act(); });
+    return btn;
+  }
+
+  function openClockMenu(clockEl) {
+    var header = clockEl.closest('.headerRight');
+    if (!header || clockMenu) return;
+    // The stock buttons stay in the header, hidden, and the menu presses them, so SyncPlay, Search and the profile keep Jellyfin's own behaviour.
+    var press = function (sel) { return function () { var b = header.querySelector(sel); if (b) b.click(); }; };
+    clockMenu = document.createElement('div');
+    clockMenu.className = 'ml-clock-menu';
+    clockMenu.appendChild(clockMenuItem('search', 'Search', press('.headerSearchButton')));
+    clockMenu.appendChild(clockMenuItem('favorite', 'Favourites', function () { location.hash = '#/home?tab=1'; }));
+    var sync = header.querySelector('.headerSyncButton');
+    if (sync && !sync.classList.contains('hide')) clockMenu.appendChild(clockMenuItem('groups', sync.title || 'SyncPlay', press('.headerSyncButton')));
+    var user = header.querySelector('.headerUserButton');
+    if (user) clockMenu.appendChild(clockMenuItem('person', user.title || 'Profile', press('.headerUserButton')));
+    // The header clips what overflows it, so the menu hangs from the page body, placed under the clock.
+    var at = clockEl.getBoundingClientRect();
+    clockMenu.style.top = Math.round(at.bottom + 8) + 'px';
+    clockMenu.style.right = Math.round(window.innerWidth - at.right) + 'px';
+    document.body.appendChild(clockMenu);
+    clockMenu.firstChild.focus();
+  }
+
+  function enhanceClock() {
+    var clockEl = document.querySelector('.skinHeader .currentTimeText');
+    if (!clockEl) return;
+    var on = isTv();
+    if (on === clockEl.classList.contains('ml-clock-btn')) return;
+    clockEl.classList.toggle('ml-clock-btn', on);
+    clockEl.classList.toggle('focusable', on);
+    // The CSS hides the header buttons only under this class, so a device with an older or no script keeps them.
+    root.classList.toggle('ml-clock-on', on);
+    if (on) {
+      clockEl.tabIndex = 0;
+      clockEl.setAttribute('role', 'button');
+    } else {
+      clockEl.removeAttribute('tabindex');
+      clockEl.removeAttribute('role');
+      closeClockMenu(false);
+    }
+  }
+
+  // The menu is a vertical list inside a header that only moves sideways, so its keys are handled here.
+  window.addEventListener('keydown', function (e) {
+    var el = document.activeElement;
+    var enter = e.key === 'Enter' || e.keyCode === 13;
+    if (enter && el && el.classList && el.classList.contains('ml-clock-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (clockMenu) closeClockMenu(true); else openClockMenu(el);
+      return;
+    }
+    if (!clockMenu || !clockMenu.contains(el)) return;
+    var back = e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 461;
+    var up = e.key === 'ArrowUp' || e.keyCode === 38;
+    var down = e.key === 'ArrowDown' || e.keyCode === 40;
+    if (!back && !up && !down && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (back) return closeClockMenu(true);
+    var items = [].slice.call(clockMenu.children);
+    var next = items[items.indexOf(el) + (down ? 1 : up ? -1 : 0)];
+    if (next) next.focus();
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    var clockEl = e.target.closest && e.target.closest('.ml-clock-btn');
+    if (clockEl) { if (clockMenu) closeClockMenu(false); else openClockMenu(clockEl); return; }
+    if (clockMenu && !clockMenu.contains(e.target)) closeClockMenu(false);
+  });
+
+  document.addEventListener('focusin', function (e) {
+    if (clockMenu && !clockMenu.contains(e.target) && !(e.target.classList && e.target.classList.contains('ml-clock-btn'))) closeClockMenu(false);
+  });
+  window.addEventListener('hashchange', function () { closeClockMenu(false); });
 
   function tickClock() {
     var bottom = document.querySelector('#videoOsdPage:not(.hide) .videoOsdBottom');
