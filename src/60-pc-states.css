@@ -5,6 +5,8 @@
 :is(.layout-desktop, .layout-mobile, .layout-tv) .cardOverlayButton-br .cardOverlayButton,
 :is(.layout-desktop, .layout-mobile, .layout-tv) .cardOverlayButton-br .cardOverlayButton .cardOverlayButtonIcon { color: var(--on-surface) !important; background: none !important; }
 .layout-desktop .cardOverlayButton-br .cardOverlayButton:hover .cardOverlayButtonIcon { color: var(--primary-70) !important; }
+/* The corner keeps only More, as on episode tiles; watched and favourite are in its menu. */
+.cardOverlayButton-br .cardOverlayButton:not([data-action="menu"]) { display: none !important; }
 /* Phone cards carry only a play button in that corner; it takes the primary circle of the PC Play button. */
 .layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: var(--primary) !important; color: var(--on-primary) !important; }
 
