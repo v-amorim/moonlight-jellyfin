@@ -1077,6 +1077,8 @@
   }
 
   var hover = null;
+  // The strip's share of the picture height; matches .ml-trick-strip in the CSS.
+  var STRIP = 0.16;
 
   function endHover() {
     if (!hover) return;
@@ -1094,6 +1096,8 @@
     var box = hover.card.querySelector('.cardScalable');
     if (!box) return;
     var r = box.getBoundingClientRect();
+    // Only the strip scrubs; the rest of the picture holds the frame, so the pointer can reach Play and More.
+    if (e.clientY - r.top < r.height * (1 - STRIP)) return;
     hover.frac = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
     if (hover.trick) draw();
   }
@@ -1119,7 +1123,7 @@
     el.style.backgroundPosition = (cols > 1 ? col / (cols - 1) * 100 : 0) + '% ' + (rows > 1 ? row / (rows - 1) * 100 : 0) + '%';
   }
 
-  // The frame under the pointer fills the picture; a filmstrip of its neighbours runs along the bottom, the current one ringed.
+  // The chosen frame fills the picture; a strip of three runs along the bottom, the current one ringed between its neighbours.
   function draw() {
     var count = hover.trick.info.ThumbnailCount;
     var index = Math.min(count - 1, Math.floor(hover.frac * count));
@@ -1129,16 +1133,16 @@
     if (!layer) {
       layer = document.createElement('div');
       layer.className = 'ml-trick';
-      layer.innerHTML = '<div class="ml-trick-strip">' + '<span></span>'.repeat(5) + '</div>';
+      layer.innerHTML = '<div class="ml-trick-strip">' + '<span></span>'.repeat(3) + '</div>';
       host.appendChild(layer);
       hover.card.classList.add('ml-scrubbing');
     }
     paintFrame(layer, index);
     var minis = layer.querySelectorAll('.ml-trick-strip span');
     for (var i = 0; i < minis.length; i++) {
-      var n = index + i - 2;
+      var n = index + i - 1;
       minis[i].style.visibility = n < 0 || n >= count ? 'hidden' : '';
-      minis[i].className = i === 2 ? 'ml-now' : '';
+      minis[i].className = i === 1 ? 'ml-now' : '';
       if (n >= 0 && n < count) paintFrame(minis[i], n);
     }
   }
