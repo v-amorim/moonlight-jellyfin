@@ -55,6 +55,8 @@ html:not(.transparentDocument) .MuiAppBar-root {
 .MuiAppBar-root a[href="#/"].MuiButton-text { color: var(--on-surface) !important; background: none !important; }
 .MuiAppBar-root .MuiIconButton-root { color: var(--muted) !important; }
 .MuiAppBar-root .MuiIconButton-root:hover { background: var(--surface-2) !important; color: var(--on-surface) !important; }
+/* User menu: the stock avatar is a bright filled disc; without a profile picture it reads as one more muted icon. */
+.MuiAppBar-root .MuiAvatar-colorDefault { background: none !important; color: inherit !important; }
 
 /* Library toolbar: the view menu reads as a segment, the count as a chip, the icon buttons as the legacy ones. */
 .MuiAppBar-root .MuiToolbar-root + .MuiToolbar-root > .MuiButton-text {

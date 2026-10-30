@@ -102,6 +102,8 @@
       enhanceLibrarySwitcher();
       enhanceViewStrip();
       enhanceCardTargets();
+      enhanceHero();
+      enhanceDetailBleed();
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -411,7 +413,8 @@
     var id = /[?&]id=([0-9a-f]+)/i.exec(location.hash);
     if (!page) return;
     var banner = page.querySelector('.ml-banner');
-    var on = !!id && !page.classList.contains('ml-season-page');
+    // TV gives the season page the full-bleed header too; PC and phone keep its poster column.
+    var on = !!id && (!page.classList.contains('ml-season-page') || isTv());
     page.classList.toggle('ml-banner-on', on);
     if (!on) { if (banner) banner.remove(); return; }
     if (banner && banner.getAttribute('data-id') === id[1]) return;
@@ -646,6 +649,381 @@
     button.parentNode.insertBefore(nav, button);
     root.classList.add('ml-viewnav-on');
   }
+
+  // 13. TV home: a hero over the top half shows the focused item, Next Up is the first row, and each focused row sits right under the hero.
+  var HERO_DELAY = 400;
+  var hero = null;
+  var heroItems = {};
+  var heroTimer = null;
+  var homeTypes = null;
+
+  // Sections are only numbered in the page, so their kinds come from the user's home settings.
+  function sectionOfType(container, type) {
+    if (!homeTypes) {
+      var api = window.ApiClient;
+      if (!api || homeTypes === false) return null;
+      homeTypes = false;
+      api.getJSON(api.getUrl('DisplayPreferences/usersettings', { userId: api.getCurrentUserId(), client: 'emby' })).then(function (prefs) {
+        var custom = prefs.CustomPrefs || {};
+        homeTypes = Object.keys(custom).reduce(function (map, key) {
+          if (/^homesection\d+$/.test(key)) map[custom[key]] = key.replace('homesection', 'section');
+          return map;
+        }, {});
+        enhanceHero();
+      }).catch(function () { homeTypes = null; });
+      return null;
+    }
+    return homeTypes[type] ? container.querySelector(':scope > .' + homeTypes[type]) : null;
+  }
+
+  function heroHome() {
+    var container = document.querySelector('#indexPage:not(.hide) .homeSectionsContainer');
+    return isTv() && container && container.offsetWidth ? container : null;
+  }
+
+  // The hero sits in the home page, since the remote only moves between elements of the current page.
+  function buildHero(page) {
+    hero = document.createElement('div');
+    hero.className = 'ml-hero';
+    hero.innerHTML = '<div class="ml-hero-art"></div><div class="ml-hero-body"><div class="ml-hero-title"></div><div class="ml-hero-sub"></div>' +
+      '<p class="ml-hero-overview"></p><div class="ml-hero-actions"></div><div class="ml-hero-resume"><span class="ml-hero-left"></span><span class="ml-hero-bar"><i></i></span></div></div>';
+    page.insertBefore(hero, page.firstChild);
+  }
+
+  function heroButton(item, label, icon, ticks, primary) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ml-hero-btn emby-button' + (primary ? ' ml-hero-primary' : '');
+    btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span><span></span>';
+    btn.lastChild.textContent = label;
+    btn.addEventListener('click', function () { playFromHero(item, ticks); });
+    return btn;
+  }
+
+  // Jellyfin's play and resume live behind its item containers, so a hidden item button inside one runs them.
+  function playFromHero(item, ticks) {
+    var host = [].slice.call(document.querySelectorAll('#indexPage:not(.hide) .card[data-id]')).filter(function (c) { return c.offsetWidth; })[0];
+    host = host && host.closest('[is="emby-itemscontainer"]');
+    if (!host) return;
+    var proxy = document.createElement('button');
+    proxy.type = 'button';
+    proxy.className = 'itemAction hide';
+    proxy.setAttribute('data-action', ticks ? 'resume' : 'play');
+    proxy.setAttribute('data-id', item.Id);
+    proxy.setAttribute('data-serverid', item.ServerId);
+    proxy.setAttribute('data-type', item.Type);
+    proxy.setAttribute('data-mediatype', item.MediaType || '');
+    proxy.setAttribute('data-isfolder', String(!!item.IsFolder));
+    proxy.setAttribute('data-positionticks', String(ticks || 0));
+    host.appendChild(proxy);
+    proxy.click();
+    proxy.remove();
+  }
+
+  function heroArt(item) {
+    var api = window.ApiClient;
+    var image = function (id, kind, tag) { return api.getUrl('Items/' + id + '/Images/' + kind, { maxWidth: 1920, quality: 80, tag: tag }); };
+    if (item.BackdropImageTags && item.BackdropImageTags.length) return image(item.Id, 'Backdrop/0', item.BackdropImageTags[0]);
+    if (item.ParentBackdropItemId && item.ParentBackdropImageTags && item.ParentBackdropImageTags.length) return image(item.ParentBackdropItemId, 'Backdrop/0', item.ParentBackdropImageTags[0]);
+    if (item.ImageTags && item.ImageTags.Thumb) return image(item.Id, 'Thumb', item.ImageTags.Thumb);
+    return image(item.Id, 'Primary', item.ImageTags && item.ImageTags.Primary);
+  }
+
+  function showHeroItem(item) {
+    if (!hero || hero.getAttribute('data-id') === item.Id) return;
+    hero.setAttribute('data-id', item.Id);
+    var art = document.createElement('div');
+    art.className = 'ml-hero-art';
+    art.style.backgroundImage = 'url("' + heroArt(item) + '")';
+    var old = hero.querySelectorAll('.ml-hero-art');
+    hero.insertBefore(art, hero.querySelector('.ml-hero-body'));
+    setTimeout(function () { for (var i = 0; i < old.length; i++) old[i].remove(); }, 500);
+
+    var episode = item.Type === 'Episode';
+    var code = episode && item.IndexNumber != null ? 'S' + item.ParentIndexNumber + ':E' + item.IndexNumber : '';
+    hero.querySelector('.ml-hero-title').textContent = episode && item.SeriesName ? item.SeriesName : item.Name;
+    // The scores use the cards' gold star and tomato, so the same number looks the same everywhere.
+    var sub = hero.querySelector('.ml-hero-sub');
+    sub.innerHTML = '';
+    (episode ? [code, item.Name] : [item.ProductionYear, item.RunTimeTicks ? runtime(item.RunTimeTicks) : '']).filter(Boolean).forEach(function (part) { sub.appendChild(text('span', '', String(part))); });
+    if (item.CommunityRating != null) sub.appendChild(text('span', 'ml-hero-score', '')).innerHTML = STAR + item.CommunityRating.toFixed(1);
+    if (item.CriticRating != null) sub.appendChild(text('span', 'ml-hero-score', '')).innerHTML = TOMATO + Math.round(item.CriticRating) + '%';
+    hero.querySelector('.ml-hero-overview').textContent = item.Overview || '';
+
+    var data = item.UserData || {};
+    var ticks = data.PlaybackPositionTicks || 0;
+    var actions = hero.querySelector('.ml-hero-actions');
+    var hadFocus = actions.contains(document.activeElement);
+    actions.innerHTML = '';
+    actions.appendChild(heroButton(item, ticks ? 'Continue' : 'Play', 'play_arrow', ticks, true));
+    if (ticks) actions.appendChild(heroButton(item, 'From start', 'replay', 0, false));
+    if (hadFocus) actions.firstChild.focus();
+    // After the resume line below has updated, since it moves the buttons.
+    requestAnimationFrame(fitHeroOverview);
+
+    var resume = hero.querySelector('.ml-hero-resume');
+    resume.classList.toggle('hide', !ticks);
+    if (ticks && item.RunTimeTicks) {
+      var left = Math.max(1, Math.round((item.RunTimeTicks - ticks) / 6e8));
+      hero.querySelector('.ml-hero-left').textContent = 'Continue ' + (code ? code + ' · ' : '') + (left < 60 ? left + ' min' : runtime((item.RunTimeTicks - ticks))) + ' left';
+      hero.querySelector('.ml-hero-bar i').style.width = Math.min(100, data.PlayedPercentage || ticks / item.RunTimeTicks * 100) + '%';
+    }
+  }
+
+  // The whole synopsis shows while it fits above the buttons; only a longer one is cut, at the last line that fits.
+  function fitHeroOverview() {
+    var text = hero && hero.querySelector('.ml-hero-overview');
+    var actions = hero && hero.querySelector('.ml-hero-actions');
+    if (!text || !actions || !text.textContent) return;
+    text.style.webkitLineClamp = '';
+    var line = parseFloat(getComputedStyle(text).lineHeight) || 27;
+    var room = actions.getBoundingClientRect().top - 16 - text.getBoundingClientRect().top;
+    if (text.scrollHeight > room) text.style.webkitLineClamp = String(Math.max(1, Math.floor(room / line)));
+  }
+  window.addEventListener('resize', fitHeroOverview);
+
+  function loadHeroItem(id) {
+    var api = window.ApiClient;
+    if (heroItems[id]) return showHeroItem(heroItems[id]);
+    api.getItem(api.getCurrentUserId(), id).then(function (item) {
+      heroItems[id] = item;
+      var focused = document.activeElement && document.activeElement.closest && document.activeElement.closest('.homeSectionsContainer .card[data-id]');
+      // A slow answer must not replace an item the remote has already moved past.
+      if (!focused || focused.dataset.id === id) showHeroItem(item);
+    }).catch(function () {});
+  }
+
+  function enhanceHero() {
+    var container = heroHome();
+    var on = !!container && !!homeTypes;
+    if (container && !homeTypes) sectionOfType(container, 'nextup');
+    if (root.classList.contains('ml-hero-on') !== on) {
+      root.classList.toggle('ml-hero-on', on);
+      if (hero) hero.removeAttribute('data-id');
+    }
+    if (!on) return;
+    var page = container.closest('.page');
+    if (!hero || hero.parentNode !== page) {
+      if (hero) hero.remove();
+      buildHero(page);
+    }
+    var nextUp = sectionOfType(container, 'nextup');
+    // Moving the node would detach its row while it loads and leave it empty, so the order is only visual.
+    if (nextUp && !nextUp.classList.contains('ml-first')) nextUp.classList.add('ml-first');
+    // Continue Watching follows right after, so the started item the hero leads with is one row away.
+    var resume = sectionOfType(container, 'resume');
+    if (resume && !resume.classList.contains('ml-second')) resume.classList.add('ml-second');
+    if (hero.getAttribute('data-id')) return;
+    var first = (resume && resume.querySelector('.card[data-id]')) || (nextUp && nextUp.querySelector('.card[data-id]')) || container.querySelector('.card[data-id]');
+    if (!first) return;
+    hero.setAttribute('data-id', '');
+    var api = window.ApiClient;
+    api.getItem(api.getCurrentUserId(), first.dataset.id).then(function (item) {
+      heroItems[item.Id] = item;
+      var active = document.activeElement;
+      // Back from a detail page Jellyfin puts focus on the card again, and that card leads.
+      var focusedCard = active && active.closest('.homeSectionsContainer .card[data-id]');
+      if (focusedCard) return loadHeroItem(focusedCard.dataset.id);
+      showHeroItem(item);
+      // The page's own first focus lands on the library buttons; the hero's button leads instead.
+      if (!active || active === document.body || active.closest('.section0, .homeLibraryButton')) {
+        hero.querySelector('.ml-hero-btn').focus();
+        alignHomeRow(hero);
+      }
+    }).catch(function () { hero.removeAttribute('data-id'); });
+  }
+
+  // Jellyfin centres the focused row; on the hero home the row sits right under the hero instead, so the hero covers the rows above it.
+  function alignHomeRow(target) {
+    var container = heroHome();
+    if (!container || !hero) return;
+    // One "Recently Added" section holds a row per library, so the row is aligned, not the section.
+    var rows = [].slice.call(container.querySelectorAll('.verticalSection')).filter(function (r) { return r.offsetHeight; });
+    rows.sort(function (a, b) { return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });
+    var row = target === hero ? rows[0] : target.closest('.verticalSection');
+    var off = row ? row.getBoundingClientRect().top - hero.offsetHeight : 0;
+    if (Math.abs(off) > 1) window.scrollTo({ top: window.pageYOffset + off, behavior: 'instant' });
+  }
+
+  // Jellyfin scrolls the focused row to the centre a frame or more after focus moves; scroll events run before paint, so undoing it here never shows.
+  var alignTarget = null;
+  var alignUntil = 0;
+  window.addEventListener('scroll', function () {
+    if (alignTarget && Date.now() < alignUntil && root.classList.contains('ml-hero-on')) alignHomeRow(alignTarget);
+  }, { passive: true });
+
+  // Jellyfin moves Up and Down to whatever sits straight above or below, which jumps a short row such as a one-card Continue Watching; on the hero home they step one row at a time.
+  function visibleRows(container) {
+    var rows = [].slice.call(container.querySelectorAll('.verticalSection')).filter(function (r) { return r.offsetHeight && !r.querySelector('.verticalSection'); });
+    return rows.sort(function (a, b) { return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });
+  }
+
+  window.addEventListener('keydown', function (e) {
+    var up = e.key === 'ArrowUp' || e.keyCode === 38;
+    var down = e.key === 'ArrowDown' || e.keyCode === 40;
+    if ((!up && !down) || !hero || !root.classList.contains('ml-hero-on')) return;
+    var container = heroHome();
+    var from = document.activeElement;
+    var row = container && from && from.closest('.homeSectionsContainer .verticalSection');
+    if (!row) return;
+    var rows = visibleRows(container);
+    var next = rows[rows.indexOf(row) + (down ? 1 : -1)];
+    var target = null;
+    if (!next && up) target = hero.querySelector('.ml-hero-btn');
+    if (next) {
+      var x = from.getBoundingClientRect().left + from.offsetWidth / 2;
+      var best = Infinity;
+      [].slice.call(next.querySelectorAll('.card[data-id], .homeLibraryButton')).forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        var d = Math.abs(r.left + r.width / 2 - x) + (r.right < 0 || r.left > window.innerWidth ? 1e6 : 0);
+        if (el.offsetWidth && d < best) { best = d; target = el; }
+      });
+    }
+    if (!target) return;
+    e.preventDefault();
+    e.stopPropagation();
+    target.focus();
+  }, true);
+
+  // Down from the header would land on the card under the pressed tab, past the hero, so it goes to the hero's first button.
+  window.addEventListener('keydown', function (e) {
+    if (!(e.key === 'ArrowDown' || e.keyCode === 40) || !hero || !root.classList.contains('ml-hero-on')) return;
+    var btn = hero.querySelector('.ml-hero-btn');
+    if (!btn || !document.activeElement || !document.activeElement.closest('.skinHeader')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    btn.focus();
+  }, true);
+
+  // A page shown again from the cache, or a tab switch, changes only classes, which the observer does not watch.
+  window.addEventListener('hashchange', function () { setTimeout(enhanceHero, 0); });
+
+  document.addEventListener('focusin', function (e) {
+    enhanceHero();
+    if (!root.classList.contains('ml-hero-on') || !e.target.closest) return;
+    var inHero = hero && hero.contains(e.target);
+    var card = e.target.closest('.homeSectionsContainer .card[data-id]');
+    if (!inHero && !e.target.closest('.homeSectionsContainer')) return;
+    alignTarget = inHero ? hero : e.target;
+    alignUntil = Date.now() + 800;
+    requestAnimationFrame(function () { alignHomeRow(alignTarget); });
+    if (!card) return;
+    clearTimeout(heroTimer);
+    heroTimer = setTimeout(function () { if (document.activeElement === card) loadHeroItem(card.dataset.id); }, HERO_DELAY);
+  });
+
+  // 14. TV detail page of a series, movie or episode: the backdrop fills the screen, and Play names the episode it plays.
+  var bleedItems = {};
+
+  function episodeCode(ep) { return ep && ep.IndexNumber != null ? 'S' + ep.ParentIndexNumber + ':E' + ep.IndexNumber : ''; }
+
+  function loadBleed(page, id) {
+    var api = window.ApiClient;
+    var user = api.getCurrentUserId();
+    page.setAttribute('data-ml-bleed', id);
+    page.classList.remove('ml-bleed');
+    api.getItem(user, id).then(function (item) {
+      if (!/^(Series|Season|Movie|Episode)$/.test(item.Type)) return null;
+      // A series or season plays its next episode, so that is the episode Play names.
+      var target = /^(Series|Season)$/.test(item.Type)
+        ? api.getJSON(api.getUrl('Shows/NextUp', { SeriesId: item.SeriesId || item.Id, UserId: user, Limit: 1, Fields: 'UserData' })).then(function (res) {
+          var ep = res.Items && res.Items[0];
+          return ep && (item.Type === 'Series' || ep.SeasonId === item.Id) ? ep : null;
+        })
+        : Promise.resolve(item);
+      return target.then(function (ep) {
+        // Jellyfin marks Play as resume even with no saved position, so Continue follows the position itself.
+        var ticks = ep && ep.UserData ? ep.UserData.PlaybackPositionTicks || 0 : 0;
+        bleedItems[id] = {
+          art: heroArt(item),
+          code: item.Type === 'Movie' ? '' : episodeCode(ep),
+          started: ticks > 0,
+          left: ticks && ep.RunTimeTicks ? ep.RunTimeTicks - ticks : 0,
+          pct: ticks && ep.RunTimeTicks ? Math.min(100, ticks / ep.RunTimeTicks * 100) : 0
+        };
+        if (page.getAttribute('data-ml-bleed') === id) page.classList.add('ml-bleed');
+        enhanceDetailBleed();
+      });
+    }).catch(function () {});
+  }
+
+  function enhanceDetailBleed() {
+    var page = document.querySelector('.itemDetailPage:not(.hide)');
+    var id = /[?&]id=([0-9a-f]+)/i.exec(location.hash);
+    var on = isTv() && !!page && !!id && page.classList.contains('ml-banner-on');
+    if (on && page.getAttribute('data-ml-bleed') !== id[1]) loadBleed(page, id[1]);
+    var bleed = on && page.classList.contains('ml-bleed') && !!bleedItems[id[1]];
+    if (root.classList.contains('ml-bleed-on') !== bleed) root.classList.toggle('ml-bleed-on', bleed);
+    if (!bleed) return;
+    var info = bleedItems[id[1]];
+    var banner = page.querySelector('.ml-banner');
+    if (banner && banner.getAttribute('data-ml-art') !== info.art) {
+      banner.setAttribute('data-ml-art', info.art);
+      banner.style.backgroundImage = 'url("' + info.art + '")';
+    }
+    // The labels live in their own attribute, since Jellyfin rewrites the buttons' titles on every refresh.
+    var play = page.querySelector('.mainDetailButtons .btnPlay');
+    var label = play && (info.started ? 'Continue' : 'Play') + (info.code ? '  ' + info.code : '');
+    if (play && play.getAttribute('data-ml-label') !== label) play.setAttribute('data-ml-label', label);
+    var replay = page.querySelector('.mainDetailButtons .btnReplay');
+    if (replay && replay.getAttribute('data-ml-label') !== 'From start') replay.setAttribute('data-ml-label', 'From start');
+    detailResume(page, info);
+    lockDetailLinks(page);
+  }
+
+  // The home hero's resume line, under Continue and From start; inside the buttons row it is also the break before the icon buttons.
+  function detailResume(page, info) {
+    var row = page.querySelector('.mainDetailButtons');
+    if (!row) return;
+    var line = row.querySelector('.ml-detail-resume');
+    var text = info.started && info.left ? 'Continue ' + (info.code ? info.code + ' · ' : '') + (info.left < 36e9 ? Math.max(1, Math.round(info.left / 6e8)) + ' min' : runtime(info.left)) + ' left' : '';
+    if (!text) { if (line) line.remove(); return; }
+    if (line && line.getAttribute('data-sig') === text) return;
+    if (!line) {
+      line = document.createElement('div');
+      line.className = 'ml-hero-resume ml-detail-resume';
+      line.innerHTML = '<span class="ml-hero-left"></span><span class="ml-hero-bar"><i></i></span>';
+      row.appendChild(line);
+    }
+    line.setAttribute('data-sig', text);
+    line.firstChild.textContent = text;
+    line.querySelector('i').style.width = info.pct + '%';
+  }
+
+  // Studio, genre and tag links would each stop the remote on the way down, so the block is one stop and OK opens its links.
+  function lockDetailLinks(page) {
+    var group = page.querySelector('.itemDetailsGroup');
+    if (!group || !group.querySelector('a')) return;
+    if (!group.hasAttribute('data-ml-lock')) {
+      group.setAttribute('data-ml-lock', '');
+      group.tabIndex = 0;
+      // Jellyfin's remote only stops on controls or elements marked focusable.
+      group.classList.add('ml-locked', 'focusable');
+    }
+    if (!group.classList.contains('ml-locked')) return;
+    var links = group.querySelectorAll('a, button');
+    for (var i = 0; i < links.length; i++) if (links[i].tabIndex !== -1) links[i].tabIndex = -1;
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var group = e.target && e.target.classList && e.target.classList.contains('ml-locked') ? e.target : null;
+    if (!group || !(e.key === 'Enter' || e.keyCode === 13)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    group.classList.remove('ml-locked');
+    var links = group.querySelectorAll('a, button');
+    for (var i = 0; i < links.length; i++) links[i].tabIndex = 0;
+    var first = [].slice.call(links).filter(function (a) { return a.offsetWidth; })[0];
+    if (first) first.focus();
+  }, true);
+
+  document.addEventListener('focusout', function (e) {
+    var group = e.target.closest && e.target.closest('[data-ml-lock]');
+    if (!group || group.classList.contains('ml-locked') || (e.relatedTarget && group.contains(e.relatedTarget))) return;
+    group.classList.add('ml-locked');
+    lockDetailLinks(group.closest('.itemDetailPage'));
+  });
+  window.addEventListener('hashchange', function () { setTimeout(enhanceDetailBleed, 0); });
 
   function tickClock() {
     var bottom = document.querySelector('#videoOsdPage:not(.hide) .videoOsdBottom');

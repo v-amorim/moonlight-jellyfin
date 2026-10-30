@@ -1,0 +1,70 @@
+/* TV detail page of a series, movie or episode (script): the backdrop fills the screen, dark on the left; a large Play leads, the title and info smaller above it. */
+html.ml-bleed-on .skinHeader { background: transparent !important; }
+.layout-tv .itemDetailPage.ml-bleed .ml-banner { height: 100vh; opacity: 1; -webkit-mask-image: none; background-position: center top; }
+.layout-tv .itemDetailPage.ml-bleed .ml-banner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, var(--bg) 0, #0D0E17E6 28%, #0D0E1780 52%, #0D0E1700 78%), linear-gradient(0deg, var(--bg) 0, #0D0E1700 45%);
+}
+/* The backdrop already carries the art, so the logo watermark would only cover it. */
+.layout-tv .itemDetailPage.ml-bleed .detailLogo { display: none !important; }
+.layout-tv .itemDetailPage.ml-bleed .detailRibbon { padding-top: calc(28vh - 84px) !important; }
+.layout-tv .itemDetailPage.ml-bleed .detailRibbon .nameContainer .parentNameLast { font-size: 36px !important; }
+/* The season page keeps room on the left for its poster; full bleed has no poster, so its header starts at the page edge too. */
+html.layout-tv body .itemDetailPage.ml-bleed.ml-season-page .detailRibbon { padding-left: 3.3vw !important; }
+html.layout-tv body .itemDetailPage.ml-bleed.ml-season-page .detailSection > .detailSectionContent,
+html.layout-tv body .itemDetailPage.ml-bleed.ml-season-page .detailSection > .itemExternalLinks { padding-left: 0 !important; }
+
+/* Play (and From start on a started item) on the first line, the other buttons on the second as smaller icon-and-label pills, since a remote has no hover to name them. */
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons { flex-wrap: wrap; gap: 14px 12px; margin-top: 10px; }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons::after { content: ""; flex-basis: 100%; order: 1; height: 0; }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .detailButton {
+  order: 2;
+  flex-direction: row !important;
+  gap: 8px;
+  min-width: 0;
+  width: auto !important;
+  height: 52px !important;
+  padding: 0 18px 0 14px !important;
+}
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .detailButton::after { content: attr(title); font: 600 17px Inter, sans-serif; white-space: nowrap; }
+/* The resume line sits under Continue and From start, as on the home hero. */
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .ml-detail-resume { order: 1; flex-basis: 100%; margin: 0; }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnPlay,
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnReplay {
+  order: 0;
+  gap: 10px;
+  width: auto !important;
+  height: 76px !important;
+  padding: 0 32px 0 24px !important;
+  border-radius: var(--r-sm) !important;
+}
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnPlay .detailButton-content,
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnReplay .detailButton-content { flex-direction: row; }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnPlay .detailButton-icon { font-size: 34px !important; }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnPlay::after,
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnReplay::after { content: attr(title); font: 600 24px Inter, sans-serif; white-space: pre; }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > [data-ml-label]::after { content: attr(data-ml-label); }
+.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnReplay::after { font-size: 20px; }
+
+/* The whole synopsis in a 680 px column: Jellyfin's 6-line cap and its hidden Show more go, and so does the gap above it. */
+html.layout-tv body .itemDetailPage.ml-bleed .detailSectionContent .overview { max-width: 680px; }
+html.layout-tv body .itemDetailPage.ml-bleed .detailSectionContent .overview.detail-clamp-text { display: block !important; -webkit-line-clamp: unset !important; max-height: none !important; }
+html.layout-tv body .itemDetailPage.ml-bleed .overview-controls { display: none !important; }
+html.layout-tv body .itemDetailPage.ml-bleed .detailRibbon { margin-bottom: 0 !important; }
+html.layout-tv body .itemDetailPage.ml-bleed .detailSectionContent .itemGenres:empty { display: none; }
+/* Jellyfin zooms a focused button 1.2x from its middle, which pushed Play out of line with the title; the ring of the home hero's buttons marks focus instead. */
+html.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .detailButton:focus { transform: none !important; outline: none !important; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important; }
+/* Studio, genres and tags are one remote stop (script); OK opens the links inside. */
+.layout-tv .itemDetailPage.ml-bleed .itemDetailsGroup { width: fit-content; max-width: 1000px; }
+.layout-tv .itemDetailPage .itemDetailsGroup.ml-locked:focus { outline: none; border-radius: var(--r-md); box-shadow: 0 0 0 8px var(--surface-2), 0 0 0 11px var(--primary); background: var(--surface-2); }
+/* The sections' own background cut the backdrop off in a hard line wherever they started; the backdrop fades out by itself. */
+.layout-tv .itemDetailPage.ml-bleed .detailPageSecondaryContainer { background: transparent !important; }
+/* Seasons come first below the header, then Next Up; the order is visual, so the rows never leave their place while they load. */
+.layout-tv .itemDetailPage.ml-bleed .detailSection { display: flex; flex-direction: column; }
+.layout-tv .itemDetailPage.ml-bleed .detailSection > #listChildrenCollapsible { order: 1; }
+.layout-tv .itemDetailPage.ml-bleed .detailSection > .nextUpSection { order: 2; }

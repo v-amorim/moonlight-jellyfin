@@ -225,7 +225,9 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .layout-tv .listItem:focus { background: var(--surface-2); }
 .layout-tv .mainDetailButtons .detailButton:focus { background: var(--surface-3); color: var(--on-surface); }
 .layout-tv .mainDetailButtons .btnPlay.detailButton:focus { background: var(--primary-60); color: var(--on-primary); }
-.layout-tv .card.show-animation:focus > .cardBox { transform: scale(1.06); }
+/* A small zoom that grows down from the card's top edge, so it never reaches the row heading above. Jellyfin leaves cards without show-animation on a real TV, so the rule does not wait for that class. */
+.layout-tv .card > .cardBox { transition: transform 150ms var(--ease); }
+.layout-tv .card:focus > .cardBox { transform: scale(1.03); transform-origin: 50% 0; }
 
 .dialog, .actionSheet, .actionSheetContent, .formDialog {
   background: var(--surface-1) !important;

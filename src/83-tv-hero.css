@@ -1,0 +1,96 @@
+/* TV home hero (script): the focused item over the top of the screen; rows scroll under it and the focused one sits right below. */
+.ml-hero { display: none; }
+/* 60% of the screen, less the room a focused card's zoom takes below the row. */
+html.ml-hero-on { --ml-hero-h: calc(60vh - 16px); }
+html.ml-hero-on .ml-hero {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--ml-hero-h);
+  z-index: 10;
+  overflow: hidden;
+  background: var(--bg);
+}
+/* The TV header scrolls with the page, and the page always sits scrolled under the hero, so it is pinned over the hero; with no top set it stays where it was, below the Modern shell's app bar when there is one. */
+html.ml-hero-on .skinHeader { position: fixed !important; background: transparent !important; }
+/* The first and the last row must both be able to scroll to the hero's edge. */
+html.ml-hero-on #indexPage .homeSectionsContainer { display: flex; flex-direction: column; padding-top: var(--ml-hero-h); padding-bottom: calc(100vh - var(--ml-hero-h)); }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-first { order: -2; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-second { order: -1; }
+/* Four wide cards across, small enough that a full row fits under the tall hero; capped by the height as well, since a window wider than 16:9 would grow them past the space under it. */
+html.ml-hero-on #indexPage .overflowBackdropCard { width: min(24vw, 42.7vh) !important; }
+html.ml-hero-on #indexPage .overflowPortraitCard { width: min(10.6vw, 18.9vh) !important; }
+html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: 12px !important; }
+
+.ml-hero-art {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 28%;
+  right: 0;
+  background: center 20% / cover no-repeat;
+  animation: ml-hero-in 400ms var(--ease) both;
+}
+@keyframes ml-hero-in { from { opacity: 0; } to { opacity: 1; } }
+.ml-hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, var(--bg) 28%, #0D0E17B3 45%, #0D0E1700 70%), linear-gradient(0deg, var(--bg) 0, #0D0E1700 35%);
+}
+
+/* The title always starts at the same spot and the buttons sit on the hero's bottom edge, so neither moves with the synopsis length. */
+.ml-hero-body {
+  position: absolute;
+  left: 3.3%;
+  top: 22%;
+  bottom: 28px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 560px;
+  max-width: 70%;
+  color: var(--on-surface);
+}
+.ml-hero-body .ml-hero-actions { margin-top: auto; }
+/* The synopsis runs as wide as the title (560 px at least) so it covers less of the art; it stays out of that measure and then fills it. */
+.ml-hero-body .ml-hero-overview { width: 0; min-width: 100%; }
+.ml-hero-title { font: 700 var(--hero)/1.1 Inter, sans-serif; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.ml-hero-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 10px; font: 600 var(--meta) Inter, sans-serif; color: var(--muted); }
+.ml-hero-score { display: inline-flex; align-items: center; gap: 4px; color: var(--on-surface); }
+.ml-hero-score .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1.2em; height: 1.2em; font-size: 1.2em !important; line-height: 1; color: #E8C46A; }
+.ml-hero-score .ml-tomato { width: 1.15em; height: 1.15em; }
+.ml-hero-sub:empty { display: none; }
+/* No fixed line cap: the script cuts the synopsis only where it would reach the buttons. */
+.ml-hero-overview { margin: 12px 0 0; font: 400 var(--body)/1.5 Inter, sans-serif; color: #EEEEFAD9; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.ml-hero-overview:empty { display: none; }
+
+.ml-hero-actions { display: flex; gap: 12px; margin-top: 22px; }
+.ml-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  margin: 0;
+  padding: 0 1.4em 0 1.1em;
+  height: 52px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--on-surface);
+  font: 600 var(--title) Inter, sans-serif;
+}
+.ml-hero-btn .material-icons { font-size: 1.4em; }
+.ml-hero-btn.ml-hero-primary { background: var(--primary); border-color: transparent; color: var(--on-primary); }
+.layout-tv .ml-hero-btn:focus { outline: none; transform: none; background: var(--surface-3); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+.layout-tv .ml-hero-btn.ml-hero-primary:focus { background: var(--primary-60); color: var(--on-primary); }
+
+/* The resume line sits under the buttons it explains. */
+.ml-hero-resume { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ml-hero-bar { display: block; width: 320px; height: 4px; border-radius: 2px; background: #FFFFFF26; overflow: hidden; }
+.ml-hero-bar i { display: block; height: 100%; border-radius: 2px; background: var(--primary-70); }
