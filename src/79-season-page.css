@@ -14,6 +14,10 @@ html body .itemDetailPage.ml-season-page.ml-scrolled .detailImageContainer .card
 html body .itemDetailPage.ml-season-page .detailSection > .detailSectionContent,
 html body .itemDetailPage.ml-season-page .detailSection > .itemExternalLinks { padding-left: 260px !important; }
 html body .itemDetailPage.ml-season-page .detailSection .overview { margin-left: 0 !important; }
+/* With the banner the poster column goes, so the header and sections start at the page edge as on other detail pages. */
+html body .itemDetailPage.ml-season-page.ml-banner-on .detailRibbon { padding-left: 3.3vw !important; }
+html body .itemDetailPage.ml-season-page.ml-banner-on .detailSection > .detailSectionContent,
+html body .itemDetailPage.ml-season-page.ml-banner-on .detailSection > .itemExternalLinks { padding-left: 0 !important; }
 
 html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem,

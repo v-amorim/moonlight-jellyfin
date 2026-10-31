@@ -23,6 +23,7 @@
 
   // The TV app's Back walks the history and never reaches the page, so a menu or view opened over a page adds a history step that Back removes, as Jellyfin's dialogs do.
   var backStep = null;
+  var backTag = null;
   var afterBack = null;
   // history.back() lands later; a second call before then would leave the page as well.
   var backPending = false;
@@ -33,7 +34,11 @@
   }
   function pushBackStep(tag, close) {
     history.pushState({ mlBack: tag }, '', location.href);
+    armStep(tag, close);
+  }
+  function armStep(tag, close) {
     backStep = close;
+    backTag = tag;
   }
   // Closing by other means takes the step back out; an action waits for that, or the back would undo its navigation.
   function popBackStep(then) {
@@ -46,6 +51,8 @@
     }
   }
   window.addEventListener('popstate', function () {
+    // A Jellyfin dialog opened over the view (the filter menu over a full tab) took its own step out; the view's step is still the current one, so the view stays.
+    if (backStep && !backPending && history.state && history.state.mlBack === backTag) return;
     var close = backStep;
     var then = afterBack;
     backStep = null;
@@ -606,14 +613,13 @@
     if (page) page.classList.toggle('ml-scrolled', (window.pageYOffset || (e.target && e.target.scrollTop) || 0) > 120);
   }, { capture: true, passive: true });
 
-  // 11. Detail pages other than a season: the poster becomes a faded banner behind the header, and the page's More menu opens it full screen.
+  // 11. Detail pages: the poster becomes a faded banner behind the page, and the page's More menu opens it full screen.
   function enhanceDetailBanner() {
     var page = document.querySelector('.itemDetailPage:not(.hide)');
     var id = /[?&]id=([0-9a-f]+)/i.exec(location.hash);
     if (!page) return;
     var banner = page.querySelector('.ml-banner');
-    // TV gives the season page the full-bleed header too; PC and phone keep its poster column.
-    var on = !!id && (!page.classList.contains('ml-season-page') || isTv());
+    var on = !!id;
     page.classList.toggle('ml-banner-on', on);
     if (!on) { if (banner) banner.remove(); return; }
     if (banner && banner.getAttribute('data-id') === id[1]) return;
@@ -1028,12 +1034,11 @@
       buildHero(page);
     }
     heroLibraries();
-    var nextUp = sectionOfType(container, 'nextup');
-    // Moving the node would detach its row while it loads and leave it empty, so the order is only visual.
-    if (nextUp && !nextUp.classList.contains('ml-first')) nextUp.classList.add('ml-first');
-    // Continue Watching follows right after, so the started item the hero leads with is one row away.
+    // Continue Watching leads, since the hero opens on its first item; Next Up follows. Moving the node would detach its row while it loads and leave it empty, so the order is only visual.
     var resume = sectionOfType(container, 'resume');
-    if (resume && !resume.classList.contains('ml-second')) resume.classList.add('ml-second');
+    if (resume && !resume.classList.contains('ml-first')) resume.classList.add('ml-first');
+    var nextUp = sectionOfType(container, 'nextup');
+    if (nextUp && !nextUp.classList.contains('ml-second')) nextUp.classList.add('ml-second');
     // My Media comes third, before the Recently Added rows, whatever the home settings order.
     var media = sectionOfType(container, 'smalllibrarytiles') || sectionOfType(container, 'librarybuttons');
     if (media && !media.classList.contains('ml-third')) media.classList.add('ml-third');
@@ -1118,7 +1123,9 @@
     var rows = [].slice.call(container.querySelectorAll('.verticalSection')).filter(function (r) { return r.offsetHeight; });
     rows.sort(function (a, b) { return a.getBoundingClientRect().top - b.getBoundingClientRect().top; });
     var row = target === hero ? rows[0] : target.closest('.verticalSection');
-    var off = row ? row.getBoundingClientRect().top - hero.offsetHeight : 0;
+    // The heading text, not the section, goes just under the hero's 24 px fade: sections start their heading at different depths.
+    var head = row && (row.querySelector('.sectionTitle') || row);
+    var off = head ? head.getBoundingClientRect().top - (hero.offsetHeight + 24) : 0;
     if (Math.abs(off) > 1) window.scrollTo({ top: window.pageYOffset + off, behavior: 'instant' });
   }
 
@@ -1586,7 +1593,7 @@
       // Back from a title opened in a full tab lands on that tab's history step, so the tab shows again.
       if (history.state && history.state.mlBack === 'lib' && !root.classList.contains('ml-lib-all')) {
         root.classList.add('ml-lib-all');
-        backStep = libLanding;
+        armStep('lib', libLanding);
       }
       return;
     }
@@ -1681,7 +1688,7 @@
   }
   // A page shown again from the history, after a title opened from the rows, gets its step back.
   function armBackStep() {
-    if (!backStep && history.state && history.state.mlBack === 'hero' && activeHero()) backStep = heroBack;
+    if (!backStep && history.state && history.state.mlBack === 'hero' && activeHero()) armStep('hero', heroBack);
   }
   window.addEventListener('popstate', function () { setTimeout(armBackStep, 0); });
   window.addEventListener('hashchange', function () { if (backStep === heroBack) backStep = null; setTimeout(armBackStep, 300); });

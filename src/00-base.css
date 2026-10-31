@@ -240,6 +240,8 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
   box-shadow: 0 12px 32px #000a;
 }
 .dialogBackdropOpened { background: #000 !important; opacity: .6 !important; }
+/* Stock paints an opened section of a menu (the filter menu's groups) #202020; it takes the raised surface instead. */
+.collapseContent { background: var(--surface-2) !important; border-radius: var(--r-sm); }
 .actionSheetMenuItem:hover, .actionSheetMenuItem:focus { background: var(--surface-2); }
 
 .mdl-slider-background-lower { background: var(--primary) !important; }

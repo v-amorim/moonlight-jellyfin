@@ -241,6 +241,8 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
   box-shadow: 0 12px 32px #000a;
 }
 .dialogBackdropOpened { background: #000 !important; opacity: .6 !important; }
+/* Stock paints an opened section of a menu (the filter menu's groups) #202020; it takes the raised surface instead. */
+.collapseContent { background: var(--surface-2) !important; border-radius: var(--r-sm); }
 .actionSheetMenuItem:hover, .actionSheetMenuItem:focus { background: var(--surface-2); }
 
 .mdl-slider-background-lower { background: var(--primary) !important; }
@@ -758,8 +760,8 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
 :is(.layout-desktop, .layout-mobile) .card .cardScalable{border-radius:4px!important;overflow:hidden}
 :is(.layout-desktop, .layout-mobile) .card .cardScalable .cardImageContainer,:is(.layout-desktop, .layout-mobile) .card .cardScalable .cardOverlayContainer{border-radius:4px!important}
 :is(.layout-desktop, .layout-mobile) .card .cardBox{display:flex!important;flex-direction:column}
-:is(.layout-desktop, .layout-mobile) .card .cardText-first{order:-1;padding:2px 8px 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
-:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{order:2;padding:10px 8px 4px!important}
+:is(.layout-desktop, .layout-mobile) .card .cardText-first{order:-1;padding:2px 0 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{order:2;padding:10px 0 4px!important}
 :is(.layout-desktop, .layout-mobile) .card .cardText-secondary::before{content:none!important}
 :is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after{content:"Continue"!important}
 /* The pill says Continue only on items already started; :has() is PC and phone only, and the TV shows no Play button on cards. */
@@ -771,8 +773,8 @@ html.layout-mobile .verticalSection .itemsContainer { margin-left: -4px !importa
 html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { margin-left: 0 !important; }
 /* Phone: the same frame at phone sizes. */
 .layout-mobile .card .cardBox { padding: 6px !important; margin: 0 4px 10px !important; }
-.layout-mobile .card .cardText-first { padding: 0 4px 6px !important; font-size: 11px !important; }
-.layout-mobile .card .cardText-secondary { padding: 6px 4px 2px !important; font-size: 14px !important; }
+.layout-mobile .card .cardText-first { padding: 0 0 6px !important; font-size: 11px !important; }
+.layout-mobile .card .cardText-secondary { padding: 6px 0 2px !important; font-size: 14px !important; }
 
 /* 74-pc-detail-header.css */
 /* PC and phone detail header: the title, then the buttons, all left aligned; PC buttons carry labels from each button title, so they follow the UI language. */
@@ -830,7 +832,8 @@ html.ml-js.layout-mobile .mainDetailButtons :is(.btnShuffle,.btnPlaystate,.btnUs
 html.layout-tv.ml-hero-on .card:focus .cardText,
 html.layout-tv.ml-lib-on:not(.ml-lib-all) .card:focus .cardText { -webkit-line-clamp: 1 !important; }
 /* The script keeps the row at its resting height, so the opened card hangs over the gap below and sits above its neighbours. */
-.layout-tv .card:focus { position: relative; z-index: 5; }
+/* Stock lifts a focused card to 10, the hero's level, so a card scrolled under the hero by the wheel drew over it. */
+.layout-tv .card:focus { position: relative; z-index: 5 !important; }
 /* Jellyfin's row scroller clips below its cards; room under it, taken back with a negative margin, lets the hanging card show. */
 .layout-tv .padded-top-focusscale { padding-bottom: 48px !important; margin-bottom: -48px !important; }
 
@@ -964,7 +967,8 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
 .ml-pc-overview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; margin: 14px 0 0; font: 400 19px/1.5 Inter, sans-serif; color: #EEEEFAD9; }
 
 /* Series cards: one row of small 4 px chips under the picture (years, seasons, star score, tomato score); home shows only the scores. */
-.ml-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 4px 2px; }
+/* No side margin: the chips start on the card's art and title edge. */
+.ml-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
 .ml-chip { display: inline-flex; align-items: center; gap: .3em; padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--muted); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
 /* Every pill, a card chip or an item of the detail info line, has one icon of one size at one gap: grey for facts, gold for the star, the tomato for critics. */
 .itemMiscInfo .mediaInfoItem { display: inline-flex !important; align-items: center; gap: .3em; margin: 0 8px 4px 0 !important; padding: 2px 8px !important; border: 0 !important; border-radius: var(--r-xs) !important; background-color: var(--surface-3) !important; color: var(--muted) !important; font-weight: 600 !important; line-height: 1.4 !important; white-space: nowrap; }
@@ -977,7 +981,7 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
 html.layout-tv.ml-hero-on .ml-info,
 html.layout-tv.ml-lib-on:not(.ml-lib-all) .ml-info { max-height: 26px; overflow: hidden; }
 .layout-tv .ml-chip { font-size: 15px; }
-.layout-mobile .ml-info { gap: 4px; margin: 6px 2px 2px; }
+.layout-mobile .ml-info { gap: 4px; margin: 6px 0 2px; }
 .layout-mobile .ml-chip { font-size: 11px; padding: 1px 6px; }
 html.ml-js .card.ml-info-on .cardText-secondary { display: none !important; }
 
@@ -1098,6 +1102,10 @@ html body .itemDetailPage.ml-season-page.ml-scrolled .detailImageContainer .card
 html body .itemDetailPage.ml-season-page .detailSection > .detailSectionContent,
 html body .itemDetailPage.ml-season-page .detailSection > .itemExternalLinks { padding-left: 260px !important; }
 html body .itemDetailPage.ml-season-page .detailSection .overview { margin-left: 0 !important; }
+/* With the banner the poster column goes, so the header and sections start at the page edge as on other detail pages. */
+html body .itemDetailPage.ml-season-page.ml-banner-on .detailRibbon { padding-left: 3.3vw !important; }
+html body .itemDetailPage.ml-season-page.ml-banner-on .detailSection > .detailSectionContent,
+html body .itemDetailPage.ml-season-page.ml-banner-on .detailSection > .itemExternalLinks { padding-left: 0 !important; }
 
 html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 html body .itemDetailPage.ml-season-page #childrenContent .listItem,
@@ -1307,14 +1315,14 @@ html.layout-tv .emby-button.listItem-border.listItem-border:focus { background: 
 .itemDetailPage .detailSection > .verticalSection { margin-top: 12px !important; }
 .itemDetailPage .detailSectionContent > :first-child { margin-top: 0 !important; }
 
-/* With the script, the poster leaves its column for a faded banner behind the header, and the text starts at the page edge. */
+/* With the script, the poster leaves its column for a faded banner that fills the window behind the page, and the text starts at the page edge. */
 .itemDetailPage.ml-banner-on .detailImageContainer { display: none !important; }
 .itemDetailPage.ml-banner-on .detailRibbon,
 .itemDetailPage.ml-banner-on .detailPagePrimaryContent,
 .itemDetailPage.ml-banner-on .detailPageContent,
 .itemDetailPage.ml-banner-on .detailPageSecondaryContainer.padded-left { padding-left: 3.3vw !important; }
 .itemDetailPage .ml-banner {
-  position: absolute; top: 0; left: 0; right: 0; height: 520px; z-index: 0; pointer-events: none;
+  position: absolute; top: 0; left: 0; right: 0; height: 100vh; z-index: 0; pointer-events: none;
   background-size: cover; background-position: center 25%; opacity: .35; -webkit-mask-image: linear-gradient(#000 40%, transparent);
 }
 .itemDetailPage.ml-banner-on .detailPageWrapperContainer { position: relative; z-index: 1; }

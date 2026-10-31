@@ -27,14 +27,14 @@
 .itemDetailPage .detailSection > .verticalSection { margin-top: 12px !important; }
 .itemDetailPage .detailSectionContent > :first-child { margin-top: 0 !important; }
 
-/* With the script, the poster leaves its column for a faded banner behind the header, and the text starts at the page edge. */
+/* With the script, the poster leaves its column for a faded banner that fills the window behind the page, and the text starts at the page edge. */
 .itemDetailPage.ml-banner-on .detailImageContainer { display: none !important; }
 .itemDetailPage.ml-banner-on .detailRibbon,
 .itemDetailPage.ml-banner-on .detailPagePrimaryContent,
 .itemDetailPage.ml-banner-on .detailPageContent,
 .itemDetailPage.ml-banner-on .detailPageSecondaryContainer.padded-left { padding-left: 3.3vw !important; }
 .itemDetailPage .ml-banner {
-  position: absolute; top: 0; left: 0; right: 0; height: 520px; z-index: 0; pointer-events: none;
+  position: absolute; top: 0; left: 0; right: 0; height: 100vh; z-index: 0; pointer-events: none;
   background-size: cover; background-position: center 25%; opacity: .35; -webkit-mask-image: linear-gradient(#000 40%, transparent);
 }
 .itemDetailPage.ml-banner-on .detailPageWrapperContainer { position: relative; z-index: 1; }

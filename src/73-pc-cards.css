@@ -15,8 +15,8 @@
 :is(.layout-desktop, .layout-mobile) .card .cardScalable{border-radius:4px!important;overflow:hidden}
 :is(.layout-desktop, .layout-mobile) .card .cardScalable .cardImageContainer,:is(.layout-desktop, .layout-mobile) .card .cardScalable .cardOverlayContainer{border-radius:4px!important}
 :is(.layout-desktop, .layout-mobile) .card .cardBox{display:flex!important;flex-direction:column}
-:is(.layout-desktop, .layout-mobile) .card .cardText-first{order:-1;padding:2px 8px 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
-:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{order:2;padding:10px 8px 4px!important}
+:is(.layout-desktop, .layout-mobile) .card .cardText-first{order:-1;padding:2px 0 8px!important;font-size:13px!important;letter-spacing:.06em;text-transform:uppercase}
+:is(.layout-desktop, .layout-mobile) .card .cardText-secondary{order:2;padding:10px 0 4px!important}
 :is(.layout-desktop, .layout-mobile) .card .cardText-secondary::before{content:none!important}
 :is(.layout-desktop, .layout-mobile) .card .cardOverlayFab-primary::after{content:"Continue"!important}
 /* The pill says Continue only on items already started; :has() is PC and phone only, and the TV shows no Play button on cards. */
@@ -28,5 +28,5 @@ html.layout-mobile .verticalSection .itemsContainer { margin-left: -4px !importa
 html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { margin-left: 0 !important; }
 /* Phone: the same frame at phone sizes. */
 .layout-mobile .card .cardBox { padding: 6px !important; margin: 0 4px 10px !important; }
-.layout-mobile .card .cardText-first { padding: 0 4px 6px !important; font-size: 11px !important; }
-.layout-mobile .card .cardText-secondary { padding: 6px 4px 2px !important; font-size: 14px !important; }
+.layout-mobile .card .cardText-first { padding: 0 0 6px !important; font-size: 11px !important; }
+.layout-mobile .card .cardText-secondary { padding: 6px 0 2px !important; font-size: 14px !important; }
