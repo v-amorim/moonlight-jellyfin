@@ -228,6 +228,9 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 /* A small zoom that grows down from the card's top edge, so it never reaches the row heading above. Jellyfin leaves cards without show-animation on a real TV, so the rule does not wait for that class. */
 .layout-tv .card > .cardBox { transition: transform 150ms var(--ease); }
 .layout-tv .card:focus > .cardBox { transform: scale(1.03); transform-origin: 50% 0; }
+/* Every frame in a row is as tall as the tallest, so a card with fewer chips or none keeps the empty space instead of sitting lower or shorter. */
+.itemsContainer > .card { display: flex; flex-direction: column; }
+.itemsContainer > .card > .cardBox { flex: 1 0 auto; }
 
 .dialog, .actionSheet, .actionSheetContent, .formDialog {
   background: var(--surface-1) !important;

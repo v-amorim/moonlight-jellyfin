@@ -6,6 +6,11 @@
 .layout-desktop .mainDetailButtons .detailButton .detailButton-content::after{content:attr(title);font:600 14px Inter,sans-serif}
 .layout-desktop .mainDetailButtons .detailButton[title] .detailButton-content::after{content:none}
 .layout-desktop .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 14px Inter,sans-serif;margin-left:8px}
+/* Phones label their buttons too and keep Play, Trailer and More in the row; Shuffle, Mark played and Favourite are at the top of More (script). */
+.layout-mobile .mainDetailButtons{flex-wrap:wrap!important;gap:8px!important}
+.layout-mobile .mainDetailButtons .detailButton:not(.hide){display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px;width:auto!important;padding:0 12px!important;border-radius:var(--r-sm)!important}
+.layout-mobile .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 13px Inter,sans-serif;white-space:nowrap}
+html.ml-js.layout-mobile .mainDetailButtons :is(.btnShuffle,.btnPlaystate,.btnUserRating){display:none!important}
 .layout-desktop .detailRibbon .nameContainer .parentNameLast{font-size:40px!important;line-height:1.1!important}
 .layout-mobile .detailRibbon .nameContainer .parentNameLast{font-size:28px!important;line-height:1.15!important}
 .originalTitle{color:var(--muted)!important}

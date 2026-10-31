@@ -10,6 +10,14 @@
   markRoot();
   new MutationObserver(markRoot).observe(root, { attributes: true, attributeFilter: ['class'] });
 
+  // Times are 24-hour everywhere: Jellyfin formats clocks and end times with the browser's language, which is 12-hour in English.
+  var localeTime = Date.prototype.toLocaleTimeString;
+  Date.prototype.toLocaleTimeString = function (locales, options) {
+    var opts = Object.assign({}, options);
+    if (opts.hour12 === undefined && !opts.hourCycle) opts.hourCycle = 'h23';
+    return localeTime.call(this, locales, opts);
+  };
+
   function isTv() { return root.classList.contains('layout-tv'); }
   function isDesktop() { return root.classList.contains('layout-desktop'); }
 
@@ -135,7 +143,9 @@
       enhanceCloseButtons();
       enhancePlayerMenu();
       enhanceItemMenu();
+      enhanceDetailMore();
       enhanceSeriesCards();
+      enhanceWideArt();
       enhanceSeasonCards();
       enhanceSeasonPage();
       enhanceDetailBanner();
@@ -149,8 +159,29 @@
       enhanceClock();
       enhanceUserMenu();
       enhanceLibrary();
+      enhanceInfoIcons();
     });
   }).observe(document.body, { childList: true, subtree: true });
+
+  // The detail info line is a row of pills like the card chips, each with an icon; star and tomato already carry theirs.
+  function infoIcon(el) {
+    var t = el.textContent.trim();
+    if (el.classList.contains('starRatingContainer') || el.classList.contains('mediaInfoCriticRating')) return null;
+    if (el.classList.contains('mediaInfoOfficialRating')) return 'security';
+    if (el.classList.contains('endsAt')) return 'flag';
+    if (/^(\d+h)?\s?(\d+m)?$/.test(t) && /\d/.test(t)) return 'schedule';
+    if (/\d{4}/.test(t)) return 'event';
+    return null;
+  }
+  function enhanceInfoIcons() {
+    var items = document.querySelectorAll('.itemMiscInfo .mediaInfoItem');
+    for (var i = 0; i < items.length; i++) {
+      var el = items[i];
+      if (el.firstElementChild && el.firstElementChild.classList.contains('ml-pill-icon')) continue;
+      var icon = infoIcon(el);
+      if (icon) el.insertBefore(pillIcon(icon), el.firstChild);
+    }
+  }
 
   // 2. Player: a small clock and the remaining time while the controls are hidden.
   var clock = null;
@@ -256,6 +287,35 @@
     });
   }
 
+  // On a phone the detail page keeps Play, Trailer and More in its row; Shuffle, Mark played and Favourite move to the top of More, and each presses the hidden button so Jellyfin's own action runs.
+  var MOVED_TO_MORE = [['.btnShuffle', 'shuffle'], ['.btnPlaystate', 'check_circle'], ['.btnUserRating', 'favorite']];
+  function enhanceDetailMore() {
+    if (!menuFromPage || !root.classList.contains('layout-mobile')) return;
+    var first = document.querySelector('.actionSheet .actionSheetMenuItem');
+    if (!first || first.parentNode.querySelector('[data-id^="ml-moved"]')) return;
+    var page = document.querySelector('.itemDetailPage:not(.hide)');
+    if (!page) return;
+    MOVED_TO_MORE.slice().reverse().forEach(function (m) {
+      var btn = [].slice.call(page.querySelectorAll('.mainDetailButtons ' + m[0])).filter(function (b) { return !b.classList.contains('hide'); })[0];
+      if (!btn) return;
+      var item = first.cloneNode(true);
+      item.setAttribute('data-id', 'ml-moved' + m[0].slice(4));
+      var icon = item.querySelector('.actionsheetMenuItemIcon');
+      if (icon) icon.className = 'actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons ' + m[1];
+      if (icon) icon.textContent = '';
+      item.querySelector('.actionSheetItemText').textContent = btn.title;
+      // Jellyfin's handler would close the menu with an id it does not know, so this row closes it and presses the page's button.
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var close = document.querySelector('.actionSheet .btnCloseActionSheet');
+        if (close) close.click(); else history.back();
+        setTimeout(function () { btn.click(); }, 150);
+      });
+      first.parentNode.insertBefore(item, first.parentNode.firstChild);
+    });
+  }
+
   // 18. Recently Added lists a show with one new episode as that episode under the show's poster; such a card opens, previews and counts the show, like the rest of its row.
   function enhanceLatestEpisodes() {
     var api = window.ApiClient;
@@ -301,6 +361,22 @@
     return el;
   }
 
+  function pillIcon(name) {
+    var icon = document.createElement('span');
+    icon.className = 'material-icons ml-pill-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = name;
+    return icon;
+  }
+
+  // A text chip with its icon in front, as every pill has.
+  function textChip(cls, icon, text) {
+    var el = chip(cls, '');
+    el.appendChild(pillIcon(icon));
+    el.appendChild(document.createTextNode(text));
+    return el;
+  }
+
   function runtime(ticks) {
     var min = Math.round(ticks / 6e8);
     return (min >= 60 ? Math.floor(min / 60) + 'h ' : '') + (min % 60) + 'm';
@@ -308,8 +384,8 @@
 
   function episodeChips(row, info) {
     if (info.CommunityRating != null) row.appendChild(chip('ml-chip-com', STAR + info.CommunityRating.toFixed(1)));
-    if (info.RunTimeTicks) row.appendChild(chip('ml-chip-seasons', '')).textContent = runtime(info.RunTimeTicks);
-    if (info.PremiereDate) row.appendChild(chip('ml-chip-seasons', '')).textContent = new Date(info.PremiereDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    if (info.RunTimeTicks) row.appendChild(textChip('ml-chip-seasons', 'schedule', runtime(info.RunTimeTicks)));
+    if (info.PremiereDate) row.appendChild(textChip('ml-chip-seasons', 'event', new Date(info.PremiereDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })));
   }
 
   // Episodes keep their title alone on the line; the code, score, runtime and air date move into chips under it.
@@ -321,7 +397,7 @@
     row.className = 'ml-info';
     var code = /^\s*(S\d+:E\d+(?:-E?\d+)?)\s*-\s*/.exec(line.textContent);
     if (code) {
-      row.appendChild(chip('ml-chip-code', '')).textContent = code[1];
+      row.appendChild(textChip('ml-chip-code', 'tv', code[1]));
       var link = line.querySelector('a, button') || line;
       link.textContent = link.textContent.replace(code[0], '');
     }
@@ -341,7 +417,7 @@
     for (var i = 1; i < texts.length; i++) if (!texts[i].classList.contains('listItem-overview')) texts[i].style.display = 'none';
     var row = document.createElement('div');
     row.className = 'ml-info';
-    if (info.IndexNumber != null) row.appendChild(chip('ml-chip-code', '')).textContent = 'S' + info.ParentIndexNumber + ':E' + info.IndexNumber;
+    if (info.IndexNumber != null) row.appendChild(textChip('ml-chip-code', 'tv', 'S' + info.ParentIndexNumber + ':E' + info.IndexNumber));
     episodeChips(row, info);
     title.parentNode.insertBefore(row, title.nextSibling);
     // Desktop builds these tiles with action "none" and an Info button the theme hides, so the tile itself opens the episode.
@@ -371,9 +447,9 @@
         var end = info.EndDate ? new Date(info.EndDate).getFullYear() : null;
         years = String(info.ProductionYear) + (info.Type === 'Series' ? (info.Status === 'Continuing' ? ' - Present' : end && end !== info.ProductionYear ? ' - ' + end : '') : '');
       }
-      if (years) row.appendChild(chip('ml-chip-years', '')).textContent = years;
-      if (info.Type === 'Series' && info.ChildCount) row.appendChild(chip('ml-chip-seasons', '')).textContent = info.ChildCount + (info.ChildCount === 1 ? ' season' : ' seasons');
-      if (info.Type === 'Movie' && info.RunTimeTicks) row.appendChild(chip('ml-chip-seasons', '')).textContent = runtime(info.RunTimeTicks);
+      if (years) row.appendChild(textChip('ml-chip-years', 'event', years));
+      if (info.Type === 'Series' && info.ChildCount) row.appendChild(textChip('ml-chip-seasons', 'video_library', info.ChildCount + (info.ChildCount === 1 ? ' season' : ' seasons')));
+      if (info.Type === 'Movie' && info.RunTimeTicks) row.appendChild(textChip('ml-chip-seasons', 'schedule', runtime(info.RunTimeTicks)));
     }
     if (info.CommunityRating != null) row.appendChild(chip('ml-chip-com', STAR + info.CommunityRating.toFixed(1)));
     if (info.CriticRating != null) row.appendChild(chip('ml-chip-crit', TOMATO + Math.round(info.CriticRating) + '%'));
@@ -382,11 +458,42 @@
     card.classList.add('ml-info-on');
   }
 
+  // TV cards are wide everywhere, so every poster card (not people) gets its item's wide art laid over the poster; one request per batch of new cards.
+  var wideInfo = {};
+  function enhanceWideArt() {
+    if (!isTv() || !window.ApiClient) return;
+    var cards = [].slice.call(document.querySelectorAll('.card.overflowPortraitCard[data-id]:not([data-ml-wide]):not(.personCard), .card.portraitCard[data-id]:not([data-ml-wide]):not(.personCard)'));
+    var missing = [];
+    cards.forEach(function (card) {
+      card.setAttribute('data-ml-wide', '1');
+      var id = card.dataset.id;
+      if (wideInfo[id]) wideArt(card, wideInfo[id]);
+      else if (missing.indexOf(id) < 0) missing.push(id);
+    });
+    if (!missing.length) return;
+    var api = window.ApiClient;
+    api.getJSON(api.getUrl('Items', { userId: api.getCurrentUserId(), Ids: missing.join(','), Fields: 'ImageTags,BackdropImageTags,ParentBackdropItemId,ParentBackdropImageTags,ParentThumbItemId,ParentThumbImageTag' })).then(function (res) {
+      (res.Items || []).forEach(function (item) { wideInfo[item.Id] = item; });
+      cards.forEach(function (card) { if (wideInfo[card.dataset.id]) wideArt(card, wideInfo[card.dataset.id]); });
+    }).catch(function () {});
+  }
+
+  function wideArt(card, info) {
+    var box = card.querySelector('.cardImageContainer');
+    var art = libImage(info, true);
+    if (!box || !art || box.querySelector('.ml-wide-art')) return;
+    var el = document.createElement('i');
+    el.className = 'ml-wide-art';
+    el.style.backgroundImage = 'url("' + art + '")';
+    // First in the box, so the unwatched count still paints over it.
+    box.insertBefore(el, box.firstChild);
+  }
+
   // Cards arrive in batches as rows load, so their scores are fetched in one request per batch and cached by id.
   function enhanceSeriesCards() {
     var api = window.ApiClient;
     if (!api) return;
-    var cards = document.querySelectorAll('.card[data-type="Series"][data-id]:not([data-ml-series]), .card[data-type="Movie"][data-id]:not([data-ml-series]), .card[data-type="Episode"][data-id]:not([data-ml-series]), .itemDetailPage #childrenContent .listItem[data-type="Episode"][data-id]:not([data-ml-series])');
+    var cards = document.querySelectorAll('.card[data-type="Series"][data-id]:not([data-ml-series]), .homeSectionsContainer .card[data-type="Season"][data-id]:not([data-ml-series]), .card[data-type="Movie"][data-id]:not([data-ml-series]), .card[data-type="Episode"][data-id]:not([data-ml-series]), .itemDetailPage #childrenContent .listItem[data-type="Episode"][data-id]:not([data-ml-series])');
     if (!cards.length) return;
     var missing = [];
     for (var i = 0; i < cards.length; i++) {
@@ -397,8 +504,22 @@
     }
     if (!missing.length) return;
     var pending = Array.prototype.slice.call(cards);
-    api.getJSON(api.getUrl('Items', { userId: api.getCurrentUserId(), Ids: missing.join(','), Fields: 'CriticRating,CommunityRating,ChildCount,RunTimeTicks,PremiereDate,ProductionYear,EndDate,Status' })).then(function (res) {
+    var fields = 'CriticRating,CommunityRating,ChildCount,RunTimeTicks,PremiereDate,ProductionYear,EndDate,Status';
+    var getItems = function (ids) { return api.getJSON(api.getUrl('Items', { userId: api.getCurrentUserId(), Ids: ids.join(','), Fields: fields })); };
+    getItems(missing).then(function (res) {
       (res.Items || []).forEach(function (item) { seriesInfo[item.Id] = item; });
+      // A season has no score of its own, so its card shows its series' scores.
+      var seasons = (res.Items || []).filter(function (item) { return item.Type === 'Season' && item.SeriesId; });
+      var series = seasons.map(function (s) { return s.SeriesId; }).filter(function (id, i, all) { return !seriesInfo[id] && all.indexOf(id) === i; });
+      return (series.length ? getItems(series) : Promise.resolve({})).then(function (more) {
+        (more.Items || []).forEach(function (item) { seriesInfo[item.Id] = item; });
+        seasons.forEach(function (s) {
+          var show = seriesInfo[s.SeriesId] || {};
+          s.CommunityRating = show.CommunityRating;
+          s.CriticRating = show.CriticRating;
+        });
+      });
+    }).then(function () {
       pending.forEach(function (card) { if (seriesInfo[card.dataset.id]) decorateSeriesCard(card, seriesInfo[card.dataset.id]); });
     }).catch(function () {});
   }
@@ -411,8 +532,8 @@
     if (!pic || !s || card.querySelector('.ml-info')) return;
     var row = document.createElement('div');
     row.className = 'ml-info';
-    row.appendChild(chip('ml-chip-seasons', '')).textContent = s.n + (s.n === 1 ? ' episode' : ' episodes');
-    if (s.y0) row.appendChild(chip('ml-chip-years', '')).textContent = s.y1 !== s.y0 ? s.y0 + ' - ' + s.y1 : String(s.y0);
+    row.appendChild(textChip('ml-chip-seasons', 'video_library', s.n + (s.n === 1 ? ' episode' : ' episodes')));
+    if (s.y0) row.appendChild(textChip('ml-chip-years', 'event', s.y1 !== s.y0 ? s.y0 + ' - ' + s.y1 : String(s.y0)));
     if (s.rated) row.appendChild(chip('ml-chip-com', STAR + (s.sum / s.rated).toFixed(1) + ' <span class="ml-avg">avg</span>'));
     pic.parentNode.insertBefore(row, pic.nextSibling);
   }
@@ -1187,10 +1308,12 @@
   var grownBox = null;
   document.addEventListener('focusin', function (e) {
     if (grownBox) { grownBox.style.removeProperty('margin-bottom'); grownBox = null; }
-    var card = isTv() && e.target.closest && e.target.closest('.card');
-    var box = card && card.querySelector('.cardBox');
+    var card = isTv() && e.target.closest && e.target.closest('.card, .ml-season-page #childrenContent .listItem');
+    var tile = card && !card.classList.contains('card');
+    // A season page tile is a restyled list row: the row is the frame, and only its title opens.
+    var box = tile ? card : card && card.querySelector('.cardBox');
     if (!box) return;
-    var lines = [].slice.call(card.querySelectorAll('.cardText'));
+    var lines = [].slice.call(card.querySelectorAll(tile ? '.listItemBody > .listItemBodyText:first-child' : '.cardText'));
     var open = box.offsetHeight;
     // Inline !important beats the theme's layered rules, so this shows the card at rest for one measure.
     lines.forEach(function (l) { l.style.setProperty('-webkit-line-clamp', '1', 'important'); });
@@ -1266,6 +1389,7 @@
       if (item.Type === 'Episode' && tags.Primary) return url(item.Id, 'Primary', tags.Primary);
       if (item.BackdropImageTags && item.BackdropImageTags.length) return url(item.Id, 'Backdrop/0', item.BackdropImageTags[0]);
       if (item.ParentThumbItemId && item.ParentThumbImageTag) return url(item.ParentThumbItemId, 'Thumb', item.ParentThumbImageTag);
+      if (item.ParentBackdropItemId && item.ParentBackdropImageTags && item.ParentBackdropImageTags.length) return url(item.ParentBackdropItemId, 'Backdrop/0', item.ParentBackdropImageTags[0]);
     }
     return tags.Primary ? url(item.Id, 'Primary', tags.Primary) : '';
   }
@@ -1285,6 +1409,11 @@
     var a = document.createElement('a');
     a.className = 'card ml-lib-card focusable' + (shelf.wide ? ' ml-lib-wide' : '');
     a.setAttribute('data-ml-id', item.Id);
+    // With Jellyfin's id and type the card gets the same chips as every other card (enhanceSeriesCards).
+    if (!shelf.art) {
+      a.setAttribute('data-id', item.Id);
+      a.setAttribute('data-type', item.Type);
+    }
     a.href = shelf.art ? '#/list?' + (shelf.art.key === 'GenreIds' ? 'genreId=' : 'studioId=') + item.Id + '&parentId=' + libLayer.lib + '&serverId=' + server
       : '#/details?id=' + item.Id + '&serverId=' + server;
     a.innerHTML = '<div class="cardBox"><div class="cardText cardText-first"></div><div class="cardScalable"><div class="cardImageContainer"></div></div><div class="cardText cardText-secondary"></div></div>';
@@ -1325,9 +1454,11 @@
     return a;
   }
 
-  // The last tile peeks at the next title under "See all", so the row shows there is more.
+  // See all leads the row as a card whose art peeks at the next title, one Left from the first title.
   function libShelf(shelf, result) {
     var items = result.Items;
+    // Every shelf uses wide art, so a whole focused card fits under the TV hero.
+    shelf.wide = true;
     var el = document.createElement('section');
     el.className = 'ml-lib-shelf';
     el.innerHTML = '<h2 class="ml-lib-title"></h2><div class="ml-lib-strip"></div>';
@@ -1340,16 +1471,13 @@
     });
     var more = document.createElement('button');
     more.type = 'button';
-    more.className = 'ml-lib-more focusable' + (shelf.wide ? ' ml-lib-wide' : '');
-    var next = items[shown.length] && libImage(items[shown.length], shelf.wide);
-    if (next) {
-      more.classList.add('ml-lib-peek');
-      more.style.backgroundImage = 'url("' + next + '")';
-    }
-    more.innerHTML = '<span></span>';
-    more.firstChild.textContent = result.TotalRecordCount ? 'See all ' + result.TotalRecordCount + ' ›' : 'See all ›';
+    more.className = 'card ml-lib-more ml-lib-wide focusable';
+    more.innerHTML = '<div class="cardBox"><div class="cardText cardText-first">See all</div><div class="cardScalable"><div class="cardImageContainer"><span class="ml-lib-more-label"></span></div></div></div>';
+    var next = items[shown.length] && libImage(items[shown.length], true);
+    if (next) more.querySelector('.cardImageContainer').style.backgroundImage = 'url("' + next + '")';
+    more.querySelector('.ml-lib-more-label').textContent = result.TotalRecordCount ? result.TotalRecordCount + ' ›' : '›';
     more.addEventListener('click', function () { libSeeAll(shelf.tab); });
-    strip.appendChild(more);
+    strip.insertBefore(more, strip.firstChild);
     return el;
   }
 
@@ -1431,8 +1559,12 @@
   function libAlign(el) {
     var shelf = el.closest('.ml-lib-shelf');
     if (!shelf) return;
-    // Focus scrolls the shelf's clipped strip on its own; the strip moves only by the shift below. Up and down, Jellyfin scrolls the focused card into view, as on every page.
+    // Focus scrolls the shelf's clipped strip on its own; the strip moves only by the shift below.
     shelf.scrollLeft = 0;
+    // Jellyfin centres the focused card in the shelves, which pushed its heading under the hero; once it has, the shelf's heading goes just under the 24 px fade.
+    var rows = libLayer.track.parentNode;
+    var top = Math.max(0, shelf.offsetTop - 24);
+    setTimeout(function () { if (rows.scrollTop !== top) rows.scrollTop = top; }, 0);
     // The focused card stays in view with a slice of the next one showing past it.
     var strip = shelf.querySelector('.ml-lib-strip');
     var x = parseFloat(strip.getAttribute('data-x')) || 0;
@@ -1513,7 +1645,9 @@
     var right = e.key === 'ArrowRight' || e.keyCode === 39;
     var shelf = from.closest('.ml-lib-shelf');
     var target = null;
-    if (shelf && (left || right)) {
+    // Jellyfin's own Left and Right stopped at From start in the hero, so the buttons step in order here too.
+    var inActions = from.classList.contains('ml-hero-btn') && from.parentNode.classList.contains('ml-hero-actions');
+    if ((shelf || inActions) && (left || right)) {
       target = right ? from.nextElementSibling : from.previousElementSibling;
     } else if (shelf && (up || down)) {
       target = libStep(from, down);

@@ -1,7 +1,9 @@
 /* TV home hero (script): the focused item over the top of the screen; rows scroll under it and the focused one sits right below. */
 .ml-hero { display: none; }
-/* 60% of the screen, less the room a focused card's zoom takes below the row. */
-html.ml-hero-on { --ml-hero-h: calc(60vh - 16px); }
+/* One hero for every TV page (home, library, detail): its height and where its text starts. 60% of the screen, less the room a focused card's zoom takes below the row. */
+/* One card width for every TV row (307 px on the LG), narrow enough that a focused episode card, chips included, fits under the hero. */
+html.layout-tv { --ml-tv-hero: calc(60vh - 16px); --ml-tv-hero-top: 96px; --ml-tv-card: min(20vw, 35.9vh); }
+html.ml-hero-on { --ml-hero-h: var(--ml-tv-hero); }
 html.ml-hero-on .ml-hero {
   display: block;
   position: fixed;
@@ -13,6 +15,8 @@ html.ml-hero-on .ml-hero {
   overflow: hidden;
   background: var(--bg);
 }
+/* The row above the focused one fades into the hero instead of being sliced at its edge, as on the library page; the hero clips its own overflow, so the fade hangs from the body. */
+html.ml-hero-on body::after { content: ''; position: fixed; top: var(--ml-hero-h); left: 0; right: 0; height: 24px; z-index: 10; background: linear-gradient(var(--bg), #0D0E1700); pointer-events: none; }
 /* The TV header scrolls with the page, and the page always sits scrolled under the hero, so it is pinned over the hero; with no top set it stays where it was, below the Modern shell's app bar when there is one. */
 html.ml-hero-on .skinHeader { position: fixed !important; background: transparent !important; }
 /* The first and the last row must both be able to scroll to the hero's edge. */
@@ -30,9 +34,6 @@ html.ml-hero-on.ml-hero-libs-on #indexPage .homeSectionsContainer > .ml-third { 
 .ml-hero-lib-name { display: block; margin: 8px 2px 0; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #B5BCD6; }
 .layout-tv .ml-hero-lib:focus { outline: none; background: var(--surface-2); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
 .layout-tv .ml-hero-lib:focus .ml-hero-lib-name { color: var(--on-surface); }
-/* Four wide cards across, small enough that a full row fits under the tall hero; capped by the height as well, since a window wider than 16:9 would grow them past the space under it. */
-html.ml-hero-on #indexPage .overflowBackdropCard { width: min(24vw, 42.7vh) !important; }
-html.ml-hero-on #indexPage .overflowPortraitCard { width: min(10.6vw, 18.9vh) !important; }
 html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: 12px !important; }
 
 .ml-hero-art {
@@ -59,7 +60,7 @@ html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: 12px !importa
 .ml-hero-body {
   position: absolute;
   left: 3.3%;
-  top: 22%;
+  top: var(--ml-tv-hero-top);
   bottom: 28px;
   z-index: 1;
   display: flex;
@@ -98,7 +99,7 @@ html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: 12px !importa
 }
 .ml-hero-btn .material-icons { font-size: 1.4em; }
 .ml-hero-btn.ml-hero-primary { background: var(--primary); border-color: transparent; color: var(--on-primary); }
-.layout-tv .ml-hero-btn:focus { outline: none; transform: none; background: var(--surface-3); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+.layout-tv .ml-hero-btn:focus { outline: none !important; transform: none; background: var(--surface-3); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
 .layout-tv .ml-hero-btn.ml-hero-primary:focus { background: var(--primary-60); color: var(--on-primary); }
 
 /* The resume line sits under the buttons it explains. */

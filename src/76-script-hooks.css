@@ -12,7 +12,6 @@ html.ml-js .ml-collapsible.ml-open .itemsContainer {
 }
 html.ml-js .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 html.ml-js .ml-collapsible.ml-open .card { width: auto !important; }
-html.ml-js .ml-collapsible.ml-open .cardText { font-size: 15px !important; }
 /* Six people columns leave too little width for one line, so names and roles wrap to two. */
 html.ml-js .ml-people.ml-open .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.25 !important; height: auto !important; min-height: 2.5em; box-sizing: content-box; padding-bottom: 0 !important; margin-bottom: 8px; }
 /* The TV renders text larger than the PC, so six columns still cut the roles there. */
@@ -98,12 +97,17 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
 
 /* Series cards: one row of small 4 px chips under the picture (years, seasons, star score, tomato score); home shows only the scores. */
 .ml-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 4px 2px; }
-.ml-chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--on-surface); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
-.ml-chip-seasons, .ml-chip-crit { color: var(--muted); }
-.ml-chip-code { color: var(--primary-70); }
-.ml-chip .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1.1em; height: 1.1em; font-size: 1.1em !important; line-height: 1; color: #E8C46A; }
+.ml-chip { display: inline-flex; align-items: center; gap: .3em; padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--muted); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
+/* Every pill, a card chip or an item of the detail info line, has one icon of one size at one gap: grey for facts, gold for the star, the tomato for critics. */
+.itemMiscInfo .mediaInfoItem { display: inline-flex !important; align-items: center; gap: .3em; margin: 0 8px 4px 0 !important; padding: 2px 8px !important; border: 0 !important; border-radius: var(--r-xs) !important; background-color: var(--surface-3) !important; color: var(--muted) !important; font-weight: 600 !important; line-height: 1.4 !important; white-space: nowrap; }
+.ml-chip .material-icons, .itemMiscInfo .mediaInfoItem .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; margin: 0 !important; font-size: 1.15em !important; line-height: 1; color: #E8C46A; }
+.ml-pill-icon { color: var(--dim) !important; }
 .ml-tomato { width: 1.15em; height: 1.15em; }
-.layout-tv .ml-info { margin: 10px 4px 2px; }
+.itemMiscInfo .mediaInfoCriticRating { padding-left: calc(8px + 1.45em) !important; background-position: 8px center !important; }
+.layout-tv .ml-info { margin: 10px 0 2px; }
+/* Under a TV hero a whole card must fit on screen and the hero shows every detail, so chips keep one line and those that wrap drop out whole. */
+html.layout-tv.ml-hero-on .ml-info,
+html.layout-tv.ml-lib-on:not(.ml-lib-all) .ml-info { max-height: 26px; overflow: hidden; }
 .layout-tv .ml-chip { font-size: 15px; }
 .layout-mobile .ml-info { gap: 4px; margin: 6px 2px 2px; }
 .layout-mobile .ml-chip { font-size: 11px; padding: 1px 6px; }

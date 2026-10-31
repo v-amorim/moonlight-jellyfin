@@ -46,6 +46,8 @@ html:not(.transparentDocument) .MuiAppBar-root {
   box-shadow: none !important;
   border-bottom: 1px solid var(--border);
 }
+/* Content fades as it reaches the bar instead of being sliced at its edge, as the TV library shelves fade under the hero. */
+html:not(.transparentDocument) .MuiAppBar-root::after { content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 56px; background: linear-gradient(var(--bg), #0D0E1700); pointer-events: none; }
 .MuiAppBar-root a[href="#/"] img { display: none !important; }
 
 /* Library links: muted text; the open library gets the same lit segment as the legacy switcher. */

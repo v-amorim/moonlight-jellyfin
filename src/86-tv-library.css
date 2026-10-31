@@ -3,8 +3,7 @@
 :root { --ml-lib-css: 1; }
 .ml-lib { display: none; }
 html.ml-lib-on:not(.ml-lib-all) .ml-lib {
-  /* 45% of the screen, but never less than the header, a one-line title, five buttons and the resume line need; the LG lays out on a shorter page than a desktop window. */
-  --ml-lib-hero: max(45vh, 460px);
+  --ml-lib-hero: var(--ml-tv-hero);
   --ml-lib-pad: 3.3vw;
   display: block;
   position: fixed;
@@ -22,53 +21,36 @@ html.ml-lib-on:not(.ml-lib-all) .skinHeader .headerTabs { display: none !importa
 html.ml-lib-on:not(.ml-lib-all) .skinHeader { position: fixed !important; z-index: 6 !important; background: transparent !important; }
 
 .ml-lib .ml-lib-hero { display: block; position: absolute; top: 0; left: 0; right: 0; height: var(--ml-lib-hero); overflow: hidden; }
-/* The text starts under the header and the buttons sit above the first row, which overlaps the hero's last 120 px. */
-.ml-lib .ml-hero-body { top: 96px; bottom: 140px; }
 .ml-lib .ml-hero-title { -webkit-line-clamp: 1; }
 /* Only the synopsis gives way: a squeezed title springs back after the synopsis is fitted and pushes it under the buttons. */
 .ml-lib .ml-hero-title, .ml-lib .ml-hero-sub, .ml-lib-tag { flex-shrink: 0; }
 /* The hero's Libraries button switches library here, so the header's library pills stay on the full tab view only. */
 html.ml-lib-on:not(.ml-lib-all) .ml-libnav { display: none !important; }
 
-/* The shelves scroll natively, as every other page does; the remote's steps scroll them too. */
-.ml-lib-rows { position: absolute; top: calc(var(--ml-lib-hero) - 120px); left: 0; right: 0; bottom: 0; z-index: 1; overflow: hidden auto; }
-.ml-lib-track { padding: 0 0 60vh var(--ml-lib-pad); }
+/* The shelves scroll natively, as every other page does; the remote's steps scroll them too. The shelf above fades into the hero instead of being sliced, as content does under the PC and phone app bar. */
+.ml-lib-rows { position: absolute; top: var(--ml-lib-hero); left: 0; right: 0; bottom: 0; z-index: 1; overflow: hidden auto; -webkit-mask-image: linear-gradient(transparent, #000 24px); mask-image: linear-gradient(transparent, #000 24px); }
+/* The fade only covers the gap above a focused row, and the first shelf starts under it, so its heading is never dimmed. */
+.ml-lib-track { padding: 24px 0 60vh var(--ml-lib-pad); }
 /* Room around each row for the focused card's ring and zoom. */
-.ml-lib-shelf { margin: 0 0 14px -10px; padding: 8px 0 0 10px; overflow: hidden; overflow-x: clip; overflow-y: visible; }
+.ml-lib-shelf { margin: 0 0 14px -10px; padding: 6px 0 0 10px; overflow: hidden; overflow-x: clip; overflow-y: visible; }
 .ml-lib-tag { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font: 600 15px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .ml-lib-tag-name { color: var(--on-surface); }
 .ml-lib .ml-lib-collage { display: grid !important; grid-template-columns: 1fr 1fr; }
 .ml-lib-collage i { aspect-ratio: 16 / 9; background: center / cover no-repeat; }
-.ml-lib-title { margin: 0 0 12px; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ml-lib-title { margin: 0 0 8px; font: 600 18px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .ml-lib-strip { display: flex; align-items: stretch; transition: transform 200ms var(--ease); }
 .ml-lib-strip:focus-within > :not(:focus) { opacity: .5; transition: opacity 150ms var(--ease); }
 
-.ml-lib .ml-lib-card { flex: none; display: block; width: calc((100vw - 2 * var(--ml-lib-pad)) / 5.35); margin: 0; padding: 0; text-decoration: none; }
-.ml-lib .ml-lib-wide { width: calc((100vw - 2 * var(--ml-lib-pad)) / 3.35); }
-.ml-lib .ml-lib-card .cardScalable { position: relative; }
-.ml-lib .ml-lib-card .cardImageContainer { position: static !important; display: block; width: 100%; aspect-ratio: 2 / 3; background: var(--surface-2) center / cover no-repeat; }
-.ml-lib .ml-lib-wide .cardImageContainer { aspect-ratio: 16 / 9; }
+/* Wide art at the TV card width (--ml-tv-card), so the same card fits under the same hero on every page. */
+.ml-lib .ml-lib-card, .ml-lib .ml-lib-more { flex: none; display: block; width: var(--ml-tv-card); margin: 0; padding: 0; text-decoration: none; }
+.ml-lib .ml-lib-card .cardScalable, .ml-lib .ml-lib-more .cardScalable { position: relative; }
+.ml-lib .ml-lib-card .cardImageContainer, .ml-lib .ml-lib-more .cardImageContainer { position: static !important; display: block; width: 100%; aspect-ratio: 16 / 9; background: var(--surface-2) center / cover no-repeat; }
 
-/* See all: the next title's art fades out under the label. */
-.ml-lib-more {
-  flex: none;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: calc((100vw - 2 * var(--ml-lib-pad)) / 5.35 - 20px);
-  margin: 0 10px 20px;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface-2) center 30% / cover no-repeat;
-  color: var(--primary-70);
-  font: 600 var(--title) Inter, sans-serif;
-  overflow: hidden;
-  cursor: pointer;
-}
-.ml-lib-more.ml-lib-wide { width: calc((100vw - 2 * var(--ml-lib-pad)) / 3.35 - 20px); }
-.ml-lib-more.ml-lib-peek { border-color: transparent; color: var(--on-surface); }
-.ml-lib-more.ml-lib-peek::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, #0D0E1766, #0D0E17F2); }
-.ml-lib-more span { position: relative; }
-.layout-tv .ml-lib-more:focus { outline: none; transform: scale(1.03); transform-origin: 50% 0; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+/* Every frame in a shelf is as tall as the tallest, as in Jellyfin's own rows (00-base). */
+.ml-lib .ml-lib-strip > .card { display: flex; flex-direction: column; }
+.ml-lib .ml-lib-strip > .card > .cardBox { flex: 1 0 auto; }
+/* See all is a card: the next title's art, dimmed under the count. As a flex box the button no longer centres its frame. */
+.ml-lib .ml-lib-more { border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.ml-lib .ml-lib-more .cardImageContainer { position: relative !important; display: flex; align-items: center; justify-content: center; }
+.ml-lib .ml-lib-more .cardImageContainer::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #0D0E17B3; }
+.ml-lib-more-label { position: relative; font: 700 var(--hero) Inter, sans-serif; color: var(--on-surface); }

@@ -13,13 +13,25 @@
 .layout-tv .card .cardScalable .cardImageContainer,
 .layout-tv .card .cardScalable .cardOverlayContainer { border-radius: 2px !important; }
 .layout-tv .card .cardText { text-align: left !important; }
-.layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
+/* Every TV card is wide and one width (--ml-tv-card): poster cards (not people) take the item's wide art, laid over the poster by the script. Capped by the height too, since a window wider than 16:9 would grow them past the room under the hero. */
+.layout-tv .overflowBackdropCard,
+.layout-tv .overflowPortraitCard:not(.personCard) { width: var(--ml-tv-card) !important; }
+.layout-tv .itemsContainer.vertical-wrap > .portraitCard:not(.personCard),
+.layout-tv .itemsContainer.vertical-wrap > .backdropCard { width: 20% !important; }
+.layout-tv .overflowPortraitCard:not(.personCard) .cardPadder,
+.layout-tv .portraitCard:not(.personCard) .cardPadder { padding-bottom: 56.25% !important; }
+.ml-wide-art { display: none; }
+.layout-tv .card .ml-wide-art { display: block; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--surface-2) center / cover no-repeat; }
+.layout-tv .card .cardText-first { order: -1; padding: 2px 0 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
 .layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }
-.layout-tv .card .cardText-secondary { order: 2; padding: 12px 8px 4px !important; font-size: var(--title) !important; font-weight: 600 !important; color: var(--on-surface) !important; }
+.layout-tv .card .cardText-secondary { order: 2; padding: 12px 0 4px !important; font-size: 17px !important; font-weight: 600 !important; color: var(--on-surface) !important; }
 /* The focused card opens its cut lines to show the whole title, up to 4 lines each; the bottom padding turns into margin, since a clamped line would show through it. */
 .layout-tv .card:focus .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; text-overflow: clip !important; height: auto !important; }
 .layout-tv .card:focus .cardText-first { padding-bottom: 0 !important; margin-bottom: 10px; }
 .layout-tv .card:focus .cardText-secondary { padding-bottom: 0 !important; margin-bottom: 4px; }
+/* Under a hero a whole card must fit on screen, and the hero already shows the full title, so the title stays on one line there. */
+html.layout-tv.ml-hero-on .card:focus .cardText,
+html.layout-tv.ml-lib-on:not(.ml-lib-all) .card:focus .cardText { -webkit-line-clamp: 1 !important; }
 /* The script keeps the row at its resting height, so the opened card hangs over the gap below and sits above its neighbours. */
 .layout-tv .card:focus { position: relative; z-index: 5; }
 /* Jellyfin's row scroller clips below its cards; room under it, taken back with a negative margin, lets the hanging card show. */
