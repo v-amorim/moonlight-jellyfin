@@ -166,6 +166,7 @@
       enhanceClock();
       enhanceUserMenu();
       enhanceLibrary();
+      enhanceFilterCard();
       enhanceInfoIcons();
     });
   }).observe(document.body, { childList: true, subtree: true });
@@ -787,11 +788,27 @@
     if (!libraries) return loadLibraries(enhanceLibrarySwitcher);
     if (libraries.length < 2) return;
     var current = match[1];
-    if (existing && existing.getAttribute('data-current') === current && existing.parentNode === title.parentNode) return;
+    if (existing && existing.getAttribute('data-current') === current && existing.parentNode === title.parentNode) return placeTabs(existing);
     if (existing) existing.remove();
     var nav = document.createElement('div');
     nav.className = 'ml-libnav';
     nav.setAttribute('data-current', current);
+    // TV: one button with the library's name opens the library menu, so the tabs fit beside it at any library count.
+    if (isTv() && getComputedStyle(root).getPropertyValue('--ml-libdrop-css')) {
+      var lib = libraries.filter(function (l) { return l.Id === current; })[0];
+      if (!lib) return;
+      nav.className = 'ml-libnav ml-libdrop';
+      var drop = document.createElement('button');
+      drop.type = 'button';
+      drop.className = 'ml-libdrop-btn';
+      drop.innerHTML = '<span></span><span class="material-icons" aria-hidden="true">expand_more</span>';
+      drop.firstChild.textContent = lib.Name;
+      drop.addEventListener('click', function () { if (clockMenu) closeClockMenu(true); else openLibraryMenu(drop, current); });
+      nav.appendChild(drop);
+      title.parentNode.insertBefore(nav, title.nextSibling);
+      root.classList.add('ml-libnav-on');
+      return placeTabs(nav);
+    }
     libraries.forEach(function (lib) {
       var btn = document.createElement('button');
       btn.type = 'button';
@@ -804,6 +821,12 @@
     root.classList.add('ml-libnav-on');
   }
   window.addEventListener('hashchange', enhanceLibrarySwitcher);
+  // The TV tabs start after the library button, whose width follows the library's name; the landing hides the button, so it is measured once shown.
+  function placeTabs(nav) {
+    if (!nav.classList.contains('ml-libdrop') || !nav.offsetWidth) return;
+    var left = Math.round(nav.getBoundingClientRect().right + 14) + 'px';
+    if (root.style.getPropertyValue('--ml-tabs-left') !== left) root.style.setProperty('--ml-tabs-left', left);
+  }
 
   // The card frame (padding, chips row) is not an item action, so a tap there did nothing; Jellyfin takes the innermost action, so buttons and links keep theirs.
   function enhanceCardTargets() {
@@ -1602,6 +1625,99 @@
   }
   window.addEventListener('hashchange', function () { setTimeout(enhanceLibrary, 0); });
 
+  // Filter card: Moonlight chips inside Jellyfin's own filter dialog. Each chip clicks the stock checkbox under it, so Jellyfin still filters, saves and closes the dialog.
+  var FC_GROUPS = [['Show', '.chkStandardFilter'], ['Genre', '.chkGenreFilter']];
+  var FC_NAMES = { IsResumable: 'In progress' };
+  function fcKey(input) { return (input.className.match(/chk\w+/) || ['chk'])[0] + ':' + (input.getAttribute('data-filter') || input.id); }
+  function fcLabel(input) {
+    var name = FC_NAMES[input.getAttribute('data-filter')];
+    var label = input.closest('label');
+    return name || (label ? label.textContent.trim() : input.getAttribute('data-filter') || '');
+  }
+  function fcChip(key, text, picked) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ml-fc-chip' + (picked ? ' ml-fc-tag' : '');
+    btn.setAttribute('data-ml-key', key);
+    btn.textContent = picked ? text : '+ ' + text;
+    if (picked) btn.insertAdjacentHTML('beforeend', '<span class="ml-fc-x" aria-hidden="true">×</span>');
+    return btn;
+  }
+  function fcLine(card, title) {
+    if (title) card.insertAdjacentHTML('beforeend', '<div class="ml-fc-label"></div>');
+    if (title) card.lastChild.textContent = title;
+    var line = document.createElement('div');
+    line.className = 'ml-fc-line';
+    card.appendChild(line);
+    return line;
+  }
+  // Focus stays where the remote was: on the chip that slid into the clicked one's place, or the nearest one left.
+  function fcNext(btn) {
+    var near = btn.nextElementSibling && btn.nextElementSibling.getAttribute('data-ml-key') ? btn.nextElementSibling : btn.previousElementSibling;
+    return near && near.getAttribute('data-ml-key');
+  }
+  function fcRender(dialog, want) {
+    var content = dialog.querySelector('.filterDialogContent');
+    var card = dialog.querySelector('.ml-fc');
+    var active = document.activeElement;
+    if (!want && card && card.contains(active)) want = active.getAttribute('data-ml-key');
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'ml-fc';
+      content.parentNode.insertBefore(card, content);
+      dialog.classList.add('ml-fc-on');
+    }
+    card.textContent = '';
+    var inputs = {};
+    [].slice.call(content.querySelectorAll('input[type="checkbox"]')).forEach(function (i) { inputs[fcKey(i)] = i; });
+    var picked = Object.keys(inputs).filter(function (k) { return inputs[k].checked; });
+    var tags = fcLine(card, 'Filter');
+    picked.forEach(function (k) { tags.appendChild(fcChip(k, fcLabel(inputs[k]), true)); });
+    if (picked.length) tags.insertAdjacentHTML('beforeend', '<button type="button" class="ml-fc-clear" data-ml-key="clear">Clear all</button>');
+    else tags.insertAdjacentHTML('beforeend', '<span class="ml-fc-none">No filters</span>');
+    card.insertAdjacentHTML('beforeend', '<div class="ml-fc-div"></div>');
+    FC_GROUPS.forEach(function (g) {
+      var free = [].slice.call(content.querySelectorAll(g[1])).filter(function (i) { return !i.checked; });
+      if (!free.length) return;
+      var line = fcLine(card, g[0]);
+      free.forEach(function (i) { line.appendChild(fcChip(fcKey(i), fcLabel(i), false)); });
+    });
+    var target = (want && card.querySelector('[data-ml-key="' + want.replace(/"/g, '\\"') + '"]')) || card.querySelector('button');
+    if (target && (card.contains(active) || !dialog.contains(active) || !active.offsetWidth || active === dialog)) target.focus();
+    card.mlInputs = inputs;
+  }
+  function fcClick(e) {
+    var btn = e.target.closest('.ml-fc button');
+    if (!btn) return;
+    var dialog = btn.closest('.filterDialog');
+    var inputs = btn.closest('.ml-fc').mlInputs;
+    var key = btn.getAttribute('data-ml-key');
+    var want;
+    if (key === 'clear') {
+      Object.keys(inputs).forEach(function (k) { if (inputs[k].checked) inputs[k].click(); });
+    } else {
+      // A picked tag leaves for its group and a + chip joins the tags, so focus goes to its neighbour; the last tag hands over to the first + chip.
+      want = fcNext(btn);
+      if (want === 'clear') want = null;
+      inputs[key].click();
+    }
+    fcRender(dialog, want);
+  }
+  function enhanceFilterCard() {
+    if (!isTv() || !getComputedStyle(root).getPropertyValue('--ml-fc-css')) return;
+    var dialog = document.querySelector('.dialogContainer .filterDialog:not(.ml-fc-on)');
+    if (!dialog || !dialog.querySelector('.filterDialogContent')) return;
+    fcRender(dialog);
+    dialog.addEventListener('click', fcClick);
+    // Genres arrive after the dialog opens.
+    var queued = false;
+    new MutationObserver(function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; fcRender(dialog); });
+    }).observe(dialog.querySelector('.filterDialogContent'), { childList: true, subtree: true });
+  }
+
   document.addEventListener('focusin', function (e) {
     if (!libLayer || !libLayer.el.contains(e.target)) return;
     var card = e.target.closest('.ml-lib-card, .ml-lib-more');
@@ -1730,14 +1846,15 @@
     if (refocus && owner) owner.focus();
   }
 
-  // The Libraries button on a library page opens the clock menu's list with the libraries, under the button.
-  function openLibraryMenu(btn) {
-    if (clockMenu || !libraries || !libLayer) return;
+  // The Libraries button on a library page, and the TV header's library button, open the clock menu's list with the libraries, under the button.
+  function openLibraryMenu(btn, currentId) {
+    var at = currentId || (libLayer && libLayer.lib);
+    if (clockMenu || !libraries || !at) return;
     clockMenu = document.createElement('div');
     clockMenu.className = 'ml-clock-menu';
     var current = null;
     libraries.forEach(function (lib) {
-      var on = lib.Id === libLayer.lib;
+      var on = lib.Id === at;
       var item = clockMenuItem(on ? 'check' : lib.CollectionType === 'movies' ? 'movie' : lib.CollectionType === 'tvshows' ? 'tv' : 'folder', lib.Name, function () { if (!on) location.hash = libraryLink(lib); });
       if (on) current = item;
       clockMenu.appendChild(item);

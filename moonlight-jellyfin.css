@@ -1632,6 +1632,44 @@ html.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .detailButton:focus
 html.ml-clock-on.layout-tv .skinHeader .headerRight .headerButton { display: none !important; }
 html.ml-hero-on .skinHeader .headerTabs { display: none !important; }
 
+/* Library pages: one button with the library's name opens the library menu, and the tabs move up beside it at the same size. */
+/* The script draws the button only when it finds this, so a TV holding an older copy of the CSS keeps the library pills. */
+:root { --ml-libdrop-css: 1; --ml-tabs-left: 146px; }
+.layout-tv .ml-libnav.ml-libdrop { padding: 0; background: none; box-shadow: none; }
+.layout-tv .ml-libdrop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 10px 0 16px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--surface-1);
+  box-shadow: 0 0 0 1px var(--border);
+  color: var(--primary-70);
+  font: 600 16px Inter, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.layout-tv .ml-libdrop-btn .material-icons { font-size: 22px; color: var(--muted); }
+.layout-tv .ml-libdrop-btn:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs {
+  position: absolute;
+  top: 0;
+  left: var(--ml-tabs-left);
+  right: 150px;
+  height: 77px;
+  min-height: 0;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tabs { pointer-events: auto; padding: 0; }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tabs-slider { gap: 2px; padding: 3px; border-radius: var(--r-sm); background: var(--surface-1); box-shadow: 0 0 0 1px var(--border); }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button { margin: 0; padding: 6px 14px; border-radius: 5px; color: var(--muted); font: 600 16px Inter, sans-serif; }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button-active { background: var(--surface-3); color: var(--primary-70); }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+html.layout-tv.ml-libnav-on .libraryPage:not(.hide) { padding-top: 77px !important; }
+
 /* The player clock's pill; the sub-pill holds the profile icon where the player's holds the time left. */
 .layout-tv .ml-clock-btn {
   display: inline-flex;
@@ -1736,6 +1774,59 @@ html.ml-lib-on:not(.ml-lib-all) .ml-libnav { display: none !important; }
 .ml-lib .ml-lib-more .cardImageContainer { position: relative !important; display: flex; align-items: center; justify-content: center; }
 .ml-lib .ml-lib-more .cardImageContainer::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #0D0E17B3; }
 .ml-lib-more-label { position: relative; font: 700 var(--hero) Inter, sans-serif; color: var(--on-surface); }
+
+/* 87-filter-card.css */
+/* Filter card (script): Moonlight chips inside Jellyfin's filter dialog; picked filters are tags with ×, the rest are + chips by group. */
+/* The script draws the card only when it finds this, so a TV holding an older copy of the CSS keeps the stock dialog. */
+:root { --ml-fc-css: 1; }
+.filterDialog.ml-fc-on > .filterDialogContent { display: none !important; }
+/* Stock places and sizes the dialog for its own list; the card is centred and as tall as its chips. */
+.layout-tv .filterDialog.ml-fc-on {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  box-sizing: border-box;
+  width: 860px !important;
+  max-width: calc(100vw - 64px);
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 86vh !important;
+  margin: 0 !important;
+  padding: 10px 28px 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-1) !important;
+  box-shadow: 0 0 0 200vmax #0D0E17B3;
+}
+.ml-fc { flex-shrink: 0; font: 600 17px Inter, sans-serif; color: var(--on-surface); }
+.ml-fc-label { margin: 14px 0 10px; font: 600 14px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ml-fc-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ml-fc-div { height: 1px; margin: 16px 0 0; background: var(--border); }
+.ml-fc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin: 0;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 20px;
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  color: var(--muted);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ml-fc-tag { padding-right: 8px; background: var(--surface-3); box-shadow: none; color: var(--primary-70); }
+.ml-fc-x { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 13px; background: var(--surface-4); font: 700 15px Inter, sans-serif; }
+.ml-fc-clear { height: 40px; margin: 0; padding: 0 8px; border: 0; border-radius: var(--r-sm); background: none; color: var(--primary-70); font: inherit; cursor: pointer; }
+.ml-fc-none { color: var(--dim); }
+.ml-fc button:focus { outline: none; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+.ml-fc-chip:hover, .ml-fc-clear:hover { color: var(--on-surface); }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

@@ -3,6 +3,44 @@
 html.ml-clock-on.layout-tv .skinHeader .headerRight .headerButton { display: none !important; }
 html.ml-hero-on .skinHeader .headerTabs { display: none !important; }
 
+/* Library pages: one button with the library's name opens the library menu, and the tabs move up beside it at the same size. */
+/* The script draws the button only when it finds this, so a TV holding an older copy of the CSS keeps the library pills. */
+:root { --ml-libdrop-css: 1; --ml-tabs-left: 146px; }
+.layout-tv .ml-libnav.ml-libdrop { padding: 0; background: none; box-shadow: none; }
+.layout-tv .ml-libdrop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 10px 0 16px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: var(--surface-1);
+  box-shadow: 0 0 0 1px var(--border);
+  color: var(--primary-70);
+  font: 600 16px Inter, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.layout-tv .ml-libdrop-btn .material-icons { font-size: 22px; color: var(--muted); }
+.layout-tv .ml-libdrop-btn:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs {
+  position: absolute;
+  top: 0;
+  left: var(--ml-tabs-left);
+  right: 150px;
+  height: 77px;
+  min-height: 0;
+  justify-content: flex-start;
+  pointer-events: none;
+}
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tabs { pointer-events: auto; padding: 0; }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tabs-slider { gap: 2px; padding: 3px; border-radius: var(--r-sm); background: var(--surface-1); box-shadow: 0 0 0 1px var(--border); }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button { margin: 0; padding: 6px 14px; border-radius: 5px; color: var(--muted); font: 600 16px Inter, sans-serif; }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button-active { background: var(--surface-3); color: var(--primary-70); }
+html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+html.layout-tv.ml-libnav-on .libraryPage:not(.hide) { padding-top: 77px !important; }
+
 /* The player clock's pill; the sub-pill holds the profile icon where the player's holds the time left. */
 .layout-tv .ml-clock-btn {
   display: inline-flex;
