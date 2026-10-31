@@ -826,6 +826,9 @@
     if (!nav.classList.contains('ml-libdrop') || !nav.offsetWidth) return;
     var left = Math.round(nav.getBoundingClientRect().right + 14) + 'px';
     if (root.style.getPropertyValue('--ml-tabs-left') !== left) root.style.setProperty('--ml-tabs-left', left);
+    var row = nav.closest('.headerTop');
+    var head = row && Math.round(row.getBoundingClientRect().bottom) + 'px';
+    if (head && root.style.getPropertyValue('--ml-head-h') !== head) root.style.setProperty('--ml-head-h', head);
   }
 
   // The card frame (padding, chips row) is not an item action, so a tap there did nothing; Jellyfin takes the innermost action, so buttons and links keep theirs.

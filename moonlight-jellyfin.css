@@ -1656,10 +1656,15 @@ html.ml-hero-on .skinHeader .headerTabs { display: none !important; }
 html.layout-tv.ml-libnav-on .skinHeader .headerTabs {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: var(--ml-tabs-left);
   right: 150px;
-  height: 77px;
+  width: auto !important;
+  height: auto;
   min-height: 0;
+  /* Stock slides the tab row up out of view on wide TV-layout windows. */
+  margin: 0 !important;
+  transform: none !important;
   justify-content: flex-start;
   pointer-events: none;
 }
@@ -1668,7 +1673,8 @@ html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tabs-slider { gap: 2px
 html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button { margin: 0; padding: 6px 14px; border-radius: 5px; color: var(--muted); font: 600 16px Inter, sans-serif; }
 html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button-active { background: var(--surface-3); color: var(--primary-70); }
 html.layout-tv.ml-libnav-on .skinHeader .headerTabs .emby-tab-button:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
-html.layout-tv.ml-libnav-on .libraryPage:not(.hide) { padding-top: 77px !important; }
+/* The header row's height follows the window, so the script measures it. */
+html.layout-tv.ml-libnav-on .libraryPage:not(.hide) { padding-top: var(--ml-head-h, 77px) !important; }
 
 /* The player clock's pill; the sub-pill holds the profile icon where the player's holds the time left. */
 .layout-tv .ml-clock-btn {
