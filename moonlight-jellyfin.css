@@ -803,6 +803,14 @@ html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { marg
 .layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
 .layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }
 .layout-tv .card .cardText-secondary { order: 2; padding: 12px 8px 4px !important; font-size: var(--title) !important; font-weight: 600 !important; color: var(--on-surface) !important; }
+/* The focused card opens its cut lines to show the whole title, up to 4 lines each; the bottom padding turns into margin, since a clamped line would show through it. */
+.layout-tv .card:focus .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; text-overflow: clip !important; height: auto !important; }
+.layout-tv .card:focus .cardText-first { padding-bottom: 0 !important; margin-bottom: 10px; }
+.layout-tv .card:focus .cardText-secondary { padding-bottom: 0 !important; margin-bottom: 4px; }
+/* The script keeps the row at its resting height, so the opened card hangs over the gap below and sits above its neighbours. */
+.layout-tv .card:focus { position: relative; z-index: 5; }
+/* Jellyfin's row scroller clips below its cards; room under it, taken back with a negative margin, lets the hanging card show. */
+.layout-tv .padded-top-focusscale { padding-bottom: 48px !important; margin-bottom: -48px !important; }
 
 /* TV menus (subtitles, audio, display mode): a centred popup card over the dimmed page instead of a full-screen sheet. */
 .layout-tv .dialogContainer { display: flex !important; align-items: center; justify-content: center; }
@@ -1417,8 +1425,19 @@ html.ml-hero-on .ml-hero {
 html.ml-hero-on .skinHeader { position: fixed !important; background: transparent !important; }
 /* The first and the last row must both be able to scroll to the hero's edge. */
 html.ml-hero-on #indexPage .homeSectionsContainer { display: flex; flex-direction: column; padding-top: var(--ml-hero-h); padding-bottom: calc(100vh - var(--ml-hero-h)); }
-html.ml-hero-on #indexPage .homeSectionsContainer > .ml-first { order: -2; }
-html.ml-hero-on #indexPage .homeSectionsContainer > .ml-second { order: -1; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-first { order: -3; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-second { order: -2; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-third { order: -1; }
+/* With the library tiles in the hero, the My Media row would only repeat them. */
+html.ml-hero-on.ml-hero-libs-on #indexPage .homeSectionsContainer > .ml-third { display: none !important; }
+
+/* My Media: a tile per library with its art, at the hero's bottom right. */
+.ml-hero-libs { position: absolute; right: 3.3%; bottom: 28px; z-index: 2; display: flex; gap: 14px; }
+.ml-hero-lib { display: block; width: 220px; padding: 8px; border: 1px solid var(--border); border-radius: var(--r-md); background: #141726D9; text-decoration: none; }
+.ml-hero-lib-art { display: block; height: 110px; border-radius: var(--r-xs); background: var(--surface-2) center / cover no-repeat; }
+.ml-hero-lib-name { display: block; margin: 8px 2px 0; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #B5BCD6; }
+.layout-tv .ml-hero-lib:focus { outline: none; background: var(--surface-2); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+.layout-tv .ml-hero-lib:focus .ml-hero-lib-name { color: var(--on-surface); }
 /* Four wide cards across, small enough that a full row fits under the tall hero; capped by the height as well, since a window wider than 16:9 would grow them past the space under it. */
 html.ml-hero-on #indexPage .overflowBackdropCard { width: min(24vw, 42.7vh) !important; }
 html.ml-hero-on #indexPage .overflowPortraitCard { width: min(10.6vw, 18.9vh) !important; }
@@ -1619,6 +1638,82 @@ html.ml-hero-on .skinHeader .headerTabs { display: none !important; }
 .ml-clock-item:hover, .ml-clock-item:focus { outline: none; background: #EEEEFA1F; }
 .ml-clock-item:focus { box-shadow: inset 0 0 0 3px var(--primary); }
 .ml-clock-item:focus .material-icons { color: var(--primary-70); }
+
+/* 86-tv-library.css */
+/* TV library page (script): a landing over the tabbed page; the hero shows the focused title and the shelves start over its faded bottom, five posters across. */
+/* The script draws the landing only when it finds this, so a TV holding an older copy of the CSS keeps the stock page. */
+:root { --ml-lib-css: 1; }
+.ml-lib { display: none; }
+html.ml-lib-on:not(.ml-lib-all) .ml-lib {
+  /* 45% of the screen, but never less than the header, a one-line title, five buttons and the resume line need; the LG lays out on a shorter page than a desktop window. */
+  --ml-lib-hero: max(45vh, 460px);
+  --ml-lib-pad: 3.3vw;
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  overflow: hidden;
+  background: var(--bg);
+}
+/* The stock page stays mounted under the landing, so its tabs are loaded when See all opens one. */
+html.ml-lib-on:not(.ml-lib-all) .libraryPage:not(.hide) > :not(.ml-lib) { visibility: hidden; }
+html.ml-lib-on:not(.ml-lib-all) .skinHeader .headerTabs { display: none !important; }
+html.ml-lib-on:not(.ml-lib-all) .skinHeader { position: fixed !important; z-index: 6 !important; background: transparent !important; }
+
+.ml-lib .ml-lib-hero { display: block; position: absolute; top: 0; left: 0; right: 0; height: var(--ml-lib-hero); overflow: hidden; }
+/* The text starts under the header and the buttons sit above the first row, which overlaps the hero's last 120 px. */
+.ml-lib .ml-hero-body { top: 96px; bottom: 140px; }
+.ml-lib .ml-hero-title { -webkit-line-clamp: 1; }
+/* Only the synopsis gives way: a squeezed title springs back after the synopsis is fitted and pushes it under the buttons. */
+.ml-lib .ml-hero-title, .ml-lib .ml-hero-sub, .ml-lib-tag { flex-shrink: 0; }
+/* The hero's Libraries button switches library here, so the header's library pills stay on the full tab view only. */
+html.ml-lib-on:not(.ml-lib-all) .ml-libnav { display: none !important; }
+
+/* The shelves scroll natively, as every other page does; the remote's steps scroll them too. */
+.ml-lib-rows { position: absolute; top: calc(var(--ml-lib-hero) - 120px); left: 0; right: 0; bottom: 0; z-index: 1; overflow: hidden auto; }
+.ml-lib-track { padding: 0 0 60vh var(--ml-lib-pad); }
+/* Room around each row for the focused card's ring and zoom. */
+.ml-lib-shelf { margin: 0 0 14px -10px; padding: 8px 0 0 10px; overflow: hidden; overflow-x: clip; overflow-y: visible; }
+.ml-lib-tag { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font: 600 15px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ml-lib-tag-name { color: var(--on-surface); }
+.ml-lib .ml-lib-collage { display: grid !important; grid-template-columns: 1fr 1fr; }
+.ml-lib-collage i { aspect-ratio: 16 / 9; background: center / cover no-repeat; }
+.ml-lib-title { margin: 0 0 12px; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ml-lib-strip { display: flex; align-items: stretch; transition: transform 200ms var(--ease); }
+.ml-lib-strip:focus-within > :not(:focus) { opacity: .5; transition: opacity 150ms var(--ease); }
+
+.ml-lib .ml-lib-card { flex: none; display: block; width: calc((100vw - 2 * var(--ml-lib-pad)) / 5.35); margin: 0; padding: 0; text-decoration: none; }
+.ml-lib .ml-lib-wide { width: calc((100vw - 2 * var(--ml-lib-pad)) / 3.35); }
+.ml-lib .ml-lib-card .cardScalable { position: relative; }
+.ml-lib .ml-lib-card .cardImageContainer { position: static !important; display: block; width: 100%; aspect-ratio: 2 / 3; background: var(--surface-2) center / cover no-repeat; }
+.ml-lib .ml-lib-wide .cardImageContainer { aspect-ratio: 16 / 9; }
+
+/* See all: the next title's art fades out under the label. */
+.ml-lib-more {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc((100vw - 2 * var(--ml-lib-pad)) / 5.35 - 20px);
+  margin: 0 10px 20px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2) center 30% / cover no-repeat;
+  color: var(--primary-70);
+  font: 600 var(--title) Inter, sans-serif;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ml-lib-more.ml-lib-wide { width: calc((100vw - 2 * var(--ml-lib-pad)) / 3.35 - 20px); }
+.ml-lib-more.ml-lib-peek { border-color: transparent; color: var(--on-surface); }
+.ml-lib-more.ml-lib-peek::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(90deg, #0D0E1766, #0D0E17F2); }
+.ml-lib-more span { position: relative; }
+.layout-tv .ml-lib-more:focus { outline: none; transform: scale(1.03); transform-origin: 50% 0; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

@@ -16,6 +16,14 @@
 .layout-tv .card .cardText-first { order: -1; padding: 2px 8px 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
 .layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }
 .layout-tv .card .cardText-secondary { order: 2; padding: 12px 8px 4px !important; font-size: var(--title) !important; font-weight: 600 !important; color: var(--on-surface) !important; }
+/* The focused card opens its cut lines to show the whole title, up to 4 lines each; the bottom padding turns into margin, since a clamped line would show through it. */
+.layout-tv .card:focus .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; text-overflow: clip !important; height: auto !important; }
+.layout-tv .card:focus .cardText-first { padding-bottom: 0 !important; margin-bottom: 10px; }
+.layout-tv .card:focus .cardText-secondary { padding-bottom: 0 !important; margin-bottom: 4px; }
+/* The script keeps the row at its resting height, so the opened card hangs over the gap below and sits above its neighbours. */
+.layout-tv .card:focus { position: relative; z-index: 5; }
+/* Jellyfin's row scroller clips below its cards; room under it, taken back with a negative margin, lets the hanging card show. */
+.layout-tv .padded-top-focusscale { padding-bottom: 48px !important; margin-bottom: -48px !important; }
 
 /* TV menus (subtitles, audio, display mode): a centred popup card over the dimmed page instead of a full-screen sheet. */
 .layout-tv .dialogContainer { display: flex !important; align-items: center; justify-content: center; }

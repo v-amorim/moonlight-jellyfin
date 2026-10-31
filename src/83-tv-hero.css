@@ -17,8 +17,19 @@ html.ml-hero-on .ml-hero {
 html.ml-hero-on .skinHeader { position: fixed !important; background: transparent !important; }
 /* The first and the last row must both be able to scroll to the hero's edge. */
 html.ml-hero-on #indexPage .homeSectionsContainer { display: flex; flex-direction: column; padding-top: var(--ml-hero-h); padding-bottom: calc(100vh - var(--ml-hero-h)); }
-html.ml-hero-on #indexPage .homeSectionsContainer > .ml-first { order: -2; }
-html.ml-hero-on #indexPage .homeSectionsContainer > .ml-second { order: -1; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-first { order: -3; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-second { order: -2; }
+html.ml-hero-on #indexPage .homeSectionsContainer > .ml-third { order: -1; }
+/* With the library tiles in the hero, the My Media row would only repeat them. */
+html.ml-hero-on.ml-hero-libs-on #indexPage .homeSectionsContainer > .ml-third { display: none !important; }
+
+/* My Media: a tile per library with its art, at the hero's bottom right. */
+.ml-hero-libs { position: absolute; right: 3.3%; bottom: 28px; z-index: 2; display: flex; gap: 14px; }
+.ml-hero-lib { display: block; width: 220px; padding: 8px; border: 1px solid var(--border); border-radius: var(--r-md); background: #141726D9; text-decoration: none; }
+.ml-hero-lib-art { display: block; height: 110px; border-radius: var(--r-xs); background: var(--surface-2) center / cover no-repeat; }
+.ml-hero-lib-name { display: block; margin: 8px 2px 0; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #B5BCD6; }
+.layout-tv .ml-hero-lib:focus { outline: none; background: var(--surface-2); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
+.layout-tv .ml-hero-lib:focus .ml-hero-lib-name { color: var(--on-surface); }
 /* Four wide cards across, small enough that a full row fits under the tall hero; capped by the height as well, since a window wider than 16:9 would grow them past the space under it. */
 html.ml-hero-on #indexPage .overflowBackdropCard { width: min(24vw, 42.7vh) !important; }
 html.ml-hero-on #indexPage .overflowPortraitCard { width: min(10.6vw, 18.9vh) !important; }

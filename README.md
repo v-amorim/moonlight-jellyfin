@@ -52,16 +52,16 @@ Paste the file again after each release, since the plugin keeps a copy.
 | Watched | A 65% veil over the picture with a ringed check and the word WATCHED, on every card Jellyfin marks as watched |
 | Fixes | Stock cyan focus border on TV cards, clipped player titles on phones, the PC volume slider |
 
-Layout changes apply to the TV layout only. PC and phone keep Jellyfin's own layout with the Moonlight colours, type and player.
+Every change applies to the TV, PC and phone layouts. Sizes adapt per layout; only hover (PC) and remote focus (TV) follow the input.
 
 ## Compatibility
 
 | Target | Notes |
 | --- | --- |
-| LG webOS 23 browser (Chromium 94) | No `oklch()`, nesting or `backdrop-filter`, and `:has()` only in PC-only rules; `build.js` rejects the rest |
+| LG webOS 23 browser (Chromium 94) | No `oklch()`, nesting or `backdrop-filter`, and `:has()` only in rules scoped to `.layout-desktop` or `.layout-mobile`; `build.js` rejects the rest |
 | PC and phone browsers | Tested at 1440 and 390 px wide |
 | Jellyfin Android app | CSS only: the app runs no injected script, so the optional script's features are missing there |
-| Jellyfin 10.11 | Built against 10.11.11 |
+| Jellyfin 10.11 and 12.4 | Built against 10.11.11 and restyled for the 12.4 Modern shell in `src/82-modern-shell.css`. The 10.11 and Legacy layout rules stay beside it, so older servers are unaffected |
 
 ## Build
 
@@ -76,7 +76,7 @@ node build.js
 
 The script inlines the Inter font from `vendor-font/` and fails if the result uses CSS that Chromium 94 lacks or references a network URL.
 
-To release, commit, tag the next `v1.x.y` and push `main` and the tag. The `@1` install line follows tags, not `main`. Then purge jsDelivr so servers get the new file at once: open `https://purge.jsdelivr.net/gh/v-amorim/moonlight-jellyfin@1/moonlight-jellyfin.css`. If `script/` changed, paste it into the plugin again.
+To release, commit, tag the next `v1.x.y` and push `main` and the tag. The `@1` install line follows tags, not `main`. Then purge jsDelivr so servers get the new file at once: open `https://purge.jsdelivr.net/gh/v-amorim/moonlight-jellyfin@1/moonlight-jellyfin.css`. The purge does not clear browsers, which keep `@1` for 7 days, so a stale CSS can run beside a new script. On your own server, pin the `@import` to the tag (`@1.x.y`) and move it each release. If `script/` changed, paste it into the plugin again.
 
 </details>
 

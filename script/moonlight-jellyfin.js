@@ -13,6 +13,47 @@
   function isTv() { return root.classList.contains('layout-tv'); }
   function isDesktop() { return root.classList.contains('layout-desktop'); }
 
+  // The TV app's Back walks the history and never reaches the page, so a menu or view opened over a page adds a history step that Back removes, as Jellyfin's dialogs do.
+  var backStep = null;
+  var afterBack = null;
+  // history.back() lands later; a second call before then would leave the page as well.
+  var backPending = false;
+  function goBack() {
+    if (backPending) return;
+    backPending = true;
+    history.back();
+  }
+  function pushBackStep(tag, close) {
+    history.pushState({ mlBack: tag }, '', location.href);
+    backStep = close;
+  }
+  // Closing by other means takes the step back out; an action waits for that, or the back would undo its navigation.
+  function popBackStep(then) {
+    backStep = null;
+    if (history.state && history.state.mlBack) {
+      afterBack = then || null;
+      goBack();
+    } else if (then) {
+      then();
+    }
+  }
+  window.addEventListener('popstate', function () {
+    var close = backStep;
+    var then = afterBack;
+    backStep = null;
+    afterBack = null;
+    backPending = false;
+    if (close) close();
+    if (then) setTimeout(then, 0);
+  });
+  window.addEventListener('keydown', function (e) {
+    var back = e.key === 'Escape' || e.key === 'Backspace' || e.key === 'GoBack' || e.keyCode === 461;
+    if (!back || !backStep || document.querySelector('.dialogContainer .dialog') || /INPUT|TEXTAREA/.test((document.activeElement || {}).tagName)) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    goBack();
+  }, true);
+
   // 1. "More from Season", Cast & Crew and Guest Stars: a real toggle that stays open until it is closed.
   function setSeasonOpen(section, open) {
     section.classList.toggle('ml-open', open);
@@ -82,6 +123,7 @@
     pending = true;
     requestAnimationFrame(function () {
       pending = false;
+      enhanceLatestEpisodes();
       var sections = document.querySelectorAll('.moreFromSeasonSection');
       for (var i = 0; i < sections.length; i++) enhanceSeason(sections[i]);
       // People rows (Cast & Crew, Guest Stars) have no class of their own; their cards do.
@@ -106,6 +148,7 @@
       enhanceDetailBleed();
       enhanceClock();
       enhanceUserMenu();
+      enhanceLibrary();
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -210,6 +253,39 @@
         var close = document.querySelector('.actionSheet .btnCloseActionSheet');
         if (close) close.click(); else history.back();
       });
+    });
+  }
+
+  // 18. Recently Added lists a show with one new episode as that episode under the show's poster; such a card opens, previews and counts the show, like the rest of its row.
+  function enhanceLatestEpisodes() {
+    var api = window.ApiClient;
+    if (!api) return;
+    var cards = document.querySelectorAll('.card[class*="ortraitCard"][data-type="Episode"][data-id]:not([data-ml-latest])');
+    [].forEach.call(cards, function (card) {
+      card.setAttribute('data-ml-latest', '1');
+      // Holds the chips back until the card points at its show.
+      card.setAttribute('data-ml-series', '1');
+      var user = api.getCurrentUserId();
+      api.getItem(user, card.getAttribute('data-id')).then(function (episode) {
+        return episode.SeriesId ? api.getItem(user, episode.SeriesId) : null;
+      }).then(function (show) {
+        if (!show) return;
+        card.setAttribute('data-id', show.Id);
+        card.setAttribute('data-type', 'Series');
+        card.setAttribute('data-isfolder', 'true');
+        card.removeAttribute('data-mediatype');
+        card.removeAttribute('data-ml-series');
+        var pic = card.querySelector('.cardImageContainer');
+        var badges = pic && pic.querySelector('.cardIndicators');
+        if (badges) badges.remove();
+        var count = show.UserData && show.UserData.UnplayedItemCount;
+        if (!pic || !count) return;
+        badges = document.createElement('div');
+        badges.className = 'cardIndicators';
+        badges.innerHTML = '<div class="countIndicator indicator"></div>';
+        badges.firstChild.textContent = count > 99 ? '99+' : String(count);
+        pic.appendChild(badges);
+      }).catch(function () { card.removeAttribute('data-ml-series'); });
     });
   }
 
@@ -559,6 +635,17 @@
     return '#/' + route + '?topParentId=' + lib.Id + (lib.CollectionType ? '&collectionType=' + lib.CollectionType : '') + (route === 'list' ? '&parentId=' + lib.Id : '');
   }
 
+  // One request for the session; whoever asked first is called back once the list is in.
+  function loadLibraries(done) {
+    var api = window.ApiClient;
+    if (!api || libraries === false) return;
+    libraries = false;
+    api.getJSON(api.getUrl('Users/' + api.getCurrentUserId() + '/Views')).then(function (res) {
+      libraries = (res.Items || []).filter(function (v) { return v.CollectionType !== 'livetv' && v.CollectionType !== 'playlists'; });
+      done();
+    }).catch(function () { libraries = null; });
+  }
+
   function enhanceLibrarySwitcher() {
     var match = /[?&](?:topParentId|parentId)=([0-9a-f]+)/i.exec(location.hash);
     var title = document.querySelector('.skinHeader .pageTitle');
@@ -570,16 +657,7 @@
       return;
     }
     if (!title) return;
-    if (!libraries) {
-      var api = window.ApiClient;
-      if (!api || libraries === false) return;
-      libraries = false;
-      api.getJSON(api.getUrl('Users/' + api.getCurrentUserId() + '/Views')).then(function (res) {
-        libraries = (res.Items || []).filter(function (v) { return v.CollectionType !== 'livetv' && v.CollectionType !== 'playlists'; });
-        enhanceLibrarySwitcher();
-      }).catch(function () { libraries = null; });
-      return;
-    }
+    if (!libraries) return loadLibraries(enhanceLibrarySwitcher);
     if (libraries.length < 2) return;
     var current = match[1];
     if (existing && existing.getAttribute('data-current') === current && existing.parentNode === title.parentNode) return;
@@ -684,11 +762,13 @@
   }
 
   // The hero sits in the home page, since the remote only moves between elements of the current page.
+  var HERO_HTML = '<div class="ml-hero-art"></div><div class="ml-hero-body"><div class="ml-hero-title"></div><div class="ml-hero-sub"></div>' +
+    '<p class="ml-hero-overview"></p><div class="ml-hero-actions"></div><div class="ml-hero-resume"><span class="ml-hero-left"></span><span class="ml-hero-bar"><i></i></span></div></div>';
+
   function buildHero(page) {
     hero = document.createElement('div');
     hero.className = 'ml-hero';
-    hero.innerHTML = '<div class="ml-hero-art"></div><div class="ml-hero-body"><div class="ml-hero-title"></div><div class="ml-hero-sub"></div>' +
-      '<p class="ml-hero-overview"></p><div class="ml-hero-actions"></div><div class="ml-hero-resume"><span class="ml-hero-left"></span><span class="ml-hero-bar"><i></i></span></div></div>';
+    hero.innerHTML = HERO_HTML;
     page.insertBefore(hero, page.firstChild);
   }
 
@@ -702,10 +782,20 @@
     return btn;
   }
 
+  function heroLink(label, icon, hash) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'ml-hero-btn emby-button';
+    btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span><span></span>';
+    btn.lastChild.textContent = label;
+    btn.addEventListener('click', function () { location.hash = hash; });
+    return btn;
+  }
+
   // Jellyfin's play and resume live behind its item containers, so a hidden item button inside one runs them.
   function playFromHero(item, ticks) {
     var host = [].slice.call(document.querySelectorAll('#indexPage:not(.hide) .card[data-id]')).filter(function (c) { return c.offsetWidth; })[0];
-    host = host && host.closest('[is="emby-itemscontainer"]');
+    host = (host && host.closest('[is="emby-itemscontainer"]')) || document.querySelector('.page:not(.hide) [is="emby-itemscontainer"]');
     if (!host) return;
     var proxy = document.createElement('button');
     proxy.type = 'button';
@@ -731,55 +821,62 @@
     return image(item.Id, 'Primary', item.ImageTags && item.ImageTags.Primary);
   }
 
-  function showHeroItem(item) {
-    if (!hero || hero.getAttribute('data-id') === item.Id) return;
-    hero.setAttribute('data-id', item.Id);
+  function showHeroItem(item, target) {
+    var h = target || hero;
+    if (!h || h.getAttribute('data-id') === item.Id) return;
+    h.setAttribute('data-id', item.Id);
     var art = document.createElement('div');
     art.className = 'ml-hero-art';
     art.style.backgroundImage = 'url("' + heroArt(item) + '")';
-    var old = hero.querySelectorAll('.ml-hero-art');
-    hero.insertBefore(art, hero.querySelector('.ml-hero-body'));
+    var old = h.querySelectorAll('.ml-hero-art');
+    h.insertBefore(art, h.querySelector('.ml-hero-body'));
     setTimeout(function () { for (var i = 0; i < old.length; i++) old[i].remove(); }, 500);
 
     var episode = item.Type === 'Episode';
     var code = episode && item.IndexNumber != null ? 'S' + item.ParentIndexNumber + ':E' + item.IndexNumber : '';
-    hero.querySelector('.ml-hero-title').textContent = episode && item.SeriesName ? item.SeriesName : item.Name;
+    h.querySelector('.ml-hero-title').textContent = episode && item.SeriesName ? item.SeriesName : item.Name;
     // The scores use the cards' gold star and tomato, so the same number looks the same everywhere.
-    var sub = hero.querySelector('.ml-hero-sub');
+    var sub = h.querySelector('.ml-hero-sub');
     sub.innerHTML = '';
     (episode ? [code, item.Name] : [item.ProductionYear, item.RunTimeTicks ? runtime(item.RunTimeTicks) : '']).filter(Boolean).forEach(function (part) { sub.appendChild(text('span', '', String(part))); });
     if (item.CommunityRating != null) sub.appendChild(text('span', 'ml-hero-score', '')).innerHTML = STAR + item.CommunityRating.toFixed(1);
     if (item.CriticRating != null) sub.appendChild(text('span', 'ml-hero-score', '')).innerHTML = TOMATO + Math.round(item.CriticRating) + '%';
-    hero.querySelector('.ml-hero-overview').textContent = item.Overview || '';
+    h.querySelector('.ml-hero-overview').textContent = item.Overview || '';
 
     var data = item.UserData || {};
     var ticks = data.PlaybackPositionTicks || 0;
-    var actions = hero.querySelector('.ml-hero-actions');
+    var actions = h.querySelector('.ml-hero-actions');
     var hadFocus = actions.contains(document.activeElement);
     actions.innerHTML = '';
     actions.appendChild(heroButton(item, ticks ? 'Continue' : 'Play', 'play_arrow', ticks, true));
     if (ticks) actions.appendChild(heroButton(item, 'From start', 'replay', 0, false));
+    // An episode also opens its season, so the rest of its episodes are one press away.
+    if (episode && item.SeasonId) actions.appendChild(heroLink(item.SeasonName || 'Season ' + item.ParentIndexNumber, 'video_library', '#/details?id=' + item.SeasonId + '&serverId=' + item.ServerId));
     if (hadFocus) actions.firstChild.focus();
     // After the resume line below has updated, since it moves the buttons.
-    requestAnimationFrame(fitHeroOverview);
+    requestAnimationFrame(function () { fitHeroOverview(h); });
 
-    var resume = hero.querySelector('.ml-hero-resume');
+    var resume = h.querySelector('.ml-hero-resume');
     resume.classList.toggle('hide', !ticks);
     if (ticks && item.RunTimeTicks) {
       var left = Math.max(1, Math.round((item.RunTimeTicks - ticks) / 6e8));
-      hero.querySelector('.ml-hero-left').textContent = 'Continue ' + (code ? code + ' · ' : '') + (left < 60 ? left + ' min' : runtime((item.RunTimeTicks - ticks))) + ' left';
-      hero.querySelector('.ml-hero-bar i').style.width = Math.min(100, data.PlayedPercentage || ticks / item.RunTimeTicks * 100) + '%';
+      h.querySelector('.ml-hero-left').textContent = 'Continue ' + (code ? code + ' · ' : '') + (left < 60 ? left + ' min' : runtime((item.RunTimeTicks - ticks))) + ' left';
+      h.querySelector('.ml-hero-bar i').style.width = Math.min(100, data.PlayedPercentage || ticks / item.RunTimeTicks * 100) + '%';
     }
   }
 
   // The whole synopsis shows while it fits above the buttons; only a longer one is cut, at the last line that fits.
-  function fitHeroOverview() {
-    var text = hero && hero.querySelector('.ml-hero-overview');
-    var actions = hero && hero.querySelector('.ml-hero-actions');
+  function fitHeroOverview(target) {
+    var h = target && target.nodeType ? target : hero;
+    var text = h && h.querySelector('.ml-hero-overview');
+    var actions = h && h.querySelector('.ml-hero-actions');
     if (!text || !actions || !text.textContent) return;
     text.style.webkitLineClamp = '';
+    text.style.display = '';
     var line = parseFloat(getComputedStyle(text).lineHeight) || 27;
     var room = actions.getBoundingClientRect().top - 16 - text.getBoundingClientRect().top;
+    // With no room for even one line, the synopsis gives way to the buttons rather than run under them.
+    if (room < line) text.style.display = 'none';
     if (text.scrollHeight > room) text.style.webkitLineClamp = String(Math.max(1, Math.floor(room / line)));
   }
   window.addEventListener('resize', fitHeroOverview);
@@ -809,12 +906,16 @@
       if (hero) hero.remove();
       buildHero(page);
     }
+    heroLibraries();
     var nextUp = sectionOfType(container, 'nextup');
     // Moving the node would detach its row while it loads and leave it empty, so the order is only visual.
     if (nextUp && !nextUp.classList.contains('ml-first')) nextUp.classList.add('ml-first');
     // Continue Watching follows right after, so the started item the hero leads with is one row away.
     var resume = sectionOfType(container, 'resume');
     if (resume && !resume.classList.contains('ml-second')) resume.classList.add('ml-second');
+    // My Media comes third, before the Recently Added rows, whatever the home settings order.
+    var media = sectionOfType(container, 'smalllibrarytiles') || sectionOfType(container, 'librarybuttons');
+    if (media && !media.classList.contains('ml-third')) media.classList.add('ml-third');
     if (hero.getAttribute('data-id')) return;
     var first = (resume && resume.querySelector('.card[data-id]')) || (nextUp && nextUp.querySelector('.card[data-id]')) || container.querySelector('.card[data-id]');
     if (!first) return;
@@ -834,6 +935,59 @@
       }
     }).catch(function () { hero.removeAttribute('data-id'); });
   }
+
+  // My Media lives in the hero: a tile per library with its own art at the bottom right, in place of the row.
+  function heroLibraries() {
+    if (!hero || hero.querySelector('.ml-hero-libs')) return;
+    if (!libraries) return loadLibraries(heroLibraries);
+    var api = window.ApiClient;
+    var box = document.createElement('div');
+    box.className = 'ml-hero-libs';
+    libraries.forEach(function (lib) {
+      var a = document.createElement('a');
+      a.className = 'ml-hero-lib focusable';
+      a.href = libraryLink(lib);
+      a.innerHTML = '<span class="ml-hero-lib-art"></span><span class="ml-hero-lib-name"></span>';
+      a.lastChild.textContent = lib.Name;
+      var tag = lib.ImageTags && lib.ImageTags.Primary;
+      if (tag) a.firstChild.style.backgroundImage = 'url("' + api.getUrl('Items/' + lib.Id + '/Images/Primary', { maxWidth: 440, quality: 85, tag: tag }) + '")';
+      box.appendChild(a);
+    });
+    hero.appendChild(box);
+    root.classList.add('ml-hero-libs-on');
+  }
+
+  // The tiles sit far right of the buttons, so Jellyfin's nearest-element move would skip them for a card below; the hero moves its own focus.
+  window.addEventListener('keydown', function (e) {
+    var from = document.activeElement;
+    if (!hero || !root.classList.contains('ml-hero-on') || !from || !hero.contains(from)) return;
+    var left = e.key === 'ArrowLeft' || e.keyCode === 37;
+    var right = e.key === 'ArrowRight' || e.keyCode === 39;
+    var down = e.key === 'ArrowDown' || e.keyCode === 40;
+    var buttons = [].slice.call(hero.querySelectorAll('.ml-hero-btn'));
+    var tiles = [].slice.call(hero.querySelectorAll('.ml-hero-lib'));
+    var target = null;
+    if (right && from === buttons[buttons.length - 1]) target = tiles[0];
+    else if (from.classList.contains('ml-hero-lib')) {
+      if (left) target = from.previousElementSibling || buttons[buttons.length - 1];
+      else if (right) target = from.nextElementSibling || from;
+      else if (down) {
+        var container = heroHome();
+        var row = container && visibleRows(container)[0];
+        var x = from.getBoundingClientRect().left + from.offsetWidth / 2;
+        var best = Infinity;
+        [].slice.call(row ? row.querySelectorAll('.card[data-id]') : []).forEach(function (el) {
+          var r = el.getBoundingClientRect();
+          var d = Math.abs(r.left + r.width / 2 - x);
+          if (el.offsetWidth && d < best) { best = d; target = el; }
+        });
+      }
+    }
+    if (!target) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    target.focus();
+  }, true);
 
   // Jellyfin centres the focused row; on the hero home the row sits right under the hero instead, so the hero covers the rows above it.
   function alignHomeRow(target) {
@@ -887,13 +1041,15 @@
     target.focus();
   }, true);
 
-  // Down from the header would land on the card under the pressed tab, past the hero, so it goes to the hero's first button.
+  // Down from the header would land on the card under the pressed tab, past the hero, or on a library landing on the hidden stock page; it goes to the hero's first button.
   window.addEventListener('keydown', function (e) {
-    if (!(e.key === 'ArrowDown' || e.keyCode === 40) || !hero || !root.classList.contains('ml-hero-on')) return;
-    var btn = hero.querySelector('.ml-hero-btn');
+    var h = activeHero();
+    if (!(e.key === 'ArrowDown' || e.keyCode === 40) || !h) return;
+    var btn = h.querySelector('.ml-hero-btn');
     if (!btn || !document.activeElement || !document.activeElement.closest('.skinHeader') || document.activeElement.closest('.ml-clock-menu')) return;
     e.preventDefault();
-    e.stopPropagation();
+    // The landing's own key handler also listens on window and would take this Down a second time from the hero.
+    e.stopImmediatePropagation();
     btn.focus();
   }, true);
 
@@ -1027,15 +1183,431 @@
   });
   window.addEventListener('hashchange', function () { setTimeout(enhanceDetailBleed, 0); });
 
+  // A focused TV card opens its cut lines and grows; it gives the growth back as a negative bottom margin, so its row keeps its height and nothing below moves.
+  var grownBox = null;
+  document.addEventListener('focusin', function (e) {
+    if (grownBox) { grownBox.style.removeProperty('margin-bottom'); grownBox = null; }
+    var card = isTv() && e.target.closest && e.target.closest('.card');
+    var box = card && card.querySelector('.cardBox');
+    if (!box) return;
+    var lines = [].slice.call(card.querySelectorAll('.cardText'));
+    var open = box.offsetHeight;
+    // Inline !important beats the theme's layered rules, so this shows the card at rest for one measure.
+    lines.forEach(function (l) { l.style.setProperty('-webkit-line-clamp', '1', 'important'); });
+    var rest = box.offsetHeight;
+    var margin = parseFloat(getComputedStyle(box).marginBottom) || 0;
+    lines.forEach(function (l) { l.style.removeProperty('-webkit-line-clamp'); });
+    if (open <= rest) return;
+    box.style.setProperty('margin-bottom', (margin - (open - rest)) + 'px', 'important');
+    grownBox = box;
+  });
+
+  // 17. TV library page: a landing over Jellyfin's tabbed page, a hero for the focused title over one shelf per view; See all opens that view's tab in full and Back returns.
+  var LIB_FIELDS = 'Overview,ProductionYear,RunTimeTicks,CommunityRating,CriticRating,UserData,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,ImageTags,SeriesName,ParentThumbItemId,ParentThumbImageTag,Status,EndDate';
+  var libLayer = null;
+  var libItems = {};
+  var libTimer = null;
+
+  function libRoute() {
+    // A device on an older theme CSS keeps the stock page, since the landing is unstyled without it.
+    if (!isTv() || !getComputedStyle(root).getPropertyValue('--ml-lib-css')) return null;
+    var m = location.hash.match(/^#\/(tv|movies)\?(.*)$/);
+    var id = m && (m[2].match(/(?:^|&)topParentId=([^&]+)/) || [])[1];
+    var page = id && document.querySelector('.page.libraryPage:not(.hide)');
+    return page ? { id: id, kind: m[1], page: page } : null;
+  }
+
+  // Each shelf names the stock tab its See all opens.
+  function libShelves(kind, id) {
+    var api = window.ApiClient;
+    var user = api.getCurrentUserId();
+    var base = { ParentId: id, Recursive: true, Fields: LIB_FIELDS, Limit: 12, EnableTotalRecordCount: true };
+    var items = function (extra) { return api.getItems(user, Object.assign({}, base, extra)); };
+    // Latest answers a bare list cut at the limit, so it has no total to show.
+    var list = function (p) { return p.then(function (r) { return Array.isArray(r) ? { Items: r } : r; }); };
+    // Latest names a show with one new episode by that episode; the shelf lists the show, in the same order.
+    var showsOf = function (r) {
+      var ids = r.Items.map(function (it) { return it.Type === 'Episode' ? it.SeriesId : it.Id; });
+      return api.getItems(user, { Ids: ids.join(','), Fields: LIB_FIELDS }).then(function (shows) {
+        var byId = {};
+        shows.Items.forEach(function (s) { byId[s.Id] = s; });
+        return { Items: ids.map(function (id) { return byId[id]; }).filter(Boolean) };
+      });
+    };
+    var resume = { title: 'Continue watching', tab: 1, wide: true, load: function () { return list(api.getResumableItems(user, Object.assign({ MediaTypes: 'Video' }, base))); } };
+    var genres = function (tab, type) { return { title: 'Genres', tab: tab, wide: true, art: { key: 'GenreIds', type: type }, load: function () { return api.getGenres(user, { ParentId: id, EnableTotalRecordCount: true }); } }; };
+    if (kind === 'tv') {
+      return [
+        resume,
+        { title: 'Next up', tab: 1, wide: true, load: function () { return list(api.getNextUpEpisodes(Object.assign({ userId: user }, base))); } },
+        { title: 'Shows', tab: 0, load: function () { return items({ IncludeItemTypes: 'Series', SortBy: 'SortName' }); } },
+        { title: 'Latest', tab: 1, load: function () { return list(api.getLatestItems(Object.assign({ userId: user, IncludeItemTypes: 'Episode', GroupItems: true }, base))).then(showsOf); } },
+        { title: 'Upcoming', tab: 2, wide: true, load: function () { return list(api.getJSON(api.getUrl('Shows/Upcoming', Object.assign({ UserId: user }, base)))); } },
+        genres(3, 'Series'),
+        { title: 'TV networks', tab: 4, wide: true, art: { key: 'StudioIds', type: 'Series' }, load: function () { return api.getStudios(user, { ParentId: id, EnableTotalRecordCount: true }); } }
+      ];
+    }
+    return [
+      resume,
+      { title: 'Movies', tab: 0, load: function () { return items({ IncludeItemTypes: 'Movie', SortBy: 'SortName' }); } },
+      { title: 'Latest', tab: 1, load: function () { return list(api.getLatestItems(Object.assign({ userId: user, IncludeItemTypes: 'Movie' }, base))); } },
+      { title: 'Favourites', tab: 2, load: function () { return items({ IncludeItemTypes: 'Movie', Filters: 'IsFavorite' }); } },
+      { title: 'Collections', tab: 3, load: function () { return items({ IncludeItemTypes: 'BoxSet' }); } },
+      genres(4, 'Movie')
+    ];
+  }
+
+  function libImage(item, wide) {
+    var api = window.ApiClient;
+    var url = function (id, type, tag) { return api.getUrl('Items/' + id + '/Images/' + type, { maxWidth: wide ? 640 : 400, quality: 85, tag: tag }); };
+    var tags = item.ImageTags || {};
+    if (wide) {
+      if (tags.Thumb) return url(item.Id, 'Thumb', tags.Thumb);
+      if (item.Type === 'Episode' && tags.Primary) return url(item.Id, 'Primary', tags.Primary);
+      if (item.BackdropImageTags && item.BackdropImageTags.length) return url(item.Id, 'Backdrop/0', item.BackdropImageTags[0]);
+      if (item.ParentThumbItemId && item.ParentThumbImageTag) return url(item.ParentThumbItemId, 'Thumb', item.ParentThumbImageTag);
+    }
+    return tags.Primary ? url(item.Id, 'Primary', tags.Primary) : '';
+  }
+
+  // The line under the art, worded as Jellyfin's own cards word it, so a landing card matches the same card on any other page.
+  function libSubtitle(item) {
+    if (item.Type === 'Episode') return item.IndexNumber != null ? 'S' + item.ParentIndexNumber + ':E' + item.IndexNumber + ' - ' + item.Name : item.Name;
+    if (item.Type === 'Movie') return item.ProductionYear ? String(item.ProductionYear) : '';
+    if (item.Type !== 'Series' || !item.ProductionYear) return '';
+    if (item.Status === 'Continuing') return item.ProductionYear + ' - Present';
+    var end = item.EndDate && new Date(item.EndDate).getFullYear();
+    return end && end !== item.ProductionYear ? item.ProductionYear + ' - ' + end : String(item.ProductionYear);
+  }
+
+  function libCard(item, shelf) {
+    var server = window.ApiClient.serverId();
+    var a = document.createElement('a');
+    a.className = 'card ml-lib-card focusable' + (shelf.wide ? ' ml-lib-wide' : '');
+    a.setAttribute('data-ml-id', item.Id);
+    a.href = shelf.art ? '#/list?' + (shelf.art.key === 'GenreIds' ? 'genreId=' : 'studioId=') + item.Id + '&parentId=' + libLayer.lib + '&serverId=' + server
+      : '#/details?id=' + item.Id + '&serverId=' + server;
+    a.innerHTML = '<div class="cardBox"><div class="cardText cardText-first"></div><div class="cardScalable"><div class="cardImageContainer"></div></div><div class="cardText cardText-secondary"></div></div>';
+    a.querySelector('.cardText-first').textContent = item.Type === 'Episode' ? item.SeriesName || item.Name : item.Name;
+    var sub = libSubtitle(item);
+    if (sub) a.querySelector('.cardText-secondary').textContent = sub;
+    else a.querySelector('.cardText-secondary').remove();
+    var pic = a.querySelector('.cardImageContainer');
+    var art = libImage(item, shelf.wide);
+    if (art && !shelf.art) pic.style.backgroundImage = 'url("' + art + '")';
+    var count = !shelf.art && item.UserData && item.UserData.UnplayedItemCount;
+    if (count) {
+      var badges = document.createElement('div');
+      badges.className = 'cardIndicators';
+      badges.innerHTML = '<div class="countIndicator indicator"></div>';
+      badges.firstChild.textContent = count > 99 ? '99+' : String(count);
+      pic.appendChild(badges);
+    }
+    // Jellyfin's genre and network art is one collage for the whole server, so other libraries' titles showed here; the collage is drawn from this library's titles, and under 4 titles one backdrop stands in.
+    if (shelf.art) {
+      var api = window.ApiClient;
+      var query = { ParentId: libLayer.lib, Recursive: true, IncludeItemTypes: shelf.art.type, ImageTypes: 'Backdrop', Fields: 'BackdropImageTags', Limit: 4 };
+      query[shelf.art.key] = item.Id;
+      api.getItems(api.getCurrentUserId(), query).then(function (r) {
+        var urls = (r.Items || []).map(function (it) { return libImage(it, true); }).filter(Boolean);
+        if (urls.length < 4) {
+          if (urls[0]) pic.style.backgroundImage = 'url("' + urls[0] + '")';
+          return;
+        }
+        pic.classList.add('ml-lib-collage');
+        urls.forEach(function (u) {
+          var tile = document.createElement('i');
+          tile.style.backgroundImage = 'url("' + u + '")';
+          pic.appendChild(tile);
+        });
+      }).catch(function () {});
+    }
+    return a;
+  }
+
+  // The last tile peeks at the next title under "See all", so the row shows there is more.
+  function libShelf(shelf, result) {
+    var items = result.Items;
+    var el = document.createElement('section');
+    el.className = 'ml-lib-shelf';
+    el.innerHTML = '<h2 class="ml-lib-title"></h2><div class="ml-lib-strip"></div>';
+    el.firstChild.textContent = shelf.title;
+    var strip = el.lastChild;
+    var shown = items.slice(0, 11);
+    shown.forEach(function (item) {
+      if (!shelf.art) libItems[item.Id] = item;
+      strip.appendChild(libCard(item, shelf));
+    });
+    var more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'ml-lib-more focusable' + (shelf.wide ? ' ml-lib-wide' : '');
+    var next = items[shown.length] && libImage(items[shown.length], shelf.wide);
+    if (next) {
+      more.classList.add('ml-lib-peek');
+      more.style.backgroundImage = 'url("' + next + '")';
+    }
+    more.innerHTML = '<span></span>';
+    more.firstChild.textContent = result.TotalRecordCount ? 'See all ' + result.TotalRecordCount + ' ›' : 'See all ›';
+    more.addEventListener('click', function () { libSeeAll(shelf.tab); });
+    strip.appendChild(more);
+    return el;
+  }
+
+  function libBuild(route) {
+    if (libLayer) libLayer.el.remove();
+    var el = document.createElement('div');
+    el.className = 'ml-lib';
+    el.innerHTML = '<div class="ml-hero ml-lib-hero">' + HERO_HTML + '</div><div class="ml-lib-rows"><div class="ml-lib-track"></div></div>';
+    route.page.appendChild(el);
+    libLayer = { el: el, lib: route.id, page: route.page, hero: el.firstChild, track: el.querySelector('.ml-lib-track'), last: null, card: null };
+    libTag(el);
+    var shelves = libShelves(route.kind, route.id);
+    // All shelves land at once, so the first row is the first shelf and focus never jumps.
+    Promise.all(shelves.map(function (s) { return s.load().catch(function () { return null; }); })).then(function (results) {
+      if (!libLayer || libLayer.el !== el) return;
+      results.forEach(function (r, i) { if (r && r.Items && r.Items.length) libLayer.track.appendChild(libShelf(shelves[i], r)); });
+      var first = libLayer.track.querySelector('.ml-lib-card');
+      if (!first) return;
+      var active = document.activeElement;
+      if (!active || active === document.body || !active.offsetWidth || route.page.contains(active)) first.focus({ preventScroll: true });
+      var id = first.getAttribute('data-ml-id');
+      if (libItems[id]) libHero(libItems[id]);
+    });
+  }
+
+  // A tag over the hero title names this library.
+  function libTag(el) {
+    var retry = function () { if (libLayer && libLayer.el === el) libTag(el); };
+    // false means another caller's load is still running, and it calls back only its own caller.
+    if (libraries === false) return setTimeout(retry, 300);
+    if (!libraries) return loadLibraries(retry);
+    var at = libraries.map(function (l) { return l.Id; }).indexOf(libLayer.lib);
+    if (at < 0) return;
+    var tag = document.createElement('div');
+    tag.className = 'ml-lib-tag';
+    tag.innerHTML = '<span class="ml-lib-tag-name"></span>';
+    tag.firstChild.textContent = libraries[at].Name;
+    var body = el.querySelector('.ml-hero-body');
+    body.insertBefore(tag, body.firstChild);
+    // The tag can land after the hero was fitted, and it moves the synopsis down.
+    fitHeroOverview(libLayer.hero);
+  }
+
+  function libHero(item) {
+    showHeroItem(item, libLayer.hero);
+    var actions = libLayer.hero.querySelector('.ml-hero-actions');
+    if (actions.querySelector('.ml-lib-sort')) return;
+    var libs = libraries && libraries.length > 1;
+    [['sort', 'Sort', '.btnSort'], ['filter_list', 'Filter', '.btnFilter']].concat(libs ? [['apps', 'Libraries']] : []).forEach(function (b) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ml-hero-btn emby-button ml-lib-' + b[1].toLowerCase();
+      btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + b[0] + '</span><span></span>';
+      btn.lastChild.textContent = b[1];
+      btn.addEventListener('click', function () {
+        if (!b[2]) return clockMenu ? closeClockMenu(true) : openLibraryMenu(btn);
+        libSeeAll(0, b[2]);
+      });
+      actions.appendChild(btn);
+    });
+  }
+
+  // See all hands over to the stock tab; Sort and Filter then press Jellyfin's own buttons there.
+  function libSeeAll(tab, press) {
+    libLayer.last = document.activeElement;
+    root.classList.add('ml-lib-all');
+    var tabs = document.querySelectorAll('.skinHeader .headerTabs .emby-tab-button');
+    if (tabs[tab]) tabs[tab].click();
+    pushBackStep('lib', libLanding);
+    setTimeout(function () {
+      var visible = function (sel) { return [].slice.call(libLayer.page.querySelectorAll(sel)).filter(function (b) { return b.offsetWidth; })[0]; };
+      var btn = press && visible(press);
+      if (btn) return btn.click();
+      var card = visible('.card');
+      if (card) card.focus();
+    }, 400);
+  }
+
+  function libAlign(el) {
+    var shelf = el.closest('.ml-lib-shelf');
+    if (!shelf) return;
+    // Focus scrolls the shelf's clipped strip on its own; the strip moves only by the shift below. Up and down, Jellyfin scrolls the focused card into view, as on every page.
+    shelf.scrollLeft = 0;
+    // The focused card stays in view with a slice of the next one showing past it.
+    var strip = shelf.querySelector('.ml-lib-strip');
+    var x = parseFloat(strip.getAttribute('data-x')) || 0;
+    var room = shelf.clientWidth - el.offsetWidth * 0.35;
+    if (el.offsetLeft + el.offsetWidth - x > room) x = el.offsetLeft + el.offsetWidth - room;
+    if (el.offsetLeft - x < 0) x = el.offsetLeft;
+    strip.setAttribute('data-x', String(x));
+    strip.style.transform = 'translateX(' + (-x) + 'px)';
+  }
+
+  function enhanceLibrary() {
+    var route = libRoute();
+    if (root.classList.contains('ml-lib-on') !== !!route) root.classList.toggle('ml-lib-on', !!route);
+    if (!route) {
+      root.classList.remove('ml-lib-all');
+      return;
+    }
+    if (libLayer && libLayer.lib === route.id && libLayer.el.parentNode === route.page) {
+      // Back from a title opened in a full tab lands on that tab's history step, so the tab shows again.
+      if (history.state && history.state.mlBack === 'lib' && !root.classList.contains('ml-lib-all')) {
+        root.classList.add('ml-lib-all');
+        backStep = libLanding;
+      }
+      return;
+    }
+    root.classList.remove('ml-lib-all');
+    libBuild(route);
+  }
+  window.addEventListener('hashchange', function () { setTimeout(enhanceLibrary, 0); });
+
+  document.addEventListener('focusin', function (e) {
+    if (!libLayer || !libLayer.el.contains(e.target)) return;
+    var card = e.target.closest('.ml-lib-card, .ml-lib-more');
+    if (!card) return;
+    libLayer.card = card;
+    libAlign(card);
+    var id = card.getAttribute('data-ml-id');
+    if (!id || !libItems[id]) return;
+    clearTimeout(libTimer);
+    libTimer = setTimeout(function () { if (document.activeElement === card) libHero(libItems[id]); }, HERO_DELAY);
+  });
+
+  // The step up or down from the focused element: the nearest card in the next shelf, the hero from the first shelf, the first shelf from the hero.
+  function libStep(from, down) {
+    var shelf = from && from.closest('.ml-lib-shelf');
+    if (!shelf) return down ? libLayer.card || libLayer.track.querySelector('.ml-lib-card') : null;
+    var shelves = [].slice.call(libLayer.track.querySelectorAll('.ml-lib-shelf'));
+    var next = shelves[shelves.indexOf(shelf) + (down ? 1 : -1)];
+    if (!next) return down ? null : libLayer.hero.querySelector('.ml-hero-btn');
+    var x = from.getBoundingClientRect().left + from.offsetWidth / 2;
+    var best = Infinity;
+    var target = null;
+    [].slice.call(next.querySelectorAll('.ml-lib-card, .ml-lib-more')).forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      var d = Math.abs(r.left + r.width / 2 - x) + (r.right < 0 || r.left > window.innerWidth ? 1e6 : 0);
+      if (d < best) { best = d; target = el; }
+    });
+    return target;
+  }
+
+  // The wheel scrolls the shelves wherever the pointer is on the landing, the hero included, since the page behind must not move.
+  window.addEventListener('wheel', function (e) {
+    if (!libLayer || !root.classList.contains('ml-lib-on') || root.classList.contains('ml-lib-all') || clockMenu) return;
+    var rows = libLayer.track.parentNode;
+    if (rows.contains(e.target)) return;
+    e.preventDefault();
+    rows.scrollBy({ top: e.deltaY });
+  }, { passive: false });
+
+  // Rows step one at a time and Left and Right stay in the row, as on the hero home.
+  window.addEventListener('keydown', function (e) {
+    if (!libLayer || !root.classList.contains('ml-lib-on') || root.classList.contains('ml-lib-all')) return;
+    var from = document.activeElement;
+    if (!from || !libLayer.el.contains(from)) return;
+    var up = e.key === 'ArrowUp' || e.keyCode === 38;
+    var down = e.key === 'ArrowDown' || e.keyCode === 40;
+    var left = e.key === 'ArrowLeft' || e.keyCode === 37;
+    var right = e.key === 'ArrowRight' || e.keyCode === 39;
+    var shelf = from.closest('.ml-lib-shelf');
+    var target = null;
+    if (shelf && (left || right)) {
+      target = right ? from.nextElementSibling : from.previousElementSibling;
+    } else if (shelf && (up || down)) {
+      target = libStep(from, down);
+    } else if (down && from.closest('.ml-lib-hero')) {
+      target = libStep(null, true);
+    } else {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    if (target) target.focus({ preventScroll: true });
+  }, true);
+
+  // Back from the rows of the hero home or a library landing goes to the hero's first button, showing the card that was focused; a second Back does what it did before.
+  var heroCard = null;
+  function activeHero() {
+    if (root.classList.contains('ml-hero-on') && hero) return hero;
+    if (libLayer && root.classList.contains('ml-lib-on') && !root.classList.contains('ml-lib-all')) return libLayer.hero;
+    return null;
+  }
+  function heroBack() {
+    var h = activeHero();
+    if (!h) return;
+    var id = heroCard && (heroCard.getAttribute('data-ml-id') || heroCard.getAttribute('data-id'));
+    if (id && h === hero) loadHeroItem(id);
+    if (id && h !== hero && libItems[id]) libHero(libItems[id]);
+    // After the hero has shown the card, since that redraws its buttons.
+    var btn = h.querySelector('.ml-hero-btn');
+    if (btn) btn.focus({ preventScroll: true });
+    if (h === hero) alignHomeRow(hero);
+  }
+  // A page shown again from the history, after a title opened from the rows, gets its step back.
+  function armBackStep() {
+    if (!backStep && history.state && history.state.mlBack === 'hero' && activeHero()) backStep = heroBack;
+  }
+  window.addEventListener('popstate', function () { setTimeout(armBackStep, 0); });
+  window.addEventListener('hashchange', function () { if (backStep === heroBack) backStep = null; setTimeout(armBackStep, 300); });
+  document.addEventListener('focusin', function (e) {
+    var h = activeHero();
+    if (!h || !e.target.closest) return;
+    var onHero = (history.state || {}).mlBack === 'hero';
+    if (h.contains(e.target)) {
+      if (onHero) popBackStep();
+      return;
+    }
+    var card = e.target.closest('.homeSectionsContainer .card[data-id], .ml-lib-card, .ml-lib-more');
+    if (!card) return;
+    heroCard = card;
+    if (!onHero) pushBackStep('hero', heroBack);
+  });
+
+  // Back from a full tab returns to the landing and the tile that opened it.
+  function libLanding() {
+    root.classList.remove('ml-lib-all');
+    if (!libLayer) return;
+    var last = libLayer.last;
+    (last && libLayer.el.contains(last) ? last : libLayer.track.querySelector('.ml-lib-card') || document.body).focus({ preventScroll: true });
+  }
+
   // 15. TV header: only the clock stays on the right; OK on it opens a menu with what the header buttons did, plus Favourites, whose tab the hero home hides.
   var clockMenu = null;
+  // The button that opened the menu when it is not the clock, such as the library page's Libraries button.
+  var clockOwner = null;
 
-  function closeClockMenu(refocus) {
-    if (!clockMenu) return;
+  // popped: Back already took the history step; then: an item's action, run once the step is gone.
+  function closeClockMenu(refocus, popped, then) {
+    if (!clockMenu) return then && then();
     clockMenu.remove();
     clockMenu = null;
-    var clockEl = document.querySelector('.skinHeader .currentTimeText');
-    if (refocus && clockEl) clockEl.focus();
+    var owner = clockOwner || document.querySelector('.skinHeader .currentTimeText');
+    clockOwner = null;
+    if (!popped) popBackStep(then);
+    if (refocus && owner) owner.focus();
+  }
+
+  // The Libraries button on a library page opens the clock menu's list with the libraries, under the button.
+  function openLibraryMenu(btn) {
+    if (clockMenu || !libraries || !libLayer) return;
+    clockMenu = document.createElement('div');
+    clockMenu.className = 'ml-clock-menu';
+    var current = null;
+    libraries.forEach(function (lib) {
+      var on = lib.Id === libLayer.lib;
+      var item = clockMenuItem(on ? 'check' : lib.CollectionType === 'movies' ? 'movie' : lib.CollectionType === 'tvshows' ? 'tv' : 'folder', lib.Name, function () { if (!on) location.hash = libraryLink(lib); });
+      if (on) current = item;
+      clockMenu.appendChild(item);
+    });
+    var at = btn.getBoundingClientRect();
+    clockMenu.style.top = Math.round(at.bottom + 8) + 'px';
+    clockMenu.style.left = Math.round(at.left) + 'px';
+    document.body.appendChild(clockMenu);
+    clockOwner = btn;
+    (current || clockMenu.firstChild).focus();
+    pushBackStep('menu', function () { closeClockMenu(true, true); });
   }
 
   function clockMenuItem(icon, label, act) {
@@ -1044,7 +1616,7 @@
     btn.className = 'ml-clock-item';
     btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span><span></span>';
     btn.lastChild.textContent = label;
-    btn.addEventListener('click', function () { closeClockMenu(false); act(); });
+    btn.addEventListener('click', function () { closeClockMenu(false, false, act); });
     return btn;
   }
 
@@ -1068,10 +1640,12 @@
     clockMenu.style.right = Math.round(window.innerWidth - at.right) + 'px';
     document.body.appendChild(clockMenu);
     clockMenu.firstChild.focus();
+    pushBackStep('menu', function () { closeClockMenu(true, true); });
   }
 
   // 16. Layout switch, browser only: in the TV or phone app a desktop layout would leave the remote stranded.
-  function inBrowser() { return !window.NativeShell && window.matchMedia('(pointer: fine)').matches; }
+  // The LG app runs in the TV's own browser with no native shell, and its Magic Remote counts as a fine pointer, so TVs are told apart by name.
+  function inBrowser() { return !window.NativeShell && window.matchMedia('(pointer: fine)').matches && !/SmartTV|Web0S|NetCast|Tizen|BRAVIA|AFT\w|Android TV/i.test(navigator.userAgent); }
 
   // Display settings keep the layout in the same key and apply it on load.
   function setLayout(name) {
@@ -1141,11 +1715,11 @@
   document.addEventListener('click', function (e) {
     var clockEl = e.target.closest && e.target.closest('.ml-clock-btn');
     if (clockEl) { if (clockMenu) closeClockMenu(false); else openClockMenu(clockEl); return; }
-    if (clockMenu && !clockMenu.contains(e.target)) closeClockMenu(false);
+    if (clockMenu && !clockMenu.contains(e.target) && !(clockOwner && clockOwner.contains(e.target))) closeClockMenu(false);
   });
 
   document.addEventListener('focusin', function (e) {
-    if (clockMenu && !clockMenu.contains(e.target) && !(e.target.classList && e.target.classList.contains('ml-clock-btn'))) closeClockMenu(false);
+    if (clockMenu && !clockMenu.contains(e.target) && e.target !== clockOwner && !(e.target.classList && e.target.classList.contains('ml-clock-btn'))) closeClockMenu(false);
   });
   window.addEventListener('hashchange', function () { closeClockMenu(false); });
 
