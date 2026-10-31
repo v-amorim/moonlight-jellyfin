@@ -105,6 +105,7 @@
       enhanceHero();
       enhanceDetailBleed();
       enhanceClock();
+      enhanceUserMenu();
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -1060,12 +1061,39 @@
     if (sync && !sync.classList.contains('hide')) clockMenu.appendChild(clockMenuItem('groups', sync.title || 'SyncPlay', press('.headerSyncButton')));
     var user = header.querySelector('.headerUserButton');
     if (user) clockMenu.appendChild(clockMenuItem('person', user.title || 'Profile', press('.headerUserButton')));
+    if (inBrowser()) clockMenu.appendChild(clockMenuItem('computer', 'Desktop layout', function () { setLayout('desktop'); }));
     // The header clips what overflows it, so the menu hangs from the page body, placed under the clock.
     var at = clockEl.getBoundingClientRect();
     clockMenu.style.top = Math.round(at.bottom + 8) + 'px';
     clockMenu.style.right = Math.round(window.innerWidth - at.right) + 'px';
     document.body.appendChild(clockMenu);
     clockMenu.firstChild.focus();
+  }
+
+  // 16. Layout switch, browser only: in the TV or phone app a desktop layout would leave the remote stranded.
+  function inBrowser() { return !window.NativeShell && window.matchMedia('(pointer: fine)').matches; }
+
+  // Display settings keep the layout in the same key and apply it on load.
+  function setLayout(name) {
+    localStorage.setItem('layout', name);
+    location.reload();
+  }
+
+  // The desktop user menu mounts on open, so a TV layout item is added beside Settings each time.
+  function enhanceUserMenu() {
+    if (!isDesktop() || !inBrowser()) return;
+    var settings = document.querySelector('.MuiMenu-paper a[href*="mypreferencesmenu"]');
+    if (!settings || settings.parentNode.querySelector('.ml-layout-item')) return;
+    var item = settings.cloneNode(true);
+    item.classList.add('ml-layout-item');
+    item.removeAttribute('href');
+    item.setAttribute('role', 'menuitem');
+    var icon = item.querySelector('svg');
+    if (icon) icon.outerHTML = '<span class="material-icons" aria-hidden="true">tv</span>';
+    var label = item.querySelector('.MuiListItemText-root span, .MuiTypography-root');
+    if (label) label.textContent = 'TV layout';
+    item.addEventListener('click', function (e) { e.preventDefault(); setLayout('tv'); });
+    settings.after(item);
   }
 
   function enhanceClock() {
