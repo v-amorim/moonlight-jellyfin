@@ -1779,6 +1779,15 @@
       target = libStep(from, down);
     } else if (down && from.closest('.ml-lib-hero')) {
       target = libStep(null, true);
+    } else if (up && from.closest('.ml-lib-hero')) {
+      // Jellyfin found nothing above the hero, so Up stayed put; it goes to the nearest header control instead.
+      var x = from.getBoundingClientRect().left + from.offsetWidth / 2;
+      var best = Infinity;
+      [].slice.call(document.querySelectorAll('.skinHeader button, .skinHeader .focusable')).forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        var d = Math.abs(r.left + r.width / 2 - x);
+        if (el.offsetWidth && getComputedStyle(el).visibility !== 'hidden' && d < best) { best = d; target = el; }
+      });
     } else {
       return;
     }
