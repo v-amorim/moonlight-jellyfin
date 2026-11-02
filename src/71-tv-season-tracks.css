@@ -13,7 +13,7 @@ html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:not(:
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child { width: 1180px !important; }
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardScalable,
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardText { display: none !important; }
-html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardBox { position: relative; margin: 0 !important; padding: 0 !important; }
+html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardBox { position: relative; margin: 0 !important; padding: 0 !important; width: 100% !important; }
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardBox::after {
   content: "Browse every episode";
   display: block;

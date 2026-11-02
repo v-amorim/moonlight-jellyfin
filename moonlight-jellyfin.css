@@ -578,7 +578,7 @@ html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:not(:
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child { width: 1180px !important; }
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardScalable,
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardText { display: none !important; }
-html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardBox { position: relative; margin: 0 !important; padding: 0 !important; }
+html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardBox { position: relative; margin: 0 !important; padding: 0 !important; width: 100% !important; }
 html:not(.ml-js).layout-tv .moreFromSeasonSection:not(:focus-within) .card:first-child .cardBox::after {
   content: "Browse every episode";
   display: block;
@@ -806,6 +806,9 @@ html.ml-js.layout-mobile .mainDetailButtons :is(.btnShuffle,.btnPlaystate,.btnUs
   border-radius: var(--r-md) !important;
   padding: 10px !important;
   margin: 0 10px 20px !important;
+  /* The LG's browser sized the frame to its picture (a 90 px See all, a 374 px frame in a 307 px card), so it takes the card's width minus its margins. */
+  box-sizing: border-box !important;
+  width: calc(100% - 20px) !important;
 }
 /* Stock keeps a 10 px transparent border for its old focus ring; the hairline then framed the picture 10 px out. */
 .layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 2px !important; overflow: hidden; }
