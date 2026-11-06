@@ -826,11 +826,10 @@ html body .itemDetailPage.ml-season-page #childrenContent .itemsContainer { marg
 .layout-desktop .mainDetailButtons .detailButton .detailButton-content::after{content:attr(title);font:600 14px Inter,sans-serif}
 .layout-desktop .mainDetailButtons .detailButton[title] .detailButton-content::after{content:none}
 .layout-desktop .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 14px Inter,sans-serif;margin-left:8px}
-/* Phones label their buttons too and keep Play, Trailer and More in the row; Shuffle, Mark played and Favourite are at the top of More (script). */
+/* Phones label their buttons too. */
 .layout-mobile .mainDetailButtons{flex-wrap:wrap!important;gap:8px!important}
 .layout-mobile .mainDetailButtons .detailButton:not(.hide){display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:var(--space-1);width:auto!important;padding:0 12px!important;border-radius:var(--r-sm)!important}
 .layout-mobile .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 13px Inter,sans-serif;white-space:nowrap}
-html.ml-js.layout-mobile .mainDetailButtons :is(.btnShuffle,.btnPlaystate,.btnUserRating){display:none!important}
 .layout-desktop .detailRibbon .nameContainer .parentNameLast{font-size:40px!important;line-height:1.1!important}
 .layout-mobile .detailRibbon .nameContainer .parentNameLast{font-size:28px!important;line-height:1.15!important}
 .originalTitle{color:var(--muted)!important}
@@ -1928,6 +1927,49 @@ html.layout-desktop body .MuiToolbar-root .MuiButtonGroup-contained > .MuiButton
 html.layout-mobile body .MuiToolbar-root .MuiButtonGroup-contained > .MuiButton-root { padding-left: var(--space-2) !important; padding-right: var(--space-2) !important; }
 html.layout-tv body .skinHeader .headerButton.paper-icon-button-light { padding: calc(12 * var(--tv-unit)) !important; margin-left: calc(4 * var(--tv-unit)) !important; margin-right: calc(4 * var(--tv-unit)) !important; }
 html.layout-tv body .skinHeader .headerTop { padding-top: calc(8 * var(--tv-unit)) !important; padding-bottom: calc(8 * var(--tv-unit)) !important; }
+
+/* 89-less-is-more.css */
+/* Controls a user rarely needs sit in menus: the script puts them there, and each rule keys on html.ml-js so a device without the script keeps them in place. */
+
+/* Detail page: the row keeps Play and More; Trailer, Shuffle, Mark played and Favourite are a grid at the top of More. */
+html.ml-js body .itemDetailPage .mainDetailButtons :is(.btnShuffle, .btnPlaystate, .btnUserRating, .btnPlayTrailer) { display: none !important; }
+html.ml-js.layout-tv .itemDetailPage.ml-bleed .mainDetailButtons > .btnMoreCommands { order: 0; }
+.ml-moved-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); padding: 0 0 var(--space-2); }
+.ml-moved-grid .actionSheetMenuItem { margin: 0 !important; min-width: 0; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--r-sm); }
+.ml-moved-grid .actionSheetItemText { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.2; }
+.layout-tv .ml-moved-grid { gap: calc(8 * var(--tv-unit)); padding: 0 0 calc(8 * var(--tv-unit)); }
+
+/* TV: the More menu is icon tiles under three titled sections (script sets the sections), wide enough that the long list fits without scrolling. */
+.layout-tv .actionSheet.ml-sections-sheet .actionSheetContent { width: min(92vw, calc(1180 * var(--tv-unit))) !important; max-width: none !important; max-height: 92vh !important; }
+.layout-tv .actionSheetScroller.ml-sections { display: grid !important; grid-template-columns: repeat(4, 1fr); gap: calc(12 * var(--tv-unit)); align-content: start; max-height: calc(92vh - calc(88 * var(--tv-unit))) !important; overflow-y: auto !important; }
+.layout-tv .ml-sections .actionsheetDivider { display: none; }
+.layout-tv .ml-sections .ml-moved-grid { grid-column: 1 / -1; grid-template-columns: repeat(4, 1fr); gap: calc(12 * var(--tv-unit)); order: 1; padding: 0; }
+.layout-tv .ml-sections .ml-sec-head { grid-column: 1 / -1; padding: calc(8 * var(--tv-unit)) calc(4 * var(--tv-unit)) 0; font: 600 var(--meta) Inter, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left; }
+.layout-tv .ml-sections .ml-sec-head[hidden] { display: none; }
+.layout-tv .ml-sections .ml-sec-head[data-ml-sec="quick"] { order: 0; }
+.layout-tv .ml-sections .ml-sec-head[data-ml-sec="lib"] { order: 10; }
+.layout-tv .ml-sections .ml-sec-head[data-ml-sec="manage"] { order: 20; }
+.layout-tv .ml-sections [data-ml-sec="lib"].actionSheetMenuItem { order: 11; }
+.layout-tv .ml-sections [data-ml-sec="manage"].actionSheetMenuItem { order: 21; }
+.layout-tv .ml-sections [data-ml-sec="danger"].actionSheetMenuItem { order: 22; }
+.layout-tv .actionSheet.ml-sections-sheet .actionSheetMenuItem { flex-direction: column !important; align-items: center !important; justify-content: center; gap: calc(8 * var(--tv-unit)); min-height: calc(76 * var(--tv-unit)); margin: 0 !important; padding: calc(8 * var(--tv-unit)) calc(8 * var(--tv-unit)) !important; text-align: center; }
+.layout-tv .actionSheet.ml-sections-sheet .actionsheetMenuItemIcon { margin: 0 !important; width: auto !important; height: auto !important; font-size: calc(28 * var(--tv-unit)) !important; }
+.layout-tv .actionSheet.ml-sections-sheet .actionsheetListItemBody { padding: 0 !important; text-align: center; }
+.layout-tv .actionSheet.ml-sections-sheet .actionSheetItemText { white-space: normal !important; text-align: center; }
+
+/* Library A to Z strip: faded until the pointer or focus is on it. */
+html body .alphaPicker-fixed-right { opacity: 0.25; transition: opacity 150ms var(--ease); }
+html body .alphaPicker-fixed-right:is(:hover, :focus-within) { opacity: 1; }
+
+/* Desktop top bar: SyncPlay and Cast move into the user menu, the library links under one Libraries button. */
+html.ml-js.layout-desktop body .MuiAppBar-root .MuiToolbar-root .ml-lib-link { display: none !important; }
+html.ml-js.layout-desktop body .MuiAppBar-root .MuiToolbar-root .ml-device-btn { visibility: hidden !important; width: 0 !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden; }
+.ml-libs-btn { display: inline-flex; align-items: center; gap: var(--space-1); cursor: pointer; }
+.ml-libs-btn .material-icons { font-size: 20px; } /* grid-ok: matches the bar's 20px glyphs */
+.ml-libs-menu { position: fixed; z-index: 1400; min-width: 200px; padding: var(--space-2) 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: 0 12px 32px #000a; }
+.ml-libs-menu a { display: flex; align-items: center; gap: var(--space-4); margin: 0 var(--space-1); padding: var(--space-2) var(--space-4); border-radius: var(--r-xs); color: var(--on-surface); text-decoration: none; font: 500 16px Inter, "Segoe UI", system-ui, sans-serif; }
+.ml-libs-menu a:is(:hover, :focus) { background: var(--surface-3); outline: none; }
+.ml-libs-menu svg { width: 24px; height: 24px; fill: currentColor; }
 
 /* 90-tv-root.css */
 /* Pins the TV root size so the theme's pixel sizes hold (jellyfin-web's TV default is larger). */

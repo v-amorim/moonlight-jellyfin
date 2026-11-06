@@ -132,42 +132,34 @@
     target.focus();
   }, true);
 
+  function enhanceSeasonSections() {
+    var sections = document.querySelectorAll('.moreFromSeasonSection');
+    for (var i = 0; i < sections.length; i++) enhanceSeason(sections[i]);
+  }
+  // People rows (Cast & Crew, Guest Stars) have no class of their own; their cards do.
+  function enhancePeopleRows() {
+    var people = document.querySelectorAll('.itemDetailPage .verticalSection');
+    for (var j = 0; j < people.length; j++) {
+      var title = people[j].querySelector('.sectionTitle');
+      if (title && people[j].querySelector('.personCard')) enhanceSeason(people[j], title.textContent.trim());
+    }
+  }
+
+  // Each enhancer runs alone, so one that throws cannot stop the rest, such as the menu rows that replace buttons the CSS hides.
+  var ENHANCERS = [enhanceLatestEpisodes, enhanceSeasonSections, enhancePeopleRows, enhanceCloseButtons, enhancePlayerMenu, enhanceItemMenu, enhanceDetailMore, enhanceSeriesCards, enhanceWideArt, enhanceSeasonCards, enhanceSeasonPage, enhanceDetailBanner, enhancePosterMenu, organizeWideMenu, enhanceDetailRows, enhanceLibrarySwitcher, enhanceViewStrip, enhanceCardTargets, enhanceHero, enhanceDetailBleed, enhanceClock, enhanceTopBar, enhanceUserMenu, enhanceLibrary, enhanceFilterCard, enhanceInfoIcons];
   var pending = false;
+  var failedEnhancers = {};
   new MutationObserver(function () {
     if (pending) return;
     pending = true;
     requestAnimationFrame(function () {
       pending = false;
-      enhanceLatestEpisodes();
-      var sections = document.querySelectorAll('.moreFromSeasonSection');
-      for (var i = 0; i < sections.length; i++) enhanceSeason(sections[i]);
-      // People rows (Cast & Crew, Guest Stars) have no class of their own; their cards do.
-      var people = document.querySelectorAll('.itemDetailPage .verticalSection');
-      for (var j = 0; j < people.length; j++) {
-        var title = people[j].querySelector('.sectionTitle');
-        if (title && people[j].querySelector('.personCard')) enhanceSeason(people[j], title.textContent.trim());
-      }
-      enhanceCloseButtons();
-      enhancePlayerMenu();
-      enhanceItemMenu();
-      enhanceDetailMore();
-      enhanceSeriesCards();
-      enhanceWideArt();
-      enhanceSeasonCards();
-      enhanceSeasonPage();
-      enhanceDetailBanner();
-      enhancePosterMenu();
-      enhanceDetailRows();
-      enhanceLibrarySwitcher();
-      enhanceViewStrip();
-      enhanceCardTargets();
-      enhanceHero();
-      enhanceDetailBleed();
-      enhanceClock();
-      enhanceUserMenu();
-      enhanceLibrary();
-      enhanceFilterCard();
-      enhanceInfoIcons();
+      ENHANCERS.forEach(function (enhance) {
+        try { enhance(); } catch (err) {
+          if (!failedEnhancers[enhance.name]) console.error('Moonlight: ' + enhance.name + ' failed', err);
+          failedEnhancers[enhance.name] = true;
+        }
+      });
     });
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -295,18 +287,21 @@
     });
   }
 
-  // On a phone the detail page keeps Play, Trailer and More in its row; Shuffle, Mark played and Favourite move to the top of More, and each presses the hidden button so Jellyfin's own action runs.
-  var MOVED_TO_MORE = [['.btnShuffle', 'shuffle'], ['.btnPlaystate', 'check_circle'], ['.btnUserRating', 'favorite']];
+  // The detail page keeps Play and More in its row; Trailer, Shuffle, Mark played and Favourite are a 2 by 2 grid at the top of More, and each tile presses the hidden button so Jellyfin's own action runs.
+  var MOVED_TO_MORE = [['.btnPlayTrailer', 'movie'], ['.btnShuffle', 'shuffle'], ['.btnPlaystate', 'check_circle'], ['.btnUserRating', 'favorite']];
   function enhanceDetailMore() {
-    if (!menuFromPage || !root.classList.contains('layout-mobile')) return;
-    var first = document.querySelector('.actionSheet .actionSheetMenuItem');
-    if (!first || first.parentNode.querySelector('[data-id^="ml-moved"]')) return;
+    if (!menuFromPage) return;
+    var first = document.querySelector('.actionSheet .actionSheetScroller > .actionSheetMenuItem');
+    if (!first || first.parentNode.querySelector('.ml-moved-grid')) return;
     var page = document.querySelector('.itemDetailPage:not(.hide)');
     if (!page) return;
-    MOVED_TO_MORE.slice().reverse().forEach(function (m) {
+    var grid = document.createElement('div');
+    grid.className = 'ml-moved-grid';
+    MOVED_TO_MORE.forEach(function (m) {
       var btn = [].slice.call(page.querySelectorAll('.mainDetailButtons ' + m[0])).filter(function (b) { return !b.classList.contains('hide'); })[0];
       if (!btn) return;
       var item = first.cloneNode(true);
+      item.classList.remove('hide');
       item.setAttribute('data-id', 'ml-moved' + m[0].slice(4));
       var icon = item.querySelector('.actionsheetMenuItemIcon');
       if (icon) icon.className = 'actionsheetMenuItemIcon listItemIcon listItemIcon-transparent material-icons ' + m[1];
@@ -320,7 +315,42 @@
         if (close) close.click(); else history.back();
         setTimeout(function () { btn.click(); }, 150);
       });
-      first.parentNode.insertBefore(item, first.parentNode.firstChild);
+      grid.appendChild(item);
+    });
+    if (!grid.children.length) return;
+    var divider = document.createElement('div');
+    divider.className = 'actionsheetDivider';
+    first.parentNode.insertBefore(divider, first.parentNode.firstChild);
+    first.parentNode.insertBefore(grid, first.parentNode.firstChild);
+  }
+
+  // TV layout: the More menu is a grid of icon tiles under three titled sections, so a long list needs no scrolling. Rows keep their place in the DOM; their section sets their order, and rows other scripts add later join on the next pass.
+  var MENU_LIBRARY = ['addtocollection', 'addtoplaylist', 'download', 'downloadall', 'copy-stream', 'share'];
+  var MENU_SECTIONS = [['quick', 'Quick actions'], ['lib', 'Add and download'], ['manage', 'Manage']];
+  function organizeWideMenu() {
+    if (!isTv()) return;
+    var scroller = document.querySelector('.actionSheet .actionSheetScroller');
+    if (!scroller || !scroller.querySelector('.ml-moved-grid')) return;
+    scroller.closest('.actionSheet').classList.add('ml-sections-sheet');
+    scroller.classList.add('ml-sections');
+    var libShown = 0;
+    [].forEach.call(scroller.children, function (row) {
+      if (!row.classList.contains('actionSheetMenuItem')) return;
+      var id = row.getAttribute('data-id') || '';
+      var section = id === 'delete' ? 'danger' : MENU_LIBRARY.indexOf(id) >= 0 ? 'lib' : 'manage';
+      row.setAttribute('data-ml-sec', section);
+      if (section === 'lib' && !row.classList.contains('hide')) libShown++;
+    });
+    MENU_SECTIONS.forEach(function (s) {
+      var head = scroller.querySelector('.ml-sec-head[data-ml-sec="' + s[0] + '"]');
+      if (!head) {
+        head = document.createElement('div');
+        head.className = 'ml-sec-head';
+        head.setAttribute('data-ml-sec', s[0]);
+        head.textContent = s[1];
+        scroller.appendChild(head);
+      }
+      head.hidden = s[0] === 'lib' && !libShown;
     });
   }
 
@@ -656,7 +686,7 @@
 
   function enhancePosterMenu() {
     if (!menuFromPage || !menuItemId) return;
-    var first = document.querySelector('.actionSheet .actionSheetMenuItem');
+    var first = document.querySelector('.actionSheet .actionSheetScroller > .actionSheetMenuItem');
     if (!first || first.parentNode.querySelector('[data-id="ml-poster"]')) return;
     var id = menuItemId;
     var item = first.cloneNode(true);
@@ -1926,21 +1956,124 @@
     location.reload();
   }
 
-  // The desktop user menu mounts on open, so a TV layout item is added beside Settings each time.
-  function enhanceUserMenu() {
-    if (!isDesktop() || !inBrowser()) return;
-    var settings = document.querySelector('.MuiMenu-paper a[href*="mypreferencesmenu"]');
-    if (!settings || settings.parentNode.querySelector('.ml-layout-item')) return;
-    var item = settings.cloneNode(true);
-    item.classList.add('ml-layout-item');
+  // A clone of a menu row with its own icon, label and click, for rows the script adds to a React menu.
+  function menuRow(template, icon, text, onClick) {
+    var item = template.cloneNode(true);
     item.removeAttribute('href');
     item.setAttribute('role', 'menuitem');
-    var icon = item.querySelector('svg');
-    if (icon) icon.outerHTML = '<span class="material-icons" aria-hidden="true">tv</span>';
+    var svg = item.querySelector('svg');
+    if (svg) svg.outerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span>';
     var label = item.querySelector('.MuiListItemText-root span, .MuiTypography-root');
-    if (label) label.textContent = 'TV layout';
-    item.addEventListener('click', function (e) { e.preventDefault(); setLayout('tv'); });
-    settings.after(item);
+    if (label) label.textContent = text;
+    item.addEventListener('click', function (e) { e.preventDefault(); onClick(); });
+    return item;
+  }
+
+  // The desktop user menu mounts on open, so its rows are added each time: SyncPlay and Cast, which the top bar no longer shows, on top, and a TV layout item beside Settings.
+  function enhanceUserMenu() {
+    if (!isDesktop()) return;
+    var settings = document.querySelector('.MuiMenu-paper a[href*="mypreferencesmenu"]');
+    if (!settings) return;
+    var list = settings.parentNode;
+    if (inBrowser() && !list.querySelector('.ml-layout-item')) {
+      var layout = menuRow(settings, 'tv', 'TV layout', function () { setLayout('tv'); });
+      layout.classList.add('ml-layout-item');
+      settings.after(layout);
+    }
+    var devices = [].slice.call(document.querySelectorAll('.MuiAppBar-root .ml-device-btn'));
+    if (!devices.length || list.querySelector('.ml-device-item')) return;
+    var divider = list.querySelector('hr');
+    var rows = devices.map(function (btn) {
+      var name = btn.getAttribute('aria-label') || btn.title;
+      var row = menuRow(settings, /cast/i.test(name) ? 'cast' : 'group', name, function () {
+        var backdrop = document.querySelector('.MuiPopover-root .MuiBackdrop-root');
+        if (backdrop) backdrop.click();
+        setTimeout(function () { btn.click(); }, 150);
+      });
+      row.classList.add('ml-device-item');
+      return row;
+    });
+    if (divider) rows.push(divider.cloneNode(true));
+    rows.reverse().forEach(function (row) { list.insertBefore(row, list.firstChild); });
+  }
+
+  // Desktop top bar: the library links sit under one Libraries button, and SyncPlay and Cast hide (the user menu holds them).
+  var libsMenu = null;
+  function closeLibsMenu() {
+    if (!libsMenu) return;
+    libsMenu.remove();
+    libsMenu = null;
+  }
+  function openLibsMenu(btn, links) {
+    closeLibsMenu();
+    var menu = document.createElement('div');
+    menu.className = 'ml-libs-menu';
+    menu.setAttribute('role', 'menu');
+    links.forEach(function (link) {
+      var a = document.createElement('a');
+      a.setAttribute('role', 'menuitem');
+      a.href = link.getAttribute('href') || '#';
+      var svg = link.querySelector('svg');
+      if (svg) a.appendChild(svg.cloneNode(true));
+      a.appendChild(document.createTextNode(link.textContent.trim()));
+      a.addEventListener('click', closeLibsMenu);
+      menu.appendChild(a);
+    });
+    var r = btn.getBoundingClientRect();
+    menu.style.left = Math.round(r.left) + 'px';
+    menu.style.top = Math.round(r.bottom + 4) + 'px';
+    document.body.appendChild(menu);
+    libsMenu = menu;
+    if (menu.firstChild) menu.firstChild.focus();
+  }
+  document.addEventListener('click', function (e) {
+    if (libsMenu && !libsMenu.contains(e.target) && !(e.target.closest && e.target.closest('.ml-libs-btn'))) closeLibsMenu();
+  }, true);
+  window.addEventListener('hashchange', closeLibsMenu);
+  window.addEventListener('keydown', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest('.ml-libs-btn');
+    if (btn && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); btn.click(); return; }
+    if (!libsMenu) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeLibsMenu();
+      var opener = document.querySelector('.ml-libs-btn');
+      if (opener) opener.focus();
+      return;
+    }
+    var down = e.key === 'ArrowDown', up = e.key === 'ArrowUp';
+    if (!down && !up) return;
+    e.preventDefault();
+    var items = [].slice.call(libsMenu.children);
+    var next = items[items.indexOf(document.activeElement) + (down ? 1 : -1)];
+    if (next) next.focus();
+  }, true);
+
+  function enhanceTopBar() {
+    if (!isDesktop()) { closeLibsMenu(); return; }
+    var bar = document.querySelector('.MuiAppBar-root .MuiToolbar-root');
+    var stack = bar && bar.querySelector('.MuiStack-root');
+    if (!stack) return;
+    [].forEach.call(bar.querySelectorAll('button.MuiIconButton-root'), function (b) {
+      if (/syncplay|cast/i.test(b.getAttribute('aria-label') || b.title || '')) b.classList.add('ml-device-btn');
+    });
+    var links = [].slice.call(stack.children).filter(function (a) { return a.tagName === 'A' && !a.classList.contains('ml-libs-btn'); });
+    // The logo and Favourites stay; the rest are the libraries.
+    var libs = links.slice(2);
+    if (!libs.length) return;
+    libs.forEach(function (a) { a.classList.add('ml-lib-link'); });
+    if (stack.querySelector('.ml-libs-btn')) return;
+    var btn = links[1].cloneNode(false);
+    btn.removeAttribute('href');
+    btn.className = links[1].className + ' ml-libs-btn';
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-haspopup', 'menu');
+    btn.tabIndex = 0;
+    btn.innerHTML = '<span class="material-icons" aria-hidden="true">video_library</span>Libraries<span class="material-icons" aria-hidden="true">expand_more</span>';
+    btn.addEventListener('click', function () {
+      if (libsMenu) closeLibsMenu(); else openLibsMenu(btn, [].slice.call(stack.querySelectorAll('.ml-lib-link')));
+    });
+    links[1].after(btn);
   }
 
   function enhanceClock() {
