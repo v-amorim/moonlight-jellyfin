@@ -5,11 +5,11 @@
   background: var(--surface-1) !important;
   border: 1px solid var(--border) !important;
   border-radius: var(--r-md) !important;
-  padding: 10px !important;
-  margin: 0 10px 20px !important;
+  padding: var(--card-inset) !important;
+  margin: 0 var(--space-2) var(--space-4) !important;
   /* The LG's browser sized the frame to its picture (a 90 px See all, a 374 px frame in a 307 px card), so it takes the card's width minus its margins. */
   box-sizing: border-box !important;
-  width: calc(100% - 20px) !important;
+  width: calc(100% - 2 * var(--space-2)) !important;
 }
 /* Stock keeps a 10 px transparent border for its old focus ring; the hairline then framed the picture 10 px out. */
 .layout-tv .card .cardScalable { order: 0; border: 0 !important; border-radius: 2px !important; overflow: hidden; }
@@ -20,18 +20,18 @@
 .layout-tv .overflowBackdropCard,
 .layout-tv .overflowPortraitCard:not(.personCard) { width: var(--ml-tv-card) !important; }
 .layout-tv .itemsContainer.vertical-wrap > .portraitCard:not(.personCard),
-.layout-tv .itemsContainer.vertical-wrap > .backdropCard { width: 20% !important; }
+.layout-tv .itemsContainer.vertical-wrap > .backdropCard { width: 20% !important; } /* grid-ok: card width, five across */
 .layout-tv .overflowPortraitCard:not(.personCard) .cardPadder,
-.layout-tv .portraitCard:not(.personCard) .cardPadder { padding-bottom: 56.25% !important; }
+.layout-tv .portraitCard:not(.personCard) .cardPadder { padding-bottom: 56.25% !important; } /* grid-ok: 16:9 picture */
 .ml-wide-art { display: none; }
 .layout-tv .card .ml-wide-art { display: block; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--surface-2) center / cover no-repeat; }
-.layout-tv .card .cardText-first { order: -1; padding: 2px 0 10px !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
+.layout-tv .card .cardText-first { order: -1; padding: 2px 0 calc(8 * var(--tv-unit)) !important; font-size: var(--meta) !important; letter-spacing: .06em; text-transform: uppercase; color: var(--muted) !important; }
 .layout-tv .card .cardText-first a, .layout-tv .card .cardText-first .textActionButton { color: var(--muted) !important; }
-.layout-tv .card .cardText-secondary { order: 2; padding: 12px 0 4px !important; font-size: 17px !important; font-weight: 600 !important; color: var(--on-surface) !important; }
+.layout-tv .card .cardText-secondary { order: 2; padding: calc(12 * var(--tv-unit)) 0 calc(4 * var(--tv-unit)) !important; font-size: calc(17 * var(--tv-unit)) !important; font-weight: 600 !important; color: var(--on-surface) !important; }
 /* The focused card opens its cut lines to show the whole title, up to 4 lines each; the bottom padding turns into margin, since a clamped line would show through it. */
 .layout-tv .card:focus .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; text-overflow: clip !important; height: auto !important; }
-.layout-tv .card:focus .cardText-first { padding-bottom: 0 !important; margin-bottom: 10px; }
-.layout-tv .card:focus .cardText-secondary { padding-bottom: 0 !important; margin-bottom: 4px; }
+.layout-tv .card:focus .cardText-first { padding-bottom: 0 !important; margin-bottom: calc(8 * var(--tv-unit)); }
+.layout-tv .card:focus .cardText-secondary { padding-bottom: 0 !important; margin-bottom: calc(4 * var(--tv-unit)); }
 /* Under a hero a whole card must fit on screen, and the hero already shows the full title, so the title stays on one line there. */
 html.layout-tv.ml-hero-on .card:focus .cardText,
 html.layout-tv.ml-lib-on:not(.ml-lib-all) .card:focus .cardText { -webkit-line-clamp: 1 !important; }
@@ -39,7 +39,7 @@ html.layout-tv.ml-lib-on:not(.ml-lib-all) .card:focus .cardText { -webkit-line-c
 /* Stock lifts a focused card to 10, the hero's level, so a card scrolled under the hero by the wheel drew over it. */
 .layout-tv .card:focus { position: relative; z-index: 5 !important; }
 /* Jellyfin's row scroller clips below its cards; room under it, taken back with a negative margin, lets the hanging card show. */
-.layout-tv .padded-top-focusscale { padding-bottom: 48px !important; margin-bottom: -48px !important; }
+.layout-tv .padded-top-focusscale { padding-bottom: calc(48 * var(--tv-unit)) !important; margin-bottom: calc(-48 * var(--tv-unit)) !important; }
 
 /* TV menus (subtitles, audio, display mode): a centred popup card over the dimmed page instead of a full-screen sheet. */
 .layout-tv .dialogContainer { display: flex !important; align-items: center; justify-content: center; }
@@ -47,12 +47,12 @@ html.layout-tv.ml-lib-on:not(.ml-lib-all) .card:focus .cardText { -webkit-line-c
   position: relative !important;
   inset: auto !important;
   width: auto !important;
-  min-width: 520px;
-  max-width: 80vw;
+  min-width: calc(520 * var(--tv-unit));
+  max-width: calc(1228 * var(--tv-unit));
   height: auto !important;
-  max-height: 80vh;
+  max-height: calc(684 * var(--tv-unit));
   margin: 0 !important;
-  padding: 24px 24px 20px !important;
+  padding: calc(24 * var(--tv-unit)) calc(24 * var(--tv-unit)) calc(16 * var(--tv-unit)) !important;
   background: var(--surface-1) !important;
   border: 2px solid #3A4060 !important;
   border-radius: 16px !important;
@@ -61,13 +61,13 @@ html.layout-tv.ml-lib-on:not(.ml-lib-all) .card:focus .cardText { -webkit-line-c
 .layout-tv .actionSheet.dialog-fullscreen * { box-shadow: none; }
 .layout-tv .actionSheet.dialog-fullscreen .actionSheetContent, .layout-tv .actionSheet.dialog-fullscreen .actionSheetScroller { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important; }
 /* The list clips at its edges, so it keeps 4px of room for the focused row's ring. */
-.layout-tv .actionSheet.dialog-fullscreen .actionSheetScroller { max-height: calc(80vh - 120px); padding: 4px !important; scroll-padding: 4px; box-sizing: border-box; }
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetScroller { max-height: calc(564 * var(--tv-unit)); padding: calc(4 * var(--tv-unit)) !important; scroll-padding: calc(4 * var(--tv-unit)); box-sizing: border-box; }
 .layout-tv .actionSheet.dialog-fullscreen .actionSheetMenuItem { width: 100% !important; max-width: none !important; }
 /* A header row for the close button; the title, when there is one, sits on that row beside it. */
-.layout-tv .actionSheet.dialog-fullscreen { padding-top: 72px !important; }
+.layout-tv .actionSheet.dialog-fullscreen { padding-top: calc(calc(16 * var(--tv-unit)) + calc(56 * var(--tv-unit))) !important; } /* grid-ok: the close button and its inset */
 .layout-tv .actionSheet.dialog-fullscreen .actionSheetContent { overflow: visible !important; }
-.layout-tv .actionSheet.dialog-fullscreen .actionSheetTitle { margin: -54px 4px 18px 58px !important; text-align: left !important; font-size: var(--heading) !important; }
-.layout-tv .actionSheet.dialog-fullscreen .btnCloseActionSheet { position: absolute !important; top: 18px !important; left: 18px !important; right: auto !important; }
+.layout-tv .actionSheet.dialog-fullscreen .actionSheetTitle { margin: calc(-56 * var(--tv-unit)) calc(4 * var(--tv-unit)) calc(16 * var(--tv-unit)) calc(56 * var(--tv-unit)) !important; text-align: left !important; font-size: var(--heading) !important; } /* grid-ok: sits on the close button row */
+.layout-tv .actionSheet.dialog-fullscreen .btnCloseActionSheet { position: absolute !important; top: calc(16 * var(--tv-unit)) !important; left: calc(16 * var(--tv-unit)) !important; right: auto !important; width: calc(56 * var(--tv-unit)) !important; height: calc(56 * var(--tv-unit)) !important; box-sizing: border-box !important; }
 
 .layout-tv .card:focus .cardScalable, .layout-tv .card.show-focus:focus .cardScalable { box-shadow: none !important; }
 .layout-tv .card:focus .cardBox { background: var(--surface-2) !important; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary) !important; }

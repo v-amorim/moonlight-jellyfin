@@ -1,14 +1,20 @@
 /* PC and phone detail header: the title, then the buttons, all left aligned; PC buttons carry labels from each button title, so they follow the UI language. */
-:is(.layout-desktop, .layout-mobile) .detailRibbon{flex-direction:column!important;align-items:flex-start!important;gap:20px;margin-bottom:28px!important}
+:is(.layout-desktop, .layout-mobile) .detailRibbon{flex-direction:column!important;align-items:flex-start!important;gap:var(--space-3);margin-bottom:var(--space-4)!important}
 :is(.layout-desktop, .layout-mobile) .mainDetailButtons{margin:0!important;justify-content:flex-start!important}
-.layout-desktop .mainDetailButtons .detailButton{flex-direction:row!important;align-items:center!important;height:44px!important;width:auto!important;padding:0 18px 0 14px!important;border-radius:var(--r-sm)!important}
+.layout-desktop .mainDetailButtons .detailButton{flex-direction:row!important;align-items:center!important;height:44px!important;width:auto!important;padding:0 calc(16px - 2px) 0 calc(16px - var(--ml-ink, 4px))!important;border-radius:var(--r-sm)!important}
+/* The visible ink sits 16px from both edges: each glyph starts at its own depth in the icon box, so the icon side subtracts it, and the label side subtracts the text's bearing. */
+.layout-desktop .mainDetailButtons .btnPlay{--ml-ink:8.8px} /* grid-ok: measured glyph depths */
+.layout-desktop .mainDetailButtons .btnShuffle{--ml-ink:5.5px}
+.layout-desktop .mainDetailButtons .btnPlaystate{--ml-ink:5.1px}
+.layout-desktop .mainDetailButtons .btnUserRating{--ml-ink:3.4px}
+.layout-desktop .mainDetailButtons .btnMoreCommands{--ml-ink:11.5px}
 .layout-desktop .mainDetailButtons .detailButton .detailButton-content{flex-direction:row!important;gap:8px;align-items:center}
 .layout-desktop .mainDetailButtons .detailButton .detailButton-content::after{content:attr(title);font:600 14px Inter,sans-serif}
 .layout-desktop .mainDetailButtons .detailButton[title] .detailButton-content::after{content:none}
 .layout-desktop .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 14px Inter,sans-serif;margin-left:8px}
 /* Phones label their buttons too and keep Play, Trailer and More in the row; Shuffle, Mark played and Favourite are at the top of More (script). */
 .layout-mobile .mainDetailButtons{flex-wrap:wrap!important;gap:8px!important}
-.layout-mobile .mainDetailButtons .detailButton:not(.hide){display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:6px;width:auto!important;padding:0 12px!important;border-radius:var(--r-sm)!important}
+.layout-mobile .mainDetailButtons .detailButton:not(.hide){display:inline-flex!important;flex-direction:row!important;align-items:center!important;gap:var(--space-1);width:auto!important;padding:0 12px!important;border-radius:var(--r-sm)!important}
 .layout-mobile .mainDetailButtons .detailButton[title]::after{content:attr(title);font:600 13px Inter,sans-serif;white-space:nowrap}
 html.ml-js.layout-mobile .mainDetailButtons :is(.btnShuffle,.btnPlaystate,.btnUserRating){display:none!important}
 .layout-desktop .detailRibbon .nameContainer .parentNameLast{font-size:40px!important;line-height:1.1!important}

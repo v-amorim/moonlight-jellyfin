@@ -38,15 +38,48 @@
   --heading: 20px;
   --heading-lg: 24px;
   --hero: 40px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --card-inset: var(--space-3);
+  --surface-inset: var(--space-2);
+  --control-sm: 28px;
+  --control-md: 32px;
+  --control-lg: 40px;
+  --edge: var(--space-6);
+  --gutter: var(--space-4);
+  /* TV mode draws in units of the LG's 1536x856 page, scaled by whichever side limits, so an ultrawide window fits by height. */
+  --tv-unit: min(calc(100vw / 1536), calc(100vh / 856));
+  --tv-edge: calc(64 * var(--tv-unit));
 }
+@media (min-width: 600px) { :root { --edge: var(--space-12); --gutter: var(--space-6); } }
+@media (min-width: 1024px) { :root { --edge: var(--space-16); --gutter: var(--space-6); } }
+
+/* One page edge for pages, rows and the hero; stock pads them 3.3% of the width, which lands off the grid. */
+:root { --ml-edge: var(--edge); }
+html.layout-tv { --ml-edge: var(--tv-edge); }
+html[dir] body .padded-left { padding-inline-start: max(env(safe-area-inset-left), var(--ml-edge)); }
+html[dir] body .padded-right { padding-inline-end: max(env(safe-area-inset-right), var(--ml-edge)); }
+html[dir] body .emby-scroller:not(.no-padding) {
+  padding-inline-start: max(env(safe-area-inset-left), var(--ml-edge));
+  padding-inline-end: max(env(safe-area-inset-right), var(--ml-edge));
+}
+html.layout-desktop body .detailImageContainer .card { left: var(--ml-edge); }
 
 .layout-tv {
-  --body: 18px;
-  --title: 20px;
-  --meta: 15px;
-  --heading: 24px;
-  --heading-lg: 36px;
-  --hero: 48px;
+  --body: calc(18 * var(--tv-unit));
+  --title: calc(20 * var(--tv-unit));
+  --meta: calc(15 * var(--tv-unit));
+  --heading: calc(24 * var(--tv-unit));
+  --heading-lg: calc(36 * var(--tv-unit));
+  --hero: calc(48 * var(--tv-unit));
 }
 
 html, body, .skinBody, .backgroundContainer, .mainAnimatedPage, .page {
@@ -84,15 +117,16 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 }
 .headerTabs, .sectionTabs { text-align: center; }
 /* On TV and PC the tab row overlaps the top bar (margin-top -4.3em) and sets the header height, which clips (contain: content). */
-.layout-tv .headerTabs, .layout-desktop .headerTabs { min-height: 4.3em; display: flex; align-items: center; justify-content: center; }
+.layout-tv .headerTabs, .layout-desktop .headerTabs { min-height: 4.3em; /* grid-ok: mirrors stock's -4.3em overlap */ display: flex; align-items: center; justify-content: center; }
 .emby-tab-button {
   color: var(--muted) !important;
   font-weight: 500;
   font-size: var(--title);
   border-radius: 5px;
-  padding: .5em 1.1em !important;
+  padding: var(--space-2) var(--space-4) !important;
   transition: background-color 100ms var(--ease), color 100ms var(--ease);
 }
+.layout-tv .emby-tab-button { padding: calc(8 * var(--tv-unit)) calc(24 * var(--tv-unit)) !important; }
 .emby-tab-button-active, .emby-tab-button.emby-button-foreground {
   background: var(--surface-3) !important;
   color: var(--primary-70) !important;
@@ -179,10 +213,10 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
   color: var(--on-primary);
   border-color: transparent;
   border-radius: var(--r-sm);
-  padding: 0 1.4em;
+  padding: 0 var(--space-6);
 }
 .mainDetailButtons .btnPlay.detailButton:hover { background: var(--primary-60); color: var(--on-primary); }
-.mainDetailButtons .btnPlay .detailButton-content { flex-direction: row; gap: .4em; }
+.mainDetailButtons .btnPlay .detailButton-content { flex-direction: row; gap: var(--space-2); }
 .mainDetailButtons .btnPlay .detailButton-icon { color: var(--on-primary); }
 
 .emby-select-withcolor, .emby-input, .emby-textarea {
@@ -212,7 +246,7 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 /* Stock cards paint-contain to their box, which has no left margin, so the ring was cut on the left. */
 .layout-tv .card { contain: layout style !important; }
 /* Detail-page rows scroll with no left padding, which clipped the ring; the padding moves out of view with the margin. */
-.layout-tv .emby-scroller.no-padding { padding-left: 10px !important; margin-left: -10px !important; }
+.layout-tv .emby-scroller.no-padding { padding-left: calc(8 * var(--tv-unit)) !important; margin-left: calc(-8 * var(--tv-unit)) !important; }
 /* Tabs and header buttons sit in clipping boxes, so their ring is drawn inside; stock's focus zoom is dropped. */
 .layout-tv .emby-tab-button:focus { transform: none !important; outline: none !important; box-shadow: inset 0 0 0 3px var(--primary) !important; }
 .layout-tv .headerButton:focus { transform: none !important; outline: none !important; box-shadow: inset 0 0 0 3px var(--primary) !important; background: #7386D01F !important; border-radius: var(--r-sm) !important; }
@@ -255,8 +289,8 @@ html, body, button, input, select, textarea, .emby-button, h1, h2, h3, .sectionT
 .mdl-spinner__layer { border-color: var(--primary) !important; }
 .transparentDocument .skinHeader { background: linear-gradient(#0D0E17CC, transparent) !important; border-bottom: 0 !important; }
 .sliderMarker {
-  width: 10px !important;
-  height: 10px !important;
+  width: var(--space-2) !important;
+  height: var(--space-2) !important;
   opacity: 1 !important;
   transition: background-color 150ms var(--ease) !important;
   transform: translate3d(-50%, 40%, 0) rotate(45deg) !important;

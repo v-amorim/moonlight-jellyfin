@@ -7,8 +7,8 @@ html.layout-desktop .button-link.button-link:hover {
   text-decoration: none !important;
   /* The ring sits inside the link: the title headings clip anything drawn outside them. Negative margin keeps the text in place. */
   box-shadow: inset 0 0 0 2px var(--primary) !important;
-  padding: 0 6px !important;
-  margin: 0 -6px !important;
+  padding: 0 var(--space-2) !important;
+  margin: 0 calc(-1 * var(--space-2)) !important;
   border-radius: 4px !important;
 }
 
@@ -34,7 +34,7 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   display: block;
   box-sizing: border-box;
   width: 960px;
-  padding: 18px 24px;
+  padding: var(--space-4) var(--space-6);
   border-radius: 12px;
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -57,8 +57,8 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   display: flex !important;
   flex-direction: column;
   align-items: flex-start !important;
-  gap: 6px;
-  padding: 14px 16px !important;
+  gap: var(--space-2);
+  padding: var(--space-4) !important;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -78,7 +78,7 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  padding: 0 28px 0 0 !important;
+  padding: 0 28px 0 0 !important; /* grid-ok: room for the 28px arrow */
   width: auto !important;
   height: auto !important;
   min-height: 0 !important;
@@ -90,11 +90,11 @@ html:not(.ml-js).layout-desktop .moreFromSeasonSection:not(:hover) .card:first-c
 /* The dropdown stretches under the label to the tile's edges, so a click anywhere on the tile opens it. */
 :is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) { position: relative; }
 :is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) .selectLabel { position: relative; z-index: 1; pointer-events: none; }
-:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select { align-self: stretch; width: auto !important; margin: -38px -16px -14px !important; padding: 38px 44px 14px 16px !important; box-sizing: border-box !important; border-radius: 12px !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select { align-self: stretch; width: auto !important; margin: -42px -16px -16px !important; padding: 42px 44px 16px 16px !important; /* grid-ok: tile padding, label line and gap */ box-sizing: border-box !important; border-radius: 12px !important; }
 /* Tile arrow: centred on the right, ignores clicks, turns while the list is open. */
 :is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide) select:disabled { opacity: 1; }
 :is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:not(.hide):has(select:disabled) { opacity: .38; }
-:is(.layout-desktop, .layout-mobile) .trackSelections .selectArrowContainer { position: absolute !important; right: 14px !important; top: 50% !important; transform: translateY(-50%) !important; pointer-events: none; color: var(--muted) !important; }
+:is(.layout-desktop, .layout-mobile) .trackSelections .selectArrowContainer { position: absolute !important; right: var(--space-4) !important; top: 50% !important; transform: translateY(-50%) !important; pointer-events: none; color: var(--muted) !important; }
 :is(.layout-desktop, .layout-mobile) .trackSelections .selectArrow { transition: transform 160ms var(--ease); }
 :is(.layout-desktop, .layout-mobile) .trackSelections .selectContainer:has(select:open) .selectArrow { transform: rotate(180deg); color: var(--primary-70) !important; }
 /* One row of equal tiles; long values end in an ellipsis. */

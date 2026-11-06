@@ -2,7 +2,7 @@
 .ml-hero { display: none; }
 /* One hero for every TV page (home, library, detail): its height and where its text starts. 60% of the screen, less the room a focused card's zoom takes below the row. */
 /* One card width for every TV row (307 px on the LG), narrow enough that a focused episode card, chips included, fits under the hero. */
-html.layout-tv { --ml-tv-hero: calc(60vh - 16px); --ml-tv-hero-top: 96px; --ml-tv-card: min(20vw, 35.9vh); }
+html.layout-tv { --ml-tv-hero: calc(60vh - calc(16 * var(--tv-unit))); --ml-tv-hero-top: calc(96 * var(--tv-unit)); --ml-tv-card: min(20vw, 35.9vh); }
 html.ml-hero-on { --ml-hero-h: var(--ml-tv-hero); }
 html.ml-hero-on .ml-hero {
   display: block;
@@ -16,11 +16,11 @@ html.ml-hero-on .ml-hero {
   background: var(--bg);
 }
 /* The row above the focused one fades into the hero instead of being sliced at its edge, as on the library page; the hero clips its own overflow, so the fade hangs from the body. */
-html.ml-hero-on body::after { content: ''; position: fixed; top: var(--ml-hero-h); left: 0; right: 0; height: 24px; z-index: 10; background: linear-gradient(var(--bg), #0D0E1700); pointer-events: none; }
+html.ml-hero-on body::after { content: ''; position: fixed; top: var(--ml-hero-h); left: 0; right: 0; height: calc(24 * var(--tv-unit)); z-index: 10; background: linear-gradient(var(--bg), #0D0E1700); pointer-events: none; }
 /* The TV header scrolls with the page, and the page always sits scrolled under the hero, so it is pinned over the hero; with no top set it stays where it was, below the Modern shell's app bar when there is one. */
 html.ml-hero-on .skinHeader { position: fixed !important; background: transparent !important; }
 /* The first and the last row must both be able to scroll to the hero's edge. */
-html.ml-hero-on #indexPage .homeSectionsContainer { display: flex; flex-direction: column; padding-top: var(--ml-hero-h); padding-bottom: calc(100vh - var(--ml-hero-h)); }
+html.ml-hero-on #indexPage .homeSectionsContainer { display: flex; flex-direction: column; padding-top: var(--ml-hero-h); padding-bottom: calc(100vh - var(--ml-hero-h)); } /* grid-ok: lets the last row reach the hero */
 html.ml-hero-on #indexPage .homeSectionsContainer > .ml-first { order: -3; }
 html.ml-hero-on #indexPage .homeSectionsContainer > .ml-second { order: -2; }
 html.ml-hero-on #indexPage .homeSectionsContainer > .ml-third { order: -1; }
@@ -28,19 +28,19 @@ html.ml-hero-on #indexPage .homeSectionsContainer > .ml-third { order: -1; }
 html.ml-hero-on.ml-hero-libs-on #indexPage .homeSectionsContainer > .ml-third { display: none !important; }
 
 /* My Media: a tile per library with its art, at the hero's bottom right. */
-.ml-hero-libs { position: absolute; right: 3.3%; bottom: 28px; z-index: 2; display: flex; gap: 14px; }
-.ml-hero-lib { display: block; width: 220px; padding: 8px; border: 1px solid var(--border); border-radius: var(--r-md); background: #141726D9; text-decoration: none; }
-.ml-hero-lib-art { display: block; height: 110px; border-radius: var(--r-xs); background: var(--surface-2) center / cover no-repeat; }
-.ml-hero-lib-name { display: block; margin: 8px 2px 0; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #B5BCD6; }
+.ml-hero-libs { position: absolute; right: var(--ml-edge); bottom: calc(28 * var(--tv-unit)); z-index: 2; display: flex; gap: calc(12 * var(--tv-unit)); }
+.ml-hero-lib { display: block; width: calc(220 * var(--tv-unit)); padding: calc(8 * var(--tv-unit)); border: 1px solid var(--border); border-radius: var(--r-md); background: #141726D9; text-decoration: none; }
+.ml-hero-lib-art { display: block; height: calc(112 * var(--tv-unit)); border-radius: var(--r-xs); background: var(--surface-2) center / cover no-repeat; }
+.ml-hero-lib-name { display: block; margin: calc(8 * var(--tv-unit)) 2px 0; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #B5BCD6; }
 .layout-tv .ml-hero-lib:focus { outline: none; background: var(--surface-2); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
 .layout-tv .ml-hero-lib:focus .ml-hero-lib-name { color: var(--on-surface); }
-html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: 12px !important; }
+html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: calc(12 * var(--tv-unit)) !important; }
 
 .ml-hero-art {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 28%;
+  left: 28%; /* grid-ok: the art starts behind the text column, with the screen */
   right: 0;
   background: center 20% / cover no-repeat;
   animation: ml-hero-in 400ms var(--ease) both;
@@ -59,50 +59,57 @@ html.ml-hero-on #indexPage .sectionTitleContainer { margin-bottom: 12px !importa
 /* The title always starts at the same spot and the buttons sit on the hero's bottom edge, so neither moves with the synopsis length. */
 .ml-hero-body {
   position: absolute;
-  left: 3.3%;
+  left: var(--ml-edge);
   top: var(--ml-tv-hero-top);
-  bottom: 28px;
+  bottom: calc(28 * var(--tv-unit));
   z-index: 1;
   display: flex;
   flex-direction: column;
   width: max-content;
-  min-width: 560px;
-  max-width: 70%;
+  min-width: calc(560 * var(--tv-unit));
+  max-width: 70%; /* grid-ok: the text column follows the screen */
   color: var(--on-surface);
 }
 .ml-hero-body .ml-hero-actions { margin-top: auto; }
 /* The synopsis runs as wide as the title (560 px at least) so it covers less of the art; it stays out of that measure and then fills it. */
 .ml-hero-body .ml-hero-overview { width: 0; min-width: 100%; }
 .ml-hero-title { font: 700 var(--hero)/1.1 Inter, sans-serif; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
-.ml-hero-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 10px; font: 600 var(--meta) Inter, sans-serif; color: var(--muted); }
-.ml-hero-score { display: inline-flex; align-items: center; gap: 4px; color: var(--on-surface); }
-.ml-hero-score .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1.2em; height: 1.2em; font-size: 1.2em !important; line-height: 1; color: #E8C46A; }
-.ml-hero-score .ml-tomato { width: 1.15em; height: 1.15em; }
+.ml-hero-sub { display: flex; flex-wrap: wrap; align-items: center; gap: calc(8 * var(--tv-unit)) calc(16 * var(--tv-unit)); margin-top: calc(8 * var(--tv-unit)); font: 600 var(--meta) Inter, sans-serif; color: var(--muted); }
+.ml-hero-score { display: inline-flex; align-items: center; gap: calc(4 * var(--tv-unit)); color: var(--on-surface); }
+.ml-hero-score .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1.2em; height: 1.2em; font-size: 1.2em !important; line-height: 1; color: #E8C46A; } /* grid-ok: icon sized with its text */
+.ml-hero-score .ml-tomato { width: 1.15em; height: 1.15em; } /* grid-ok: icon sized with its text */
 .ml-hero-sub:empty { display: none; }
 /* No fixed line cap: the script cuts the synopsis only where it would reach the buttons. */
-.ml-hero-overview { margin: 12px 0 0; font: 400 var(--body)/1.5 Inter, sans-serif; color: #EEEEFAD9; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.ml-hero-overview { margin: calc(12 * var(--tv-unit)) 0 0; font: 400 var(--body)/1.5 Inter, sans-serif; color: #EEEEFAD9; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
 .ml-hero-overview:empty { display: none; }
 
-.ml-hero-actions { display: flex; gap: 12px; margin-top: 22px; }
+.ml-hero-actions { display: flex; gap: calc(12 * var(--tv-unit)); margin-top: calc(24 * var(--tv-unit)); }
 .ml-hero-btn {
   display: inline-flex;
   align-items: center;
-  gap: .4em;
+  gap: calc(8 * var(--tv-unit));
   margin: 0;
-  padding: 0 1.4em 0 1.1em;
-  height: 52px;
+  padding: 0 calc((24 - 2) * var(--tv-unit)) 0 calc((24 - var(--ml-ink-tv, 4)) * var(--tv-unit));
+  height: calc(52 * var(--tv-unit));
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
   background: var(--surface-2);
   color: var(--on-surface);
   font: 600 var(--title) Inter, sans-serif;
 }
+/* The visible ink sits 24 TV units from both edges: each glyph starts at its own depth in the icon box, so the icon side subtracts it, and the label side subtracts the text's bearing. */
+.ml-hero-btn[data-icon="play_arrow"] { --ml-ink-tv: 10.2; }
+.ml-hero-btn[data-icon="replay"] { --ml-ink-tv: 6.2; }
+.ml-hero-btn[data-icon="video_library"] { --ml-ink-tv: 3.6; }
+.ml-hero-btn[data-icon="sort"] { --ml-ink-tv: 4.8; }
+.ml-hero-btn[data-icon="filter_list"] { --ml-ink-tv: 4.5; }
+.ml-hero-btn[data-icon="apps"] { --ml-ink-tv: 5.8; }
 .ml-hero-btn .material-icons { font-size: 1.4em; }
 .ml-hero-btn.ml-hero-primary { background: var(--primary); border-color: transparent; color: var(--on-primary); }
 .layout-tv .ml-hero-btn:focus { outline: none !important; transform: none; background: var(--surface-3); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--primary); }
 .layout-tv .ml-hero-btn.ml-hero-primary:focus { background: var(--primary-60); color: var(--on-primary); }
 
 /* The resume line sits under the buttons it explains. */
-.ml-hero-resume { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.ml-hero-bar { display: block; width: 320px; height: 4px; border-radius: 2px; background: #FFFFFF26; overflow: hidden; }
+.ml-hero-resume { display: flex; flex-direction: column; gap: calc(8 * var(--tv-unit)); margin-top: calc(16 * var(--tv-unit)); font: 600 var(--meta) Inter, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ml-hero-bar { display: block; width: calc(320 * var(--tv-unit)); height: calc(4 * var(--tv-unit)); border-radius: 2px; background: #FFFFFF26; overflow: hidden; }
 .ml-hero-bar i { display: block; height: 100%; border-radius: 2px; background: var(--primary-70); }

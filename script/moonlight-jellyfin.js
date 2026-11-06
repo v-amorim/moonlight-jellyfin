@@ -929,6 +929,7 @@
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'ml-hero-btn emby-button' + (primary ? ' ml-hero-primary' : '');
+    btn.setAttribute('data-icon', icon);
     btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span><span></span>';
     btn.lastChild.textContent = label;
     btn.addEventListener('click', function () { playFromHero(item, ticks); });
@@ -939,6 +940,7 @@
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'ml-hero-btn emby-button';
+    btn.setAttribute('data-icon', icon);
     btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + icon + '</span><span></span>';
     btn.lastChild.textContent = label;
     btn.addEventListener('click', function () { location.hash = hash; });
@@ -1563,6 +1565,7 @@
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'ml-hero-btn emby-button ml-lib-' + b[1].toLowerCase();
+      btn.setAttribute('data-icon', b[0]);
       btn.innerHTML = '<span class="material-icons" aria-hidden="true">' + b[0] + '</span><span></span>';
       btn.lastChild.textContent = b[1];
       btn.addEventListener('click', function () {

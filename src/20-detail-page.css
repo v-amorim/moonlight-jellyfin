@@ -1,27 +1,27 @@
 /* TV sizes for the detail page; the layout itself is shared (81-detail-header). */
 
 /* Every TV section heading, the library page's shelf titles included (86-tv-library), takes this one size. */
-.layout-tv .sectionTitle { font-size: 18px !important; font-weight: 600 !important; letter-spacing: .1em !important; color: var(--muted) !important; }
+.layout-tv .sectionTitle { font-size: calc(18 * var(--tv-unit)) !important; font-weight: 600 !important; letter-spacing: .1em !important; color: var(--muted) !important; }
 
 .layout-tv .itemName.infoText { font-size: var(--title) !important; }
 /* The main title leads the header, as on PC (40 px) and phone (28 px). */
 .layout-tv .detailRibbon .nameContainer .parentNameLast { font-size: var(--hero) !important; line-height: 1.1 !important; }
 
-.layout-tv .mainDetailButtons { gap: 12px; }
+.layout-tv .mainDetailButtons { gap: calc(12 * var(--tv-unit)); }
 .layout-tv .mainDetailButtons .detailButton,
 .layout-tv .mainDetailButtons .btnPlay.detailButton {
   flex-direction: column !important;
   justify-content: center;
-  gap: 8px;
-  min-width: 112px;
+  gap: calc(8 * var(--tv-unit));
+  min-width: calc(112 * var(--tv-unit));
   width: auto !important;
-  height: 96px !important;
-  padding: 0 16px !important;
+  height: calc(96 * var(--tv-unit)) !important;
+  padding: 0 calc(16 * var(--tv-unit)) !important;
   border-radius: var(--r-md) !important;
 }
 .layout-tv .mainDetailButtons .detailButton-content { flex-direction: column; }
 .layout-tv .mainDetailButtons .detailButton .material-icons,
-.layout-tv .mainDetailButtons .detailButton-icon { font-size: 24px !important; }
+.layout-tv .mainDetailButtons .detailButton-icon { font-size: calc(24 * var(--tv-unit)) !important; }
 .layout-tv .mainDetailButtons .detailButton::after {
   content: attr(title);
   font-size: var(--meta);

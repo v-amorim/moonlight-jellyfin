@@ -1,0 +1,36 @@
+/* Stock Jellyfin spacing moved onto the 8/4 grid: stock sets these in em, so they land between grid steps. */
+
+/* Home: My Media buttons. Stock sizes two per row on narrow screens from its own margin, so the width follows the new one. */
+html body a.homeLibraryButton.emby-button { padding: var(--space-3) var(--space-4) !important; }
+html body a.homeLibraryButton { margin: var(--space-2) !important; }
+html body .homeLibraryButtonContainer { margin-right: calc(-1 * var(--space-2)) !important; }
+@media (max-width: 50em) { html body a.homeLibraryButton { width: calc(50% - 2 * var(--space-2)) !important; /* grid-ok: two per row */ } }
+html body .homeLibraryIcon { margin-right: var(--space-2) !important; }
+
+/* Home rows: the space above each row and its title. */
+html:not(.layout-tv) body .sectionTitle.sectionTitle-cards { padding-top: var(--space-2) !important; }
+html:not(.layout-tv) body .sectionTitleContainer-cards { padding-top: var(--space-4) !important; }
+html.layout-tv body .sectionTitle.sectionTitle-cards { padding-top: calc(8 * var(--tv-unit)) !important; }
+html.layout-tv body .sectionTitleContainer-cards { padding-top: calc(24 * var(--tv-unit)) !important; }
+
+/* Desktop page end. */
+html.layout-desktop body :is(.content-primary, .padded-bottom-page, .page, .pageWithAbsoluteTabs .pageTabContent) { padding-bottom: var(--space-16) !important; }
+
+/* Detail page: info rows, overview paragraphs, section gap, episode tile buttons. */
+html:not(.layout-tv) body .detailsGroupItem { margin-bottom: var(--space-2) !important; }
+html.layout-tv body .detailsGroupItem { margin-bottom: calc(8 * var(--tv-unit)) !important; }
+html:not(.layout-tv) body :is(.detailsGroupItem > .MuiTypography-root, .detailsGroupItem .label) { margin-right: var(--space-2) !important; }
+html.layout-tv body :is(.detailsGroupItem > .MuiTypography-root, .detailsGroupItem .label) { margin-right: calc(8 * var(--tv-unit)) !important; }
+html:not(.layout-tv) body .itemDetailPage .detailSectionContent p { margin-top: var(--space-3) !important; margin-bottom: var(--space-3) !important; }
+html.layout-tv body .itemDetailPage .detailSectionContent p { margin-top: calc(16 * var(--tv-unit)) !important; margin-bottom: calc(16 * var(--tv-unit)) !important; }
+html.layout-desktop body .detailPageSecondaryContainer { padding-top: var(--space-4) !important; }
+html.layout-mobile body .detailRibbon { padding-top: var(--space-1) !important; padding-bottom: var(--space-4) !important; }
+html.layout-mobile body .itemName.parentNameLast { margin-top: var(--space-3) !important; margin-bottom: var(--space-3) !important; }
+html body .itemDetailPage.ml-season-page #childrenContent .listItemImageButton-icon { padding: var(--space-1) !important; }
+
+/* Top bar and library toolbar. */
+html.layout-desktop body .MuiAppBar-root a.MuiButton-root { padding-left: var(--space-2) !important; padding-right: var(--space-2) !important; }
+html.layout-desktop body .MuiToolbar-root .MuiButtonGroup-contained > .MuiButton-root { padding-top: var(--space-1) !important; padding-bottom: var(--space-1) !important; }
+html.layout-mobile body .MuiToolbar-root .MuiButtonGroup-contained > .MuiButton-root { padding-left: var(--space-2) !important; padding-right: var(--space-2) !important; }
+html.layout-tv body .skinHeader .headerButton.paper-icon-button-light { padding: calc(12 * var(--tv-unit)) !important; margin-left: calc(4 * var(--tv-unit)) !important; margin-right: calc(4 * var(--tv-unit)) !important; }
+html.layout-tv body .skinHeader .headerTop { padding-top: calc(8 * var(--tv-unit)) !important; padding-bottom: calc(8 * var(--tv-unit)) !important; }

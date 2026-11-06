@@ -13,7 +13,7 @@ html.ml-js .ml-collapsible.ml-open .itemsContainer {
 html.ml-js .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 html.ml-js .ml-collapsible.ml-open .card { width: auto !important; }
 /* Six people columns leave too little width for one line, so names and roles wrap to two. */
-html.ml-js .ml-people.ml-open .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.25 !important; height: auto !important; min-height: 2.5em; box-sizing: content-box; padding-bottom: 0 !important; margin-bottom: 8px; }
+html.ml-js .ml-people.ml-open .cardText { white-space: normal !important; display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.25 !important; height: auto !important; min-height: 2.5em; /* grid-ok: two lines of text */ box-sizing: content-box; padding-bottom: 0 !important; margin-bottom: 8px; }
 /* The TV renders text larger than the PC, so six columns still cut the roles there. */
 html.ml-js.layout-tv .ml-people.ml-open .itemsContainer { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 /* Phone: one episode per row, as on the season page, and three people per row. */
@@ -27,7 +27,7 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
   width: 100%;
   max-width: 1180px;
   margin: 0 0 12px;
-  padding: 18px 24px;
+  padding: var(--space-4) var(--space-6);
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface-1);
@@ -45,12 +45,12 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
 .ml-osd-clock {
   position: fixed;
   top: 8px;
-  right: 10px;
+  right: var(--space-2);
   z-index: 10;
   display: none;
   align-items: center;
-  gap: 6px;
-  padding: 3px 3px 3px 9px;
+  gap: var(--space-1);
+  padding: 3px 3px 3px var(--space-2);
   border-radius: var(--r-sm);
   background: #0D0E1714;
   color: #EEEEFA40;
@@ -60,10 +60,10 @@ html.ml-js.layout-mobile .ml-people.ml-open .itemsContainer { grid-template-colu
 }
 .ml-osd-clock.ml-show { display: flex; }
 /* 8 px outer corner minus the 3 px inset. */
-.ml-osd-clock-left { padding: 1px 7px; border-radius: 5px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
+.ml-osd-clock-left { padding: 1px var(--space-2); border-radius: 5px; background: #7386D014; color: #9BA3C433; font-weight: 500; }
 .ml-osd-clock-left:empty { display: none; }
 /* Seen from the couch on bright scenes, so the TV pill is darker and carries the contrast. */
-.layout-tv .ml-osd-clock { font-size: 16px; top: 12px; right: 16px; background: #0D0E1759; color: #EEEEFA8C; }
+.layout-tv .ml-osd-clock { font-size: calc(16 * var(--tv-unit)); top: calc(12 * var(--tv-unit)); right: calc(16 * var(--tv-unit)); background: #0D0E1759; color: #EEEEFA8C; }
 .layout-tv .ml-osd-clock-left { background: #0D0E1740; color: #EEEEFA6B; }
 
 /* Pause card: after 15 s paused the controls fade, the frame dims 65% and the episode's details show in the middle. */
@@ -77,10 +77,10 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
   transform: translate(-50%, -50%);
   box-sizing: border-box;
   width: 880px;
-  max-width: calc(100vw - 64px);
-  padding: 40px 48px;
+  max-width: calc(100vw - 64px); /* grid-ok: fits narrow screens */
+  padding: var(--space-8) var(--space-12);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   background: #141726E6;
   box-shadow: 0 0 0 200vmax #0D0E17A6, 0 12px 40px #0D0E1799;
   color: var(--on-surface);
@@ -91,46 +91,46 @@ html.ml-pause-idle .ml-osd-clock { display: none; }
 }
 @keyframes ml-pc-in { from { opacity: 0; } to { opacity: 1; } }
 .ml-pc-series { font: 600 14px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--primary-70); }
-.ml-pc-title { margin: 6px 0 10px; font: 700 48px/1.15 Inter, sans-serif; }
-.ml-pc-meta { display: flex; justify-content: center; gap: 14px; font: 500 16px Inter, sans-serif; color: var(--muted); }
-.ml-pc-overview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; margin: 14px 0 0; font: 400 19px/1.5 Inter, sans-serif; color: #EEEEFAD9; }
+.ml-pc-title { margin: var(--space-2) 0 var(--space-2); font: 700 48px/1.15 Inter, sans-serif; }
+.ml-pc-meta { display: flex; justify-content: center; gap: var(--space-4); font: 500 16px Inter, sans-serif; color: var(--muted); }
+.ml-pc-overview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; margin: var(--space-4) 0 0; font: 400 19px/1.5 Inter, sans-serif; color: #EEEEFAD9; }
 
 /* Series cards: one row of small 4 px chips under the picture (years, seasons, star score, tomato score); home shows only the scores. */
 /* No side margin: the chips start on the card's art and title edge. */
-.ml-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 2px; }
-.ml-chip { display: inline-flex; align-items: center; gap: .3em; padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--muted); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
+.ml-info { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 8px 0 2px; }
+.ml-chip { display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px 8px; border-radius: var(--r-xs); background: var(--surface-3); color: var(--muted); font: 600 12px Inter, sans-serif; line-height: 1.4; white-space: nowrap; }
 /* Every pill, a card chip or an item of the detail info line, has one icon of one size at one gap: grey for facts, gold for the star, the tomato for critics. */
-.itemMiscInfo .mediaInfoItem { display: inline-flex !important; align-items: center; gap: .3em; margin: 0 8px 4px 0 !important; padding: 2px 8px !important; border: 0 !important; border-radius: var(--r-xs) !important; background-color: var(--surface-3) !important; color: var(--muted) !important; font-weight: 600 !important; line-height: 1.4 !important; white-space: nowrap; }
-.ml-chip .material-icons, .itemMiscInfo .mediaInfoItem .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; margin: 0 !important; font-size: 1.15em !important; line-height: 1; color: #E8C46A; }
+.itemMiscInfo .mediaInfoItem { display: inline-flex !important; align-items: center; gap: var(--space-1); margin: 0 8px 4px 0 !important; padding: 2px 8px !important; border: 0 !important; border-radius: var(--r-xs) !important; background-color: var(--surface-3) !important; color: var(--muted) !important; font-weight: 600 !important; line-height: 1.4 !important; white-space: nowrap; }
+.ml-chip .material-icons, .itemMiscInfo .mediaInfoItem .material-icons { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; margin: 0 !important; font-size: 1.15em !important; line-height: 1; color: #E8C46A; } /* grid-ok: icon sized with its text */
 .ml-pill-icon { color: var(--dim) !important; }
-.ml-tomato { width: 1.15em; height: 1.15em; }
-.itemMiscInfo .mediaInfoCriticRating { padding-left: calc(8px + 1.45em) !important; background-position: 8px center !important; }
-.layout-tv .ml-info { margin: 10px 0 2px; }
+.ml-tomato { width: 1.15em; height: 1.15em; } /* grid-ok: icon sized with its text */
+.itemMiscInfo .mediaInfoCriticRating { padding-left: calc(8px + 1.45em) !important; /* grid-ok: room for the text-sized tomato */ background-position: 8px center !important; }
+.layout-tv .ml-info { margin: var(--space-2) 0 2px; }
 /* Under a TV hero a whole card must fit on screen and the hero shows every detail, so chips keep one line and those that wrap drop out whole. */
 html.layout-tv.ml-hero-on .ml-info,
-html.layout-tv.ml-lib-on:not(.ml-lib-all) .ml-info { max-height: 26px; overflow: hidden; }
-.layout-tv .ml-chip { font-size: 15px; }
-.layout-mobile .ml-info { gap: 4px; margin: 6px 0 2px; }
-.layout-mobile .ml-chip { font-size: 11px; padding: 1px 6px; }
+html.layout-tv.ml-lib-on:not(.ml-lib-all) .ml-info { max-height: calc(26 * var(--tv-unit)); overflow: hidden; } /* grid-ok: one chip line */
+.layout-tv .ml-chip { font-size: calc(15 * var(--tv-unit)); }
+.layout-mobile .ml-info { gap: var(--space-1); margin: var(--space-2) 0 2px; }
+.layout-mobile .ml-chip { font-size: 11px; padding: 1px var(--space-2); }
 html.ml-js .card.ml-info-on .cardText-secondary { display: none !important; }
 
 /* Library switcher: on library pages the title becomes a pill of every library; the current one on surface-3 in primary-70. */
 html.ml-libnav-on .skinHeader .pageTitle { display: none !important; }
 .ml-libnav { display: inline-flex; gap: 2px; margin-left: 12px; padding: 3px; border-radius: var(--r-sm); background: var(--surface-1); box-shadow: 0 0 0 1px var(--border); }
-.ml-libnav-item { padding: 5px 12px; border: 0; border-radius: 5px; background: none; color: var(--muted); font: 600 14px Inter, sans-serif; cursor: pointer; }
+.ml-libnav-item { padding: var(--space-1) var(--space-3); border: 0; border-radius: 5px; background: none; color: var(--muted); font: 600 14px Inter, sans-serif; cursor: pointer; }
 .ml-libnav-item:hover { background: var(--surface-2); color: var(--on-surface); }
 .ml-libnav-item.ml-on { background: var(--surface-3); color: var(--primary-70); }
 .ml-libnav-item:focus-visible, .layout-tv .ml-libnav-item:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
-.layout-tv .ml-libnav-item { font-size: 16px; padding: 6px 14px; }
+.layout-tv .ml-libnav-item { font-size: calc(16 * var(--tv-unit)); padding: var(--space-2) var(--space-4); }
 
 /* Card hover preview: the trickplay frame under the pointer, with a line showing where it is in the episode. */
 .ml-trick { position: absolute; inset: 0; z-index: 1; background-repeat: no-repeat; pointer-events: none; }
 /* A thin filmstrip of three frames along the picture's bottom; only the pointer over it scrubs (script). Play and More move up above it. */
-.ml-trick-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 16%; display: flex; align-items: center; justify-content: center; gap: 4px; background: #0D0E17D9; }
-.ml-trick-strip span { height: 62%; aspect-ratio: 16 / 9; border-radius: 3px; background-repeat: no-repeat; opacity: .6; }
-.ml-trick-strip span.ml-now { height: 82%; opacity: 1; box-shadow: 0 0 0 2px var(--primary-70); }
-.card.ml-scrubbing .cardOverlayFab-primary { bottom: calc(16% + 8px) !important; }
-.card.ml-scrubbing .cardOverlayButton-br { bottom: calc(16% + 4px) !important; }
+.ml-trick-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 16%; display: flex; align-items: center; justify-content: center; gap: 4px; background: #0D0E17D9; } /* grid-ok: scales with the card picture */
+.ml-trick-strip span { height: 62%; aspect-ratio: 16 / 9; border-radius: 3px; background-repeat: no-repeat; opacity: .6; } /* grid-ok: scales with the card picture */
+.ml-trick-strip span.ml-now { height: 82%; opacity: 1; box-shadow: 0 0 0 2px var(--primary-70); } /* grid-ok: scales with the card picture */
+.card.ml-scrubbing .cardOverlayFab-primary { bottom: calc(16% + 8px) !important; } /* grid-ok: scales with the card picture */
+.card.ml-scrubbing .cardOverlayButton-br { bottom: calc(16% + 4px) !important; } /* grid-ok: scales with the card picture */
 /* Shown instead of the scrub when the item has no trickplay frames, in the count badge's style. */
 .ml-trick-none { position: absolute; top: 8px; left: 8px; z-index: 2; padding: 4px 8px; border-radius: var(--r-xs); background: #141726D9; box-shadow: 0 0 0 1px #FFFFFF26; color: var(--muted); font: 600 12px Inter, sans-serif; pointer-events: none; }
 

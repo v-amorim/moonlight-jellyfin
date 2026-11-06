@@ -8,8 +8,9 @@
   background-color: var(--surface-1) !important;
   border: 1px solid var(--border);
   border-radius: 8px;
-  width: 30px !important;
-  height: 30px !important;
-  min-width: 30px;
+  box-sizing: border-box !important;
+  width: var(--control-md) !important;
+  height: var(--control-md) !important;
+  min-width: var(--control-md);
   line-height: 30px !important;
 }

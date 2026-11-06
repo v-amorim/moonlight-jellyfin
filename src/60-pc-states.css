@@ -9,7 +9,7 @@
 .cardOverlayButton-br .cardOverlayButton:not([data-action="menu"]) { display: none !important; }
 /* Phone cards carry only a play button in that corner; it becomes the same Play pill as on PC, bottom-left. */
 .layout-mobile .card .cardOverlayButton.cardOverlayButton-br {
-  right: auto !important; left: 8px !important; bottom: 8px !important; width: auto !important; height: 36px !important; padding: 0 12px 0 6px !important;
+  right: auto !important; left: 8px !important; bottom: 8px !important; width: auto !important; height: 36px !important; padding: 0 var(--space-3) 0 var(--space-2) !important;
   display: flex !important; align-items: center; gap: 2px; border-radius: var(--r-sm) !important; background: var(--primary) !important;
 }
 .layout-mobile .card .cardOverlayButton.cardOverlayButton-br .cardOverlayButtonIcon { background: none !important; color: var(--on-primary) !important; }
@@ -32,7 +32,7 @@
   background: #141726D9 !important;
   border: 1px solid var(--border) !important;
   min-width: 24px;
-  height: 24px !important;
+  height: calc(24px - 2px) !important; /* the border makes it 24 */
   padding: 0 8px !important;
   font-weight: 600;
 }

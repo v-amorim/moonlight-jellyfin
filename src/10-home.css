@@ -7,12 +7,12 @@
 .sectionTitleContainer { display: flex; align-items: center; gap: 12px; }
 .sectionTitleContainer::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 
-.layout-tv .overflowPortraitCard { width: 13.3vw !important; }
-.layout-tv .overflowBackdropCard { width: 30vw !important; }
+.layout-tv .overflowPortraitCard { width: calc(204 * var(--tv-unit)) !important; }
+.layout-tv .overflowBackdropCard { width: calc(460 * var(--tv-unit)) !important; }
 
-.layout-tv { --body: 18px; --title: 20px; --meta: 15px; --heading: 36px; --heading-lg: 40px; --hero: 48px; }
+.layout-tv { --body: calc(18 * var(--tv-unit)); --title: calc(20 * var(--tv-unit)); --meta: calc(15 * var(--tv-unit)); --heading: calc(36 * var(--tv-unit)); --heading-lg: calc(40 * var(--tv-unit)); --hero: calc(48 * var(--tv-unit)); }
 .overview, .detail-clamp-text { font-weight: 500; }
 
-.listItem { background: var(--surface-1); border: 1px solid var(--border); margin-bottom: 8px; padding: 10px !important; }
-.layout-tv .listItemImage-large, .layout-tv .listItemImage-large-tv { width: 16vw !important; height: 9vw !important; }
+.listItem { background: var(--surface-1); border: 1px solid var(--border); margin-bottom: var(--space-2); padding: var(--space-2) !important; }
+.layout-tv .listItemImage-large, .layout-tv .listItemImage-large-tv { width: calc(244 * var(--tv-unit)) !important; height: calc(136 * var(--tv-unit)) !important; }
 .listItem-overview { -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }

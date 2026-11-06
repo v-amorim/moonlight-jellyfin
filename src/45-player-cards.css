@@ -7,7 +7,7 @@
 .osdHeader .pageTitle { font-weight: 500 !important; text-shadow: none !important; }
 
 /* Stock places toasts bottom-left, on top of the player controls; this sits them just under the header band. */
-.toastContainer { top: 158px !important; bottom: auto !important; left: 24px !important; }
+.toastContainer { top: 160px !important; bottom: auto !important; left: var(--space-6) !important; }
 .toast {
   background: var(--surface-1) !important;
   color: var(--on-surface) !important;
@@ -16,7 +16,7 @@
   box-shadow: 0 8px 14px #0000009E !important;
   font-size: 18px !important;
   font-weight: 600 !important;
-  padding: 14px 18px !important;
+  padding: var(--space-4) !important;
   min-width: 0 !important;
 }
 .toast.toastVisible { animation: ml-toast-in 300ms cubic-bezier(.2,.8,.2,1); }
@@ -27,7 +27,7 @@
   border: 1px solid var(--border) !important;
   border-radius: var(--r-md) !important;
   box-shadow: 0 8px 14px #0000009E !important;
-  padding: 8px !important;
+  padding: var(--space-2) !important;
 }
 .sliderBubble .chapterThumbContainer, .sliderBubble .chapterThumbWrapper { border-radius: var(--r-xs) !important; }
 

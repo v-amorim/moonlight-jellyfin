@@ -4,7 +4,7 @@
 .ml-lib { display: none; }
 html.ml-lib-on:not(.ml-lib-all) .ml-lib {
   --ml-lib-hero: var(--ml-tv-hero);
-  --ml-lib-pad: 3.3vw;
+  --ml-lib-pad: var(--ml-edge);
   display: block;
   position: fixed;
   top: 0;
@@ -30,14 +30,14 @@ html.ml-lib-on:not(.ml-lib-all) .ml-libnav { display: none !important; }
 /* The shelves scroll natively, as every other page does; the remote's steps scroll them too. The shelf above fades into the hero instead of being sliced, as content does under the PC and phone app bar. */
 .ml-lib-rows { position: absolute; top: var(--ml-lib-hero); left: 0; right: 0; bottom: 0; z-index: 1; overflow: hidden auto; -webkit-mask-image: linear-gradient(transparent, #000 24px); mask-image: linear-gradient(transparent, #000 24px); }
 /* The fade only covers the gap above a focused row, and the first shelf starts under it, so its heading is never dimmed. */
-.ml-lib-track { padding: 24px 0 60vh var(--ml-lib-pad); }
+.ml-lib-track { padding: calc(24 * var(--tv-unit)) 0 60vh var(--ml-lib-pad); } /* grid-ok: room to scroll the last shelf up */
 /* Room around each row for the focused card's ring and zoom. */
-.ml-lib-shelf { margin: 0 0 14px -10px; padding: 6px 0 0 10px; overflow: hidden; overflow-x: clip; overflow-y: visible; }
-.ml-lib-tag { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; font: 600 15px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ml-lib-shelf { margin: 0 0 calc(12 * var(--tv-unit)) calc(-8 * var(--tv-unit)); padding: calc(8 * var(--tv-unit)) 0 0 calc(8 * var(--tv-unit)); overflow: hidden; overflow-x: clip; overflow-y: visible; }
+.ml-lib-tag { display: flex; align-items: center; gap: calc(8 * var(--tv-unit)); margin: 0 0 calc(8 * var(--tv-unit)); font: 600 15px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .ml-lib-tag-name { color: var(--on-surface); }
 .ml-lib .ml-lib-collage { display: grid !important; grid-template-columns: 1fr 1fr; }
 .ml-lib-collage i { aspect-ratio: 16 / 9; background: center / cover no-repeat; }
-.ml-lib-title { margin: 0 0 8px; font: 600 18px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ml-lib-title { margin: 0 0 calc(8 * var(--tv-unit)); font: 600 18px Inter, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .ml-lib-strip { display: flex; align-items: stretch; transition: transform 200ms var(--ease); }
 .ml-lib-strip:focus-within > :not(:focus) { opacity: .5; transition: opacity 150ms var(--ease); }
 
